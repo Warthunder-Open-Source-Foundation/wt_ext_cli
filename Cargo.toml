@@ -12,3 +12,6 @@ debug = true
 clap = {version = "4.1.9", features = ["derive"]}
 indicatif = "0.17.3"
 wt_blk = {path = "../wt_blk"}
+
+tracing = "^0.1.37"
+tracing-subscriber = {version  = "^0.3.16", features = ["tracing-log", "env-filter", "fmt", "std"]}
