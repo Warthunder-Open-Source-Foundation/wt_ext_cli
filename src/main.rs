@@ -10,7 +10,7 @@ use std::fs::ReadDir;
 use std::rc::Rc;
 use std::thread::{sleep, spawn};
 use std::time::Duration;
-use clap::Parser;
+use clap::{arg, Parser};
 use indicatif::{ProgressBar, ProgressFinish, ProgressStyle};
 use wt_blk::binary::nm_file::NameMap;
 use wt_blk::binary::nm_file::parse_slim_nm;
@@ -18,14 +18,14 @@ use wt_blk::binary::{DecoderDictionary, parse_file, test_parse_dir};
 
 fn main() {
 	let args = crate::args::Args::parse();
-	let target_dir = fs::read_dir(&args.target_folder).unwrap();
+	let target_dir = fs::read_dir(args.file_or_folder.as_ref().unwrap()).unwrap();
+	let target_folder_raw = args.clone().file_or_folder.unwrap();
 
 	let mut threads = vec![];
 
 	threads.push(thread::Builder::new().name("worker_threads".to_owned()).spawn(
 		{
 			let bar = Arc::new(ProgressBar::new(0));
-			let target_folder = args.target_folder.clone();
 			bar.set_style(
 				ProgressStyle::with_template("{spinner:.green} {msg} [{elapsed_precise}] [{wide_bar:.cyan/blue}] {pos}/{len}").unwrap()
 																														.progress_chars("#>-")
@@ -34,7 +34,7 @@ fn main() {
 			move || {
 				let prepared_files = prepare_parse_vromf_out_folder(target_dir);
 				bar.set_length(prepared_files.len() as u64);
-				translate_files(&target_folder,prepared_files, bar.clone());
+				translate_files(&target_folder_raw,prepared_files, bar.clone());
 				bar.finish();
 			}
 		}));
