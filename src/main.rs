@@ -84,7 +84,7 @@ fn translate_files(base_path: &str, pile: Vec<(String, Vec<u8>)>) -> Vec<String>
 
 	let bar = Arc::new(ProgressBar::new(0));
 	bar.set_style(
-		ProgressStyle::with_template(" [{elapsed_precise}] [{wide_bar:.cyan/blue}] {pos}/{len}").unwrap().progress_chars("#>-")
+		ProgressStyle::with_template(" [{elapsed}/{eta}] [{wide_bar:.cyan/blue}] {percent}% {pos}/{len}").unwrap().progress_chars("#>-")
 	);
 	bar.set_length(pile.len() as u64);
 
