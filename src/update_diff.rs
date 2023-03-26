@@ -42,6 +42,6 @@ mod test {
 		let yup =  fs::read("./test_data/dev_2.23.1.9.yup").unwrap();
 		let s = String::from_utf8_lossy(&yup).to_string();
 		let split = s.split(":").collect::<Vec<_>>();
-		fs::write("test_data/yas.txt", split.join("\n")).unwrap();
+		fs::write("test_data/yup.txt", split.join("\n")).unwrap();
 	}
 }
