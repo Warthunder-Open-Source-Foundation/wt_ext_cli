@@ -16,3 +16,5 @@ wt_blk = {path = "../wt_blk"}
 
 tracing = "^0.1.37"
 tracing-subscriber = {version  = "^0.3.16", features = ["tracing-log", "env-filter", "fmt", "std"]}
+serde_json = "^1.0"
+serde = { version = "^1.0", features = ["serde_derive"] }

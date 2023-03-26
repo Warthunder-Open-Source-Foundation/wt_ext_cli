@@ -1,5 +1,6 @@
 mod args;
 mod fs_util;
+mod update_diff;
 
 use std::borrow::Cow;
 use std::process::exit;
@@ -18,7 +19,6 @@ use tracing::{info, Level};
 use tracing_subscriber::EnvFilter;
 use tracing_subscriber::fmt::format;
 use wt_blk::binary::nm_file::NameMap;
-use wt_blk::binary::nm_file::parse_slim_nm;
 use wt_blk::binary::{DecoderDictionary, parse_file, test_parse_dir};
 use crate::fs_util::find_dict;
 
@@ -51,7 +51,7 @@ fn main() {
 	threads.push(thread::Builder::new().name("worker_thread".to_owned()).spawn(
 		{
 			move || {
-				translate_files(&target_folder_raw,prepared_files);
+				translate_files(&target_folder_raw, prepared_files);
 			}
 		}));
 
@@ -75,10 +75,9 @@ fn translate_files(base_path: &str, pile: Vec<(String, Vec<u8>)>) -> Vec<String>
 
 	info!("Preparing shared indexes");
 	let frame_decoder = DecoderDictionary::copy(&dict);
-	let nm = NameMap::decode_nm_file(&nm).unwrap();
-	let parsed_nm = parse_slim_nm(&nm);
+	let shared_nm = NameMap::from_encoded_file(&nm).unwrap();
 
-	let rc_nm = Rc::new(parsed_nm);
+	let rc_nm = Rc::new(shared_nm);
 	let arced_fd = Arc::new(frame_decoder);
 	info!("Parsing BLK into IR");
 
@@ -89,7 +88,7 @@ fn translate_files(base_path: &str, pile: Vec<(String, Vec<u8>)>) -> Vec<String>
 	bar.set_length(pile.len() as u64);
 
 	let out = pile.into_iter().map(|file| {
-		let out = parse_file(file.1, arced_fd.clone(), &nm, rc_nm.clone());
+		let out = parse_file(file.1, arced_fd.clone(), rc_nm.clone());
 		bar.inc(1);
 		out
 	}).filter_map(|x| x)
@@ -103,7 +102,7 @@ fn autodetect_dict_location(base_path: ReadDir) -> Option<Vec<u8>> {
 	for file in base_path {
 		if let Ok(file) = file {
 			if file.file_name().to_str().unwrap().ends_with(".dict") {
-				return fs::read(file.path()).ok()
+				return fs::read(file.path()).ok();
 			}
 		}
 	}
