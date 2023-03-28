@@ -20,7 +20,7 @@ use tracing_subscriber::EnvFilter;
 use tracing_subscriber::fmt::format;
 use wt_blk::binary::nm_file::NameMap;
 use wt_blk::binary::{DecoderDictionary, parse_file, test_parse_dir};
-use crate::cli::parse_arg;
+use crate::cli::build_command_structure;
 use crate::fs_util::find_dict;
 
 fn main() {
@@ -38,7 +38,7 @@ fn main() {
 		.init();
 
 	info!("Parsing CLI args");
-	let command = parse_arg().get_matches();
+	let command = build_command_structure().get_matches();
 
 	info!("Capturing target folder");
 	let target_dir = fs::read_dir("asdasdassad").unwrap();

@@ -10,7 +10,7 @@ lto = "thin"
 debug = true
 
 [dependencies]
-clap = {version = "4.1.9", features = ["derive"]}
+clap = {version = "4.1.9", features = ["cargo"]}
 indicatif = "0.17.3"
 wt_blk = {path = "../wt_blk"}
 
