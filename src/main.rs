@@ -1,6 +1,6 @@
-mod args;
 mod fs_util;
 mod update_diff;
+mod cli;
 
 use std::borrow::Cow;
 use std::process::exit;
@@ -37,7 +37,7 @@ fn main() {
 		.init();
 
 	info!("Parsing CLI args");
-	let args = crate::args::Args::parse();
+	let args = cli::Args::parse();
 
 	info!("Capturing target folder");
 	let target_dir = fs::read_dir(args.file_or_folder.as_ref().unwrap()).unwrap();
