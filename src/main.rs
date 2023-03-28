@@ -20,6 +20,7 @@ use tracing_subscriber::EnvFilter;
 use tracing_subscriber::fmt::format;
 use wt_blk::binary::nm_file::NameMap;
 use wt_blk::binary::{DecoderDictionary, parse_file, test_parse_dir};
+use crate::cli::parse_arg;
 use crate::fs_util::find_dict;
 
 fn main() {
@@ -37,11 +38,11 @@ fn main() {
 		.init();
 
 	info!("Parsing CLI args");
-	let args = cli::Args::parse();
+	let command = parse_arg().get_matches();
 
 	info!("Capturing target folder");
-	let target_dir = fs::read_dir(args.file_or_folder.as_ref().unwrap()).unwrap();
-	let target_folder_raw = args.clone().file_or_folder.unwrap();
+	let target_dir = fs::read_dir("asdasdassad").unwrap();
+	let target_folder_raw = "asdasdasdd";
 
 	let mut threads = vec![];
 

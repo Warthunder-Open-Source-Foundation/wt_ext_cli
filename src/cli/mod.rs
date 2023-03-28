@@ -1,32 +1,37 @@
-mod human_readable_output_format;
+use clap::{Arg, ArgAction, ColorChoice, Command};
 
-use std::str::FromStr;
-use clap::{Parser, ValueEnum};
-use std::path::PathBuf;
-use std::fmt::{Display, Formatter};
-use crate::cli::human_readable_output_format::OutputFormat;
+pub fn parse_arg() -> Command {
+	let matches = Command::new("wt_ext_cli")
+		.about("WarThunder datamining extraction tools")
+		.version("0.0.0")
+		.subcommand_required(true)
+		.arg_required_else_help(true)
+		.color(ColorChoice::Always)
+		.author("FlareFlo")
+		.subcommand(
+			Command::new("unpack_raw_blk")
+				.long_flag("unpack_raw_blk")
+				.about("Unpacks a folder of raw/binary blk files into their unpacked format")
+				.arg(
+					Arg::new("Input directory")
+						.long("input_dir")
+						.help("Folder containing blk files, sub-folders will be recursively searched")
+						.required(true)
+				)
+				.arg(
+					// Not providing this argument means the input folder name will be used, with a `_u` suffix
+					Arg::new("Output directory")
+						.long("output_dir")
+						.help("Target folder that will be created to contain new files")
+						.conflicts_with("Overwrite")
+				)
+				.arg(
+					Arg::new("Overwrite")
+						.help("Overwrites binary BLk files in input folder")
+						.conflicts_with("Output directory")
+				)
+		)
+		;
 
-#[derive(Parser, Debug, Clone)]
-#[command(name = "wt_ext_cli")]
-#[command(author = "FlareFlo")]
-#[command(about = "CLI tooling to extract, inspect and manipulate WT files")]
-#[command(version)]
-#[command(next_line_help = true)]
-#[command(color =  clap::ColorChoice::Always)]
-pub struct Args {
-	// This argument is set, when the binary is called into without any arguments except a folder, this usually occurs via drag and drop onto the .exe on windows
-	/// Path to a folder of files, or a single file
-	pub file_or_folder: Option<String>,
-
-	/// Folder from raw vromfs output
-	#[arg(short = 'i', long)]
-	pub vromf_raw: Option<PathBuf>,
-
-	/// Output folder name or output file name
-	#[arg(short = 'o' , long)]
-	pub output: Option<PathBuf>,
-
-	/// Type of output the program should yield
-	#[arg(short = 'f', long, default_value = "json")]
-	pub output_format: OutputFormat,
+	matches
 }
