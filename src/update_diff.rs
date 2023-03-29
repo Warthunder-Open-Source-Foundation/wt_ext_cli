@@ -1,9 +1,7 @@
-
-
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct Diff {
 	file_name: String,
-	old : FileDiff,
+	old: FileDiff,
 	new: FileDiff,
 }
 
@@ -11,13 +9,14 @@ pub struct Diff {
 pub struct FileDiff {
 	sha1: String,
 	time: String,
-	size: usize
+	size: usize,
 }
 
 #[cfg(test)]
 mod test {
 	use std::fs;
-	use std::io::{BufRead, Split};
+	use std::io::BufRead;
+
 	use crate::update_diff::{Diff, FileDiff};
 
 	#[test]
@@ -37,9 +36,10 @@ mod test {
 		};
 		println!("{}", serde_json::to_string_pretty(&diff).unwrap());
 	}
+
 	#[test]
 	fn parse_yup_old_sample() {
-		let yup =  fs::read("./test_data/dev_2.23.1.9.yup").unwrap();
+		let yup = fs::read("./test_data/dev_2.23.1.9.yup").unwrap();
 		let s = String::from_utf8_lossy(&yup).to_string();
 		let split = s.split(":").collect::<Vec<_>>();
 		fs::write("test_data/yup.txt", split.join("\n")).unwrap();
