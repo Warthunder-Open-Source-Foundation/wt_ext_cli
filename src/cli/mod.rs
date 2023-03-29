@@ -12,6 +12,11 @@ pub fn build_command_structure() -> Command {
 				.long("log_path")
 				.help("When provided, writes the traced logs to a file")
 		)
+		.arg(
+			Arg::new("log_level")
+				.long("log_level")
+				.help("Set log level, may be one of [Trace, Debug, Info, Warn, Error], default: Info")
+		)
 		.subcommand(
 			Command::new("unpack_raw_blk")
 				.long_flag("unpack_raw_blk")
