@@ -23,6 +23,7 @@ pub fn build_command_structure() -> Command {
 				.about("Unpacks a folder of raw/binary blk files into their unpacked format")
 				.arg(
 					Arg::new("Input directory")
+						.short('i')
 						.long("input_dir")
 						.help("Folder containing blk files, sub-folders will be recursively searched")
 						.required(true)
@@ -30,6 +31,7 @@ pub fn build_command_structure() -> Command {
 				.arg(
 					// Not providing this argument means the input folder name will be used, with a `_u` suffix
 					Arg::new("Output directory")
+						.short('o')
 						.long("output_dir")
 						.help("Target folder that will be created to contain new files")
 						.conflicts_with("Overwrite")
