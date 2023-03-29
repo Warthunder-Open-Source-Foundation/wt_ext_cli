@@ -749,6 +749,7 @@ dependencies = [
  "serde",
  "serde_bencode",
  "serde_json",
+ "thiserror",
  "tracing",
  "tracing-subscriber",
  "wt_blk",

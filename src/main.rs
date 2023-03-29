@@ -19,6 +19,7 @@ mod update_diff;
 mod cli;
 mod logging;
 mod subcommands;
+mod error;
 
 
 fn main() {

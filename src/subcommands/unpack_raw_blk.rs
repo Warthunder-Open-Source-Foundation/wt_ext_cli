@@ -3,17 +3,25 @@ use std::fs::ReadDir;
 use std::rc::Rc;
 use std::sync::Arc;
 use std::sync::atomic::AtomicUsize;
+use clap::ArgMatches;
 use indicatif::{ProgressBar, ProgressStyle};
 use tracing::info;
 use wt_blk::binary::{DecoderDictionary, parse_file, test_parse_dir};
 use wt_blk::binary::nm_file::NameMap;
+use crate::error::CliError;
 use crate::fs_util::find_dict;
 
-pub fn unpack_raw_blk(target_dir: ReadDir, target_folder: &str) {
-	info!("Preparing files from folder into memory");
-	let prepared_files = prepare_parse_vromf_out_folder(target_dir);
-	translate_files(target_folder, prepared_files);
+// This is the entry-point
+pub fn unpack_raw_blk(args: &ArgMatches) -> Result<(), CliError> {
 
+	// This should be infallible
+	let input_dir = args.get_one::<String>("Input directory").ok_or(CliError::RequiredFlagMissing)?;
+	let input_read_dir = fs::read_dir(input_dir)?;
+
+	info!("Preparing files from folder into memory");
+	let prepared_files = prepare_parse_vromf_out_folder(input_read_dir);
+	translate_files(input_dir, prepared_files);
+	Ok(())
 }
 
 fn prepare_parse_vromf_out_folder(dir: ReadDir) -> Vec<(String, Vec<u8>)> {
