@@ -1,6 +1,7 @@
 mod fs_util;
 mod update_diff;
 mod cli;
+mod logging;
 
 use std::borrow::Cow;
 use std::process::exit;
@@ -22,20 +23,10 @@ use wt_blk::binary::nm_file::NameMap;
 use wt_blk::binary::{DecoderDictionary, parse_file, test_parse_dir};
 use crate::cli::build_command_structure;
 use crate::fs_util::find_dict;
+use crate::logging::logging;
 
 fn main() {
-	let env_filter = EnvFilter::from_default_env()
-		.add_directive(Level::INFO.into());
-
-	tracing_subscriber::fmt()
-		.with_env_filter(env_filter)
-		.with_thread_ids(false)
-		.with_thread_names(true)
-		.with_writer(stdout)
-		.with_ansi(true)
-		.without_time()
-		.with_line_number(false)
-		.init();
+	logging();
 
 	info!("Parsing CLI args");
 	let command = build_command_structure().get_matches();
