@@ -7,4 +7,7 @@ pub enum CliError {
 
 	#[error(transparent)]
 	IOError(#[from] std::io::Error),
+
+	#[error("File was missing proper descriptor")]
+	MissingFileName,
 }

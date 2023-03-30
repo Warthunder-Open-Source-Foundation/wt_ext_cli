@@ -11,6 +11,7 @@ use wt_blk::binary::{DecoderDictionary, parse_file};
 use wt_blk::binary::nm_file::NameMap;
 use crate::error::CliError;
 use crate::fs_util::{find_dict, read_recurse_folder};
+use crate::task_queue::FileTask;
 
 // This is the entry-point
 pub fn unpack_raw_blk(args: &ArgMatches) -> Result<(), CliError> {

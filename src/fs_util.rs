@@ -2,6 +2,8 @@ use std::fs;
 use std::fs::ReadDir;
 use std::io::Read;
 use std::path::{Path, PathBuf};
+use crate::error::CliError;
+use crate::task_queue::{FileTask, TaskType};
 
 const ZST_DICT_MAGIC: [u8; 4] = [0x37, 0xA4, 0x30, 0xEC];
 const ZST_MAGIC: [u8; 4] = [0x28, 0xB5, 0x2F, 0xFD];
@@ -29,7 +31,7 @@ fn is_zst_dict(file: &[u8]) -> bool {
 	file.starts_with(&ZST_DICT_MAGIC)
 }
 
-pub fn read_recurse_folder(pile: &mut Vec<(PathBuf, Vec<u8>)>, dir: ReadDir) -> Result<(), std::io::Error> {
+pub fn read_recurse_folder(pile: &mut Vec<(PathBuf, Vec<u8>)>, dir: ReadDir) -> Result<(), CliError> {
 	for file in dir {
 		let file = file.as_ref().unwrap();
 		if file.metadata().unwrap().is_dir() {
@@ -37,6 +39,7 @@ pub fn read_recurse_folder(pile: &mut Vec<(PathBuf, Vec<u8>)>, dir: ReadDir) -> 
 		} else {
 			let path = file.path();
 			let mut read = fs::read(&path)?;
+
 			pile.push((path, read));
 		}
 	}
