@@ -1,15 +1,16 @@
 use std::fs;
 use std::fs::ReadDir;
+use std::path::PathBuf;
 use std::rc::Rc;
 use std::sync::Arc;
 use std::sync::atomic::AtomicUsize;
 use clap::ArgMatches;
 use indicatif::{ProgressBar, ProgressStyle};
 use tracing::info;
-use wt_blk::binary::{DecoderDictionary, parse_file, test_parse_dir};
+use wt_blk::binary::{DecoderDictionary, parse_file};
 use wt_blk::binary::nm_file::NameMap;
 use crate::error::CliError;
-use crate::fs_util::find_dict;
+use crate::fs_util::{find_dict, read_recurse_folder};
 
 // This is the entry-point
 pub fn unpack_raw_blk(args: &ArgMatches) -> Result<(), CliError> {
@@ -24,13 +25,13 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<(), CliError> {
 	Ok(())
 }
 
-fn prepare_parse_vromf_out_folder(dir: ReadDir) -> Vec<(String, Vec<u8>)> {
+fn prepare_parse_vromf_out_folder(dir: ReadDir) -> Vec<(PathBuf, Vec<u8>)> {
 	let mut pile = vec![];
-	test_parse_dir(&mut pile, dir, &AtomicUsize::new(0));
+	read_recurse_folder(&mut pile, dir).unwrap();
 	pile
 }
 
-fn translate_files(base_path: &str, pile: Vec<(String, Vec<u8>)>) -> Vec<String> {
+fn translate_files(base_path: &str, pile: Vec<(PathBuf, Vec<u8>)>) -> Vec<String> {
 	info!("Reading NM file");
 	let nm = fs::read(format!("{}/nm", base_path)).unwrap();
 	info!("Autodetecting dict file");

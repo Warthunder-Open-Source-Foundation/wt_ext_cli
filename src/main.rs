@@ -6,7 +6,7 @@ use std::sync::atomic::AtomicUsize;
 
 use indicatif::{ProgressBar, ProgressStyle};
 use tracing::info;
-use wt_blk::binary::{DecoderDictionary, parse_file, test_parse_dir};
+use wt_blk::binary::{DecoderDictionary, parse_file};
 use wt_blk::binary::nm_file::NameMap;
 
 use crate::cli::build_command_structure;
@@ -20,6 +20,7 @@ mod cli;
 mod logging;
 mod subcommands;
 mod error;
+mod task_queue;
 
 
 fn main() {

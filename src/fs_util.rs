@@ -1,6 +1,7 @@
 use std::fs;
+use std::fs::ReadDir;
 use std::io::Read;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 const ZST_DICT_MAGIC: [u8; 4] = [0x37, 0xA4, 0x30, 0xEC];
 const ZST_MAGIC: [u8; 4] = [0x28, 0xB5, 0x2F, 0xFD];
@@ -26,4 +27,18 @@ pub fn find_dict<P: AsRef<Path>>(root: P) -> Option<(String, Vec<u8>)> {
 #[inline]
 fn is_zst_dict(file: &[u8]) -> bool {
 	file.starts_with(&ZST_DICT_MAGIC)
+}
+
+pub fn read_recurse_folder(pile: &mut Vec<(PathBuf, Vec<u8>)>, dir: ReadDir) -> Result<(), std::io::Error> {
+	for file in dir {
+		let file = file.as_ref().unwrap();
+		if file.metadata().unwrap().is_dir() {
+			read_recurse_folder(pile, file.path().read_dir()?)?;
+		} else {
+			let path = file.path();
+			let mut read = fs::read(&path)?;
+			pile.push((path, read));
+		}
+	}
+	Ok(())
 }
