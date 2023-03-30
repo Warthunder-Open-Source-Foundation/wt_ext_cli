@@ -20,20 +20,21 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<(), CliError> {
 	let input_read_dir = fs::read_dir(input_dir)?;
 
 	info!("Preparing files from folder into memory");
-	let prepared_files = prepare_parse_vromf_out_folder(input_read_dir);
+	let mut prepared_files = vec![];
+	read_recurse_folder(&mut prepared_files, input_read_dir).unwrap();
+
 	translate_files(input_dir, prepared_files);
 	Ok(())
 }
 
-fn prepare_parse_vromf_out_folder(dir: ReadDir) -> Vec<(PathBuf, Vec<u8>)> {
-	let mut pile = vec![];
-	read_recurse_folder(&mut pile, dir).unwrap();
-	pile
-}
 
 fn translate_files(base_path: &str, pile: Vec<(PathBuf, Vec<u8>)>) -> Vec<String> {
+
+	// The shared name map must always reside at the top level
 	info!("Reading NM file");
 	let nm = fs::read(format!("{}/nm", base_path)).unwrap();
+
+	// Dict files have hashed prefixes, so we find them via their file-name suffix and or magic bytes
 	info!("Autodetecting dict file");
 	let (name, dict) = find_dict(base_path).unwrap();
 	info!("Found dict at {}", name);
