@@ -5,7 +5,7 @@ use tracing_subscriber::EnvFilter;
 
 pub fn logging() {
 	let env_filter = EnvFilter::from_default_env()
-		.add_directive(Level::INFO.into());
+		.add_directive(Level::WARN.into());
 
 	tracing_subscriber::fmt()
 		.with_env_filter(env_filter)

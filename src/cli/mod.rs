@@ -15,7 +15,7 @@ pub fn build_command_structure() -> Command {
 		.arg(
 			Arg::new("log_level")
 				.long("log_level")
-				.help("Set log level, may be one of [Trace, Debug, Info, Warn, Error], default: Info")
+				.help("Set log level, may be one of [Trace, Debug, Info, Warn, Error], default: Warn")
 		)
 		.subcommand(
 			Command::new("unpack_raw_blk")
