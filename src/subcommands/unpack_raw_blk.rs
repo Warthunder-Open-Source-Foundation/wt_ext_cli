@@ -16,6 +16,7 @@ use crate::task_queue::FileTask;
 // This is the entry-point
 pub fn unpack_raw_blk(args: &ArgMatches) -> Result<(), CliError> {
 	// This should be infallible
+	info!("Mode: Unpacking raw BLK directory");
 	let input_dir = args.get_one::<String>("Input directory").ok_or(CliError::RequiredFlagMissing)?;
 	let input_read_dir = fs::read_dir(input_dir)?;
 
@@ -28,7 +29,7 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<(), CliError> {
 	let nm = fs::read(format!("{}/nm", input_dir)).unwrap();
 
 	// Dict files have hashed prefixes, so we find them via their file-name suffix and or magic bytes
-	info!("Autodetecting dict file");
+	info!("Auto-detecting dict file");
 	let (name, dict) = find_dict(input_dir).unwrap();
 	info!("Found dict at {}", name);
 
