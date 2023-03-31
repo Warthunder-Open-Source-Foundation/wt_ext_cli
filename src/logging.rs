@@ -2,10 +2,11 @@ use std::io::stdout;
 
 use tracing::Level;
 use tracing_subscriber::EnvFilter;
+use tracing_subscriber::filter::{Directive, LevelFilter};
 
-pub fn logging() {
+pub fn init_logging(log_level: LevelFilter) {
 	let env_filter = EnvFilter::from_default_env()
-		.add_directive(Level::WARN.into());
+		.add_directive(log_level.into());
 
 	tracing_subscriber::fmt()
 		.with_env_filter(env_filter)

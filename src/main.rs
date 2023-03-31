@@ -11,7 +11,7 @@ use wt_blk::binary::nm_file::NameMap;
 
 use crate::cli::build_command_structure;
 use crate::fs_util::find_dict;
-use crate::logging::logging;
+use crate::logging::init_logging;
 use crate::subcommands::branch_subcommands;
 
 mod fs_util;
@@ -24,9 +24,6 @@ mod task_queue;
 
 
 fn main() {
-	logging();
-
-	info!("Parsing CLI args");
 	let command = build_command_structure().get_matches();
 	branch_subcommands(command);
 }
