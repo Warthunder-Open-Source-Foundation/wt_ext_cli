@@ -6,15 +6,17 @@ use std::rc::Rc;
 use std::str::FromStr;
 use std::sync::Arc;
 use std::sync::atomic::AtomicUsize;
+
 use clap::ArgMatches;
 use indicatif::{ProgressBar, ProgressStyle};
 use tracing::{debug, info, warn};
-use wt_blk::binary::{DecoderDictionary};
+use wt_blk::binary::DecoderDictionary;
 use wt_blk::binary::file::FileType;
 use wt_blk::binary::nm_file::NameMap;
 use wt_blk::binary::output_formatting_conf::FormattingConfiguration;
 use wt_blk::binary::parser::parse_blk;
 use wt_blk::binary::zstd::{BlkDecoder, decode_zstd};
+
 use crate::error::CliError;
 use crate::fs_util::{find_dict, read_recurse_folder};
 use crate::task_queue::FileTask;
@@ -27,11 +29,11 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<(), CliError> {
 	let input_read_dir = fs::read_dir(input_dir)?;
 
 	let output_folder = match () {
-		_ if let Some(path) = args.get_one::<String>("Output directory") =>  {
+		_ if let Some(path) = args.get_one::<String>("Output directory") => {
 			let parent_folder = parsed_input_dir.parent().ok_or(CliError::InvalidPath)?;
 			parent_folder.join(path)
 		}
-		_ if args.get_one::<bool>("Overwrite") == Some(&true) =>  {
+		_ if args.get_one::<bool>("Overwrite") == Some(&true) => {
 			parsed_input_dir.clone()
 		}
 		_ => {
@@ -73,7 +75,7 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<(), CliError> {
 		// Parse BLK files, copy the rest as-is
 		let out = if
 		file.0.extension() == Some(OsStr::new("blk")) && FileType::from_byte(file.1[0]).is_some() {
-			 parse_file(file.1, arced_fd.clone(), rc_nm.clone()).map(|x|x.into_bytes())
+			parse_file(file.1, arced_fd.clone(), rc_nm.clone()).map(|x| x.into_bytes())
 		} else {
 			Some(file.1)
 		};
@@ -88,7 +90,7 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<(), CliError> {
 			None
 		}
 	}).filter_map(|x| x)
-				  .collect::<Vec<_>>();
+							.collect::<Vec<_>>();
 	bar.finish();
 
 
@@ -116,6 +118,6 @@ fn parse_file(mut file: Vec<u8>, fd: Arc<BlkDecoder>, shared_name_map: Rc<NameMa
 	};
 
 
-	let parsed = parse_blk(&file[offset..],  file_type.is_slim(), shared_name_map).ok()?;
+	let parsed = parse_blk(&file[offset..], file_type.is_slim(), shared_name_map).ok()?;
 	Some(parsed.as_ref_json(FormattingConfiguration::GSZABI_REPO))
 }
