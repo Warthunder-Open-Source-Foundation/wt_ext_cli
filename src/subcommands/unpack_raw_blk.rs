@@ -5,7 +5,9 @@ use std::path::PathBuf;
 use std::rc::Rc;
 use std::str::FromStr;
 use std::sync::Arc;
-use std::sync::atomic::AtomicUsize;
+use std::sync::atomic::{AtomicU64, AtomicUsize};
+use std::sync::atomic::Ordering::Relaxed;
+use std::time::Instant;
 
 use clap::ArgMatches;
 use indicatif::{ProgressBar, ProgressStyle};
@@ -45,7 +47,9 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<(), CliError> {
 
 	info!("Preparing files from folder into memory");
 	let mut prepared_files = vec![];
+	let discover_start = Instant::now();
 	read_recurse_folder(&mut prepared_files, input_read_dir).unwrap();
+	let discover_end = discover_start.elapsed();
 
 	// The shared name map must always reside at the top level
 	info!("Reading NM file");
@@ -70,6 +74,7 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<(), CliError> {
 	);
 	bar.set_length(prepared_files.len() as u64);
 
+	let time_parse = Instant::now();
 	let out = prepared_files.into_iter().map(|file| {
 
 		// Parse BLK files, copy the rest as-is
@@ -91,9 +96,11 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<(), CliError> {
 		}
 	}).filter_map(|x| x)
 							.collect::<Vec<_>>();
+	let parse_end = time_parse.elapsed();
 	bar.finish();
 
 
+	let time_write = Instant::now();
 	info!("Writing parsed files");
 	for file in out {
 		let e = file.0.strip_prefix(parsed_input_dir.clone()).unwrap();
@@ -102,7 +109,14 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<(), CliError> {
 		fs::write(out, file.1).unwrap();
 		debug!("Successfully written {e:?}")
 	}
+	let write_end = time_write.elapsed();
 	info!("All files are written");
+
+	println!("Reading files: {:?}\nParsing files: {:?}\nWriting files: {:?}",
+		discover_end,
+		parse_end,
+		write_end,
+	);
 
 	Ok(())
 }
