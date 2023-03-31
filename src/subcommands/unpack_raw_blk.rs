@@ -16,7 +16,6 @@ use crate::task_queue::FileTask;
 
 // This is the entry-point
 pub fn unpack_raw_blk(args: &ArgMatches) -> Result<(), CliError> {
-	// This should be infallible
 	info!("Mode: Unpacking raw BLK directory");
 	let input_dir = args.get_one::<String>("Input directory").ok_or(CliError::RequiredFlagMissing)?;
 	let parsed_input_dir = PathBuf::from_str(&input_dir).or(Err(CliError::InvalidPath))?;
