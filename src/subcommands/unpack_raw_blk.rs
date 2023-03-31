@@ -2,6 +2,7 @@ use std::fs;
 use std::fs::ReadDir;
 use std::path::PathBuf;
 use std::rc::Rc;
+use std::str::FromStr;
 use std::sync::Arc;
 use std::sync::atomic::AtomicUsize;
 use clap::ArgMatches;
@@ -18,7 +19,24 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<(), CliError> {
 	// This should be infallible
 	info!("Mode: Unpacking raw BLK directory");
 	let input_dir = args.get_one::<String>("Input directory").ok_or(CliError::RequiredFlagMissing)?;
+	let parsed_input_dir = PathBuf::from_str(&input_dir).or(Err(CliError::InvalidPath))?;
 	let input_read_dir = fs::read_dir(input_dir)?;
+
+	let output_folder = match () {
+		_ if let Some(path) = args.get_one::<String>("Output directory") =>  {
+			let parent_folder = parsed_input_dir.parent().ok_or(CliError::InvalidPath)?;
+			parent_folder.join(path)
+		}
+		_ if args.get_one::<bool>("Overwrite") == Some(&true) =>  {
+			parsed_input_dir
+		}
+		_ => {
+			let full_parent_folder = parsed_input_dir.parent().ok_or(CliError::InvalidPath)?;
+			let parent_folder = full_parent_folder.file_name().unwrap().to_str().unwrap();
+			full_parent_folder.join(parent_folder.to_owned() + "_u")
+		}
+	};
+	eprintln!("output_folder = {:?}", output_folder);
 
 	info!("Preparing files from folder into memory");
 	let mut prepared_files = vec![];

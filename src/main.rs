@@ -1,3 +1,5 @@
+#![feature(if_let_guard)]
+
 use std::{fs, thread};
 use std::fs::ReadDir;
 use std::rc::Rc;

@@ -10,4 +10,7 @@ pub enum CliError {
 
 	#[error("File was missing proper descriptor")]
 	MissingFileName,
+
+	#[error("Invalid path")]
+	InvalidPath
 }
