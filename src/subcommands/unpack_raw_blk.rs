@@ -1,3 +1,4 @@
+use std::ffi::OsStr;
 use std::fs;
 use std::fs::ReadDir;
 use std::path::PathBuf;
@@ -11,6 +12,7 @@ use tracing::{debug, info, warn};
 use wt_blk::binary::{DecoderDictionary};
 use wt_blk::binary::file::FileType;
 use wt_blk::binary::nm_file::NameMap;
+use wt_blk::binary::output_formatting_conf::FormattingConfiguration;
 use wt_blk::binary::parser::parse_blk;
 use wt_blk::binary::zstd::{BlkDecoder, decode_zstd};
 use crate::error::CliError;
@@ -67,7 +69,15 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<(), CliError> {
 	bar.set_length(prepared_files.len() as u64);
 
 	let out = prepared_files.into_iter().map(|file| {
-		let out = parse_file(file.1, arced_fd.clone(), rc_nm.clone());
+
+		// Parse BLK files, copy the rest as-is
+		let out = if
+		file.0.extension() == Some(OsStr::new("blk")) && FileType::from_byte(file.1[0]).is_some() {
+			 parse_file(file.1, arced_fd.clone(), rc_nm.clone()).map(|x|x.into_bytes())
+		} else {
+			Some(file.1)
+		};
+
 		if out.is_none() {
 			warn!("Failed to parse file {:?}", file.0)
 		}
@@ -107,5 +117,5 @@ fn parse_file(mut file: Vec<u8>, fd: Arc<BlkDecoder>, shared_name_map: Rc<NameMa
 
 
 	let parsed = parse_blk(&file[offset..],  file_type.is_slim(), shared_name_map).ok()?;
-	Some(serde_json::to_string_pretty(&parsed).ok()?)
+	Some(parsed.as_ref_json(FormattingConfiguration::GSZABI_REPO))
 }
