@@ -8,8 +8,11 @@ use std::sync::atomic::AtomicUsize;
 use clap::ArgMatches;
 use indicatif::{ProgressBar, ProgressStyle};
 use tracing::info;
-use wt_blk::binary::{DecoderDictionary, parse_file};
+use wt_blk::binary::{DecoderDictionary};
+use wt_blk::binary::file::FileType;
 use wt_blk::binary::nm_file::NameMap;
+use wt_blk::binary::parser::parse_blk;
+use wt_blk::binary::zstd::{BlkDecoder, decode_zstd};
 use crate::error::CliError;
 use crate::fs_util::{find_dict, read_recurse_folder};
 use crate::task_queue::FileTask;
@@ -27,15 +30,14 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<(), CliError> {
 			parent_folder.join(path)
 		}
 		_ if args.get_one::<bool>("Overwrite") == Some(&true) =>  {
-			parsed_input_dir
+			parsed_input_dir.clone()
 		}
 		_ => {
 			let full_parent_folder = parsed_input_dir.parent().ok_or(CliError::InvalidPath)?;
 			let parent_folder = full_parent_folder.file_name().unwrap().to_str().unwrap();
-			full_parent_folder.join(parent_folder.to_owned() + "_u")
+			full_parent_folder.join(parent_folder.to_owned() + "_unpacked")
 		}
 	};
-	eprintln!("output_folder = {:?}", output_folder);
 
 	info!("Preparing files from folder into memory");
 	let mut prepared_files = vec![];
@@ -67,10 +69,37 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<(), CliError> {
 	let out = prepared_files.into_iter().map(|file| {
 		let out = parse_file(file.1, arced_fd.clone(), rc_nm.clone());
 		bar.inc(1);
-		out
+		if let Some(item) = out {
+			Some((file.0, item))
+		} else {
+			None
+		}
 	}).filter_map(|x| x)
 				  .collect::<Vec<_>>();
+
+	for file in out {
+		let e = file.0.strip_prefix(parsed_input_dir.clone()).unwrap();
+		let out = output_folder.join(e);
+		fs::create_dir_all(out.clone().parent().unwrap()).unwrap();
+		fs::write(out, file.1).unwrap();
+	}
+
 	bar.finish();
 
 	Ok(())
+}
+
+fn parse_file(mut file: Vec<u8>, fd: Arc<BlkDecoder>, shared_name_map: Rc<NameMap>) -> Option<String> {
+	let mut offset = 0;
+	let file_type = FileType::from_byte(file[0])?;
+	if file_type.is_zstd() {
+		file = decode_zstd(&file, fd.clone()).unwrap();
+	} else {
+		// uncompressed Slim and Fat files retain their initial magic bytes
+		offset = 1;
+	};
+
+
+	let parsed = parse_blk(&file[offset..],  file_type.is_slim(), shared_name_map).ok()?;
+	Some(serde_json::to_string_pretty(&parsed).ok()?)
 }
