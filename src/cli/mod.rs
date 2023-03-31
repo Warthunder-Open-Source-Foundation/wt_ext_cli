@@ -5,7 +5,7 @@ pub fn build_command_structure() -> Command {
 		.about("WarThunder datamining extraction tools")
 		.subcommand_required(true)
 		.arg_required_else_help(true)
-		.color(ColorChoice::Always)
+		.color(ColorChoice::Auto)
 		.author("FlareFlo")
 		.arg(
 			Arg::new("log_path")
