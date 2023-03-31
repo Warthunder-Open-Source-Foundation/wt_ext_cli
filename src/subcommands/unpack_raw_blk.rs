@@ -7,7 +7,7 @@ use std::sync::Arc;
 use std::sync::atomic::AtomicUsize;
 use clap::ArgMatches;
 use indicatif::{ProgressBar, ProgressStyle};
-use tracing::info;
+use tracing::{debug, info, warn};
 use wt_blk::binary::{DecoderDictionary};
 use wt_blk::binary::file::FileType;
 use wt_blk::binary::nm_file::NameMap;
@@ -68,6 +68,9 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<(), CliError> {
 
 	let out = prepared_files.into_iter().map(|file| {
 		let out = parse_file(file.1, arced_fd.clone(), rc_nm.clone());
+		if out.is_none() {
+			warn!("Failed to parse file {:?}", file.0)
+		}
 		bar.inc(1);
 		if let Some(item) = out {
 			Some((file.0, item))
@@ -76,15 +79,18 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<(), CliError> {
 		}
 	}).filter_map(|x| x)
 				  .collect::<Vec<_>>();
+	bar.finish();
 
+
+	info!("Writing parsed files");
 	for file in out {
 		let e = file.0.strip_prefix(parsed_input_dir.clone()).unwrap();
 		let out = output_folder.join(e);
 		fs::create_dir_all(out.clone().parent().unwrap()).unwrap();
 		fs::write(out, file.1).unwrap();
+		debug!("Successfully written {e:?}")
 	}
-
-	bar.finish();
+	info!("All files are written");
 
 	Ok(())
 }
