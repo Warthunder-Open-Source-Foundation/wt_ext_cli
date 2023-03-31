@@ -3,11 +3,13 @@ name = "wt_ext_cli"
 version = "0.1.0"
 edition = "2021"
 
-[profile.release]
+[profile.debug]
 opt-level = 3
 lto = "thin"
-#Unset this when releasing builds, as this inflates binar size by a hefty margin
-debug = true
+
+[profile.release]
+opt-level = 3
+lto = true
 
 [dependencies]
 clap = {version = "4.1.9", features = ["cargo"]}
