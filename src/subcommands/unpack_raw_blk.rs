@@ -41,7 +41,7 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<(), CliError> {
 		_ => {
 			let full_parent_folder = parsed_input_dir.parent().ok_or(CliError::InvalidPath)?;
 			let parent_folder = full_parent_folder.file_name().unwrap().to_str().unwrap();
-			full_parent_folder.join(parent_folder.to_owned() + "_unpacked")
+			full_parent_folder.join(parent_folder.to_owned() + "_u")
 		}
 	};
 
