@@ -1,4 +1,4 @@
-use clap::{Arg, ColorChoice, Command, command};
+use clap::{Arg, ColorChoice, Command, command, ValueHint};
 
 pub fn build_command_structure() -> Command {
 	let matches = command!("wt_ext_cli")
@@ -11,6 +11,7 @@ pub fn build_command_structure() -> Command {
 			Arg::new("log_path")
 				.long("log_path")
 				.help("When provided, writes the traced logs to a file")
+				.value_hint(ValueHint::FilePath)
 		)
 		.arg(
 			Arg::new("log_level")
@@ -27,6 +28,7 @@ pub fn build_command_structure() -> Command {
 						.long("input_dir")
 						.help("Folder containing blk files, sub-folders will be recursively searched")
 						.required(true)
+						.value_hint(ValueHint::FilePath)
 				)
 				.arg(
 					// Not providing this argument means the input folder name will be used, with a `_u` suffix
@@ -35,6 +37,7 @@ pub fn build_command_structure() -> Command {
 						.long("output_dir")
 						.help("Target folder that will be created to contain new files")
 						.conflicts_with("Overwrite")
+						.value_hint(ValueHint::FilePath)
 				)
 				.arg(
 					Arg::new("Overwrite")
