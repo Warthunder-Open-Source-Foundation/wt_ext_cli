@@ -11,8 +11,8 @@ use std::time::Instant;
 
 use clap::ArgMatches;
 use indicatif::{ProgressBar, ProgressStyle};
-use rayon::prelude::IntoParallelIterator;
 use rayon::iter::ParallelIterator;
+use rayon::prelude::IntoParallelIterator;
 use tracing::{debug, info, warn};
 use wt_blk::binary::DecoderDictionary;
 use wt_blk::binary::file::FileType;
@@ -104,20 +104,20 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<(), CliError> {
 
 	let time_write = Instant::now();
 	info!("Writing parsed files");
-	for file in out {
+	out.into_par_iter().for_each(|file| {
 		let e = file.0.strip_prefix(parsed_input_dir.clone()).unwrap();
 		let out = output_folder.join(e);
 		fs::create_dir_all(out.clone().parent().unwrap()).unwrap();
 		fs::write(out, file.1).unwrap();
 		debug!("Successfully written {e:?}")
-	}
+	});
 	let write_end = time_write.elapsed();
 	info!("All files are written");
 
 	println!("Reading files: {:?}\nParsing files: {:?}\nWriting files: {:?}",
-		discover_end,
-		parse_end,
-		write_end,
+			 discover_end,
+			 parse_end,
+			 write_end,
 	);
 
 	Ok(())
