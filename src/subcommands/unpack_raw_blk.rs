@@ -11,6 +11,8 @@ use std::time::Instant;
 
 use clap::ArgMatches;
 use indicatif::{ProgressBar, ProgressStyle};
+use rayon::prelude::IntoParallelIterator;
+use rayon::iter::ParallelIterator;
 use tracing::{debug, info, warn};
 use wt_blk::binary::DecoderDictionary;
 use wt_blk::binary::file::FileType;
@@ -64,7 +66,7 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<(), CliError> {
 	let frame_decoder = DecoderDictionary::copy(&dict);
 	let shared_nm = NameMap::from_encoded_file(&nm).unwrap();
 
-	let rc_nm = Rc::new(shared_nm);
+	let rc_nm = Arc::new(shared_nm);
 	let arced_fd = Arc::new(frame_decoder);
 	info!("Parsing BLK into IR");
 
@@ -121,7 +123,7 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<(), CliError> {
 	Ok(())
 }
 
-fn parse_file(mut file: Vec<u8>, fd: Arc<BlkDecoder>, shared_name_map: Rc<NameMap>) -> Option<String> {
+fn parse_file(mut file: Vec<u8>, fd: Arc<BlkDecoder>, shared_name_map: Arc<NameMap>) -> Option<String> {
 	let mut offset = 0;
 	let file_type = FileType::from_byte(file[0])?;
 	if file_type.is_zstd() {

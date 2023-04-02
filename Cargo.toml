@@ -16,6 +16,7 @@ clap = {version = "4.1.9", features = ["cargo"]}
 indicatif = "0.17.3"
 wt_blk = {path = "../wt_blk"}
 thiserror = "^1.0"
+rayon = "^1.7.0"
 
 tracing = "^0.1.37"
 tracing-subscriber = {version  = "^0.3.16", features = ["tracing-log", "env-filter", "fmt", "std"]}

@@ -746,6 +746,7 @@ version = "0.1.0"
 dependencies = [
  "clap",
  "indicatif",
+ "rayon",
  "serde",
  "serde_bencode",
  "serde_json",
