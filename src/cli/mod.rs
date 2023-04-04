@@ -43,7 +43,7 @@ pub fn build_command_structure() -> Command {
 					Arg::new("Overwrite")
 						.long("overwrite")
 						.num_args(0) // expects no values
-						.help("Overwrites binary BLk files in input folder")
+						.help("Overwrites files in input folder")
 						.conflicts_with("Output directory")
 				)
 		)
