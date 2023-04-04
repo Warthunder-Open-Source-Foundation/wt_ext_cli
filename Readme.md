@@ -6,13 +6,13 @@ Licensed under the [Apache 2.0](https://github.com/Warthunder-Open-Source-Founda
 ## Installing
 
 Installation
-- From source
-- [From the latest release](https://github.com/Warthunder-Open-Source-Foundation/wt_ext_cli/releases)
+- [Download from the latest release](https://github.com/Warthunder-Open-Source-Foundation/wt_ext_cli/releases)
+- From source as shown below
 
 ### From source
 #### Building the project from git
 1. <a href="https://www.rust-lang.org/tools/install">Install a working Rust-toolchain through Rustup</a>
-2. Clone the repository  using ``git clone`` and enter the directory ``cd wt_ext_cli`` ([requires git to be installed](https://github.com/git-guides/install-git))
+2. Clone the repository  using `git clone` and enter the directory `cd wt_ext_cli` ([requires git to be installed](https://github.com/git-guides/install-git))
 3. Depending on the goal, do the following:
    | Goal                        | Command                          |
    |-----------------------------|----------------------------------|
