@@ -1,3 +1,4 @@
+use std::fs;
 use std::str::FromStr;
 use clap::ArgMatches;
 use tracing::Level;
@@ -13,6 +14,17 @@ pub fn branch_subcommands(args: ArgMatches) {
 		LevelFilter::from_str(lvl).expect(&format!("Incorrect log-level provided, expected one of [Trace, Debug, Info, Warn, Error], found {lvl}"))
 	} else {
 		LevelFilter::WARN
+	};
+	let file_writer = if let Some(log_path) = args.get_one::<String>("log_path") {
+		let file = match fs::File::create(log_path) {
+			Ok(fd) => {fd}
+			Err(e) => {
+				panic!("Failed to write log file, reason: {e}");
+			}
+		};
+		Some(file)
+	} else {
+		None
 	};
 	init_logging(log_level);
 
