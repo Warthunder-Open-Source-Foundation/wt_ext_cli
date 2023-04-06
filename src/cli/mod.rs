@@ -68,6 +68,14 @@ pub fn build_command_structure() -> Command {
 				.long_flag("check_update")
 				.about("Checks folder for client update")
 		)
+		.subcommand(
+			Command::new({
+				pub const COMMAND_MANUAL: &str = "get_instruction_manual";
+				COMMAND_MANUAL
+			})
+				.long_flag("instruction_manual")
+				.about("Opens or writes the manual")
+		)
 		;
 
 	matches

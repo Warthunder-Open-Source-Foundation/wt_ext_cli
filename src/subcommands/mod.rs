@@ -20,6 +20,9 @@ pub fn branch_subcommands(args: ArgMatches) {
 		Some(("unpack_raw_blk", args)) => {
 			unpack_raw_blk(args).unwrap();
 		}
+		Some(("get_instruction_manual", _)) => {
+			open::that("https://github.com/Warthunder-Open-Source-Foundation/wt_ext_cli/blob/master/usage_manual.md").expect("Attempted to show manual in browser, but something unexpected failed");
+		}
 		_ => {
 			panic!("Ruh oh, looks like command args were bad");
 		}
