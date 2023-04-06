@@ -21,7 +21,7 @@ Installation
    | Run the tool directly       | `cargo run --release -- {FLAGS}` replace FLAGS with CLI args|
 
 #### Building the project from crates-io
->Currently not supported, as the tool is work in progress
+>Currently not supported, as the tool is work in progress. It will be published once stabilized to a certain degree.
 
 ## Usage
 For usage, view [this guide](https://github.com/Warthunder-Open-Source-Foundation/wt_ext_cli/blob/master/usage_manual.md)
