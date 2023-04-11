@@ -106,7 +106,8 @@ pub fn parse_and_write_blk(prepared_files: Vec<(PathBuf, Vec<u8>)>,nm: Vec<u8>, 
 
 
 	info!("Writing parsed files");
-	out.into_par_iter().for_each(|file| {
+	// TODO: Re-enable multithreading if needed
+	out.into_iter().for_each(|file| {
 		let e = file.0.strip_prefix(input_dir.clone()).unwrap();
 		let out = output_dir.join(e);
 		fs::create_dir_all(out.clone().parent().unwrap()).unwrap();

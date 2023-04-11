@@ -25,7 +25,9 @@ mod error;
 mod task_queue;
 
 
-fn main() {
+fn main() -> Result<(), anyhow::Error> {
 	let command = build_command_structure().get_matches();
-	branch_subcommands(command);
+	branch_subcommands(command)?;
+
+	Ok(())
 }

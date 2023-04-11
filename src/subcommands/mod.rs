@@ -11,20 +11,14 @@ use crate::subcommands::unpack_vromf::unpack_vromf;
 mod unpack_raw_blk;
 mod unpack_vromf;
 
-pub fn branch_subcommands(args: ArgMatches) {
+pub fn branch_subcommands(args: ArgMatches) -> Result<(), anyhow::Error> {
 	let log_level = if let Some(lvl) = args.get_one::<String>("log_level") {
 		LevelFilter::from_str(lvl).expect(&format!("Incorrect log-level provided, expected one of [Trace, Debug, Info, Warn, Error], found {lvl}"))
 	} else {
 		LevelFilter::WARN
 	};
 	let file_writer = if let Some(log_path) = args.get_one::<String>("log_path") {
-		let file = match fs::File::create(log_path) {
-			Ok(fd) => {fd}
-			Err(e) => {
-				panic!("Failed to write log file, reason: {e}");
-			}
-		};
-		Some(file)
+		Some(fs::File::create(log_path)?)
 	} else {
 		None
 	};
@@ -32,10 +26,10 @@ pub fn branch_subcommands(args: ArgMatches) {
 
 	match args.subcommand() {
 		Some(("unpack_raw_blk", args)) => {
-			unpack_raw_blk(args).unwrap();
+			unpack_raw_blk(args)?;
 		}
 		Some(("unpack_vromf", args)) => {
-			unpack_vromf(args).unwrap();
+			unpack_vromf(args)?;
 		}
 		Some(("get_instruction_manual", _)) => {
 			open::that("https://github.com/Warthunder-Open-Source-Foundation/wt_ext_cli/blob/master/usage_manual.md").expect("Attempted to show manual in browser, but something unexpected failed");
@@ -44,4 +38,5 @@ pub fn branch_subcommands(args: ArgMatches) {
 			panic!("Ruh oh, looks like command args were bad");
 		}
 	}
+	Ok(())
 }
