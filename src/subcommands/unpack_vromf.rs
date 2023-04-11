@@ -36,9 +36,14 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<(), CliError> {
 }
 
 fn parse_and_write_one_vromf(read: &[u8], input_dir: PathBuf, output_dir: PathBuf) {
-	let mut vromf_inner = decode_vromf(read).into_iter().map(|x|(PathBuf::from_str(&x.0).unwrap(), x.1));
-	let nm = vromf_inner.find(|x|x.0 == PathBuf::from_str("nm").unwrap()).unwrap();
-	let dict = vromf_inner.find(|x|x.0.extension().unwrap_or(OsStr::new("")) == OsStr::new("dict")).unwrap(); // Sometin wron here :(
+	let mut vromf_inner = decode_vromf(read).into_iter().map(|x|(PathBuf::from_str(&x.0).unwrap(), x.1)).collect::<Vec<_>>();
 
-	parse_and_write_blk(vromf_inner.collect(),nm.1, dict.1, input_dir, output_dir).unwrap();
+	for i in &vromf_inner {
+		println!("{:?} {}", i.0, i.1.len());
+	}
+
+	let nm = vromf_inner.iter().find(|x|x.0 == PathBuf::from_str("nm").unwrap()).unwrap().to_owned();
+	let dict = vromf_inner.iter().find(|x|x.0.extension() == Some(OsStr::new("dict"))).unwrap().to_owned();
+
+	parse_and_write_blk(vromf_inner,nm.1, dict.1, input_dir, output_dir).unwrap();
 }
