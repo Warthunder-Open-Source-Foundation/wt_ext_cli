@@ -38,7 +38,7 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<(), CliError> {
 fn parse_and_write_one_vromf(read: &[u8], input_dir: PathBuf, output_dir: PathBuf) {
 	let mut vromf_inner = decode_vromf(read).into_iter().map(|x|(PathBuf::from_str(&x.0).unwrap(), x.1));
 	let nm = vromf_inner.find(|x|x.0 == PathBuf::from_str("nm").unwrap()).unwrap();
-	let dict = vromf_inner.find(|x|x.0.extension().unwrap_or(OsStr::new("")) == OsStr::new("dict")).unwrap();
+	let dict = vromf_inner.find(|x|x.0.extension().unwrap_or(OsStr::new("")) == OsStr::new("dict")).unwrap(); // Sometin wron here :(
 
 	parse_and_write_blk(vromf_inner.collect(),nm.1, dict.1, input_dir, output_dir).unwrap();
 }
