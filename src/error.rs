@@ -1,3 +1,4 @@
+use tracing::error;
 
 #[derive(Debug, thiserror::Error)]
 pub enum CliError {
@@ -12,5 +13,11 @@ pub enum CliError {
 	MissingFileName,
 
 	#[error("Invalid path")]
-	InvalidPath
+	InvalidPath,
+
+	#[error("File does not have a valid parent folder ")]
+	FileWithoutParent,
+
+	#[error("A critical file is missing")]
+	CriticalFileMissing,
 }

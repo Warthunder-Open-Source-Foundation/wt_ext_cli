@@ -3,9 +3,9 @@ name = "wt_ext_cli"
 version = "0.1.0"
 edition = "2021"
 
-[profile.dev]
-opt-level = 3
-lto = "thin"
+#[profile.dev]
+#opt-level = 3
+#lto = "thin"
 
 [profile.release]
 opt-level = 3

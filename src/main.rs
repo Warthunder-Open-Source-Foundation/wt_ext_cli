@@ -23,6 +23,7 @@ mod logging;
 mod subcommands;
 mod error;
 mod task_queue;
+mod util;
 
 
 fn main() -> Result<(), anyhow::Error> {

@@ -9,6 +9,7 @@ use std::sync::atomic::{AtomicU64, AtomicUsize};
 use std::sync::atomic::Ordering::Relaxed;
 use std::time::Instant;
 
+use anyhow::{bail, Context, Error};
 use clap::ArgMatches;
 use indicatif::{ProgressBar, ProgressStyle};
 use rayon::iter::ParallelIterator;
@@ -20,16 +21,17 @@ use wt_blk::binary::nm_file::NameMap;
 use wt_blk::binary::output_formatting_conf::FormattingConfiguration;
 use wt_blk::binary::parser::parse_blk;
 use wt_blk::binary::zstd::{BlkDecoder, decode_zstd};
+use crate::context;
 
 use crate::error::CliError;
 use crate::fs_util::{find_dict, read_recurse_folder};
 use crate::task_queue::FileTask;
 
 // This is the entry-point
-pub fn unpack_raw_blk(args: &ArgMatches) -> Result<(), CliError> {
+pub fn unpack_raw_blk(args: &ArgMatches) -> Result<(), anyhow::Error> {
 	info!("Mode: Unpacking raw BLK directory");
 	let input_dir = args.get_one::<String>("Input directory").ok_or(CliError::RequiredFlagMissing)?;
-	let parsed_input_dir = PathBuf::from_str(&input_dir).or(Err(CliError::InvalidPath))?;
+	let parsed_input_dir = PathBuf::from_str(&input_dir).or(Err(CliError::InvalidPath)).context(format!("The provided input directory {} is not valid", input_dir))?;
 	let input_read_dir = fs::read_dir(input_dir)?;
 
 	let output_folder = match () {
@@ -60,13 +62,20 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<(), CliError> {
 	let (name, dict) = find_dict(input_dir).unwrap();
 	info!("Found dict at {}", name);
 
-	parse_and_write_blk(prepared_files,nm, dict, parsed_input_dir, output_folder)?;
+	parse_and_write_blk(prepared_files, nm, dict, parsed_input_dir, output_folder, strip_and_add_prefix)?;
 
 
 	Ok(())
 }
 
-pub fn parse_and_write_blk(prepared_files: Vec<(PathBuf, Vec<u8>)>,nm: Vec<u8>, dict: Vec<u8>, input_dir: PathBuf, output_dir: PathBuf) -> Result<(), CliError> {
+pub fn parse_and_write_blk(
+	prepared_files: Vec<(PathBuf, Vec<u8>)>,
+	nm: Vec<u8>,
+	dict: Vec<u8>,
+	input_dir: PathBuf,
+	output_dir: PathBuf,
+	output_file_path_builder: fn(PathBuf, PathBuf, PathBuf) -> Result<PathBuf, Error>, // This fn should take care of turning a (maybe) relative path into a writable absolute/accessible path
+) -> Result<(), anyhow::Error> {
 	info!("Preparing shared indexes");
 	let frame_decoder = DecoderDictionary::copy(&dict);
 	let shared_nm = NameMap::from_encoded_file(&nm).unwrap();
@@ -104,16 +113,16 @@ pub fn parse_and_write_blk(prepared_files: Vec<(PathBuf, Vec<u8>)>,nm: Vec<u8>, 
 							.collect::<Vec<_>>();
 	bar.finish();
 
-
 	info!("Writing parsed files");
-	// TODO: Re-enable multithreading if needed
-	out.into_iter().for_each(|file| {
-		let e = file.0.strip_prefix(input_dir.clone()).unwrap();
-		let out = output_dir.join(e);
-		fs::create_dir_all(out.clone().parent().unwrap()).unwrap();
-		fs::write(out, file.1).unwrap();
-		debug!("Successfully written {e:?}")
-	});
+	for file in out {
+
+		let file_out_dir = output_file_path_builder(file.0, input_dir.clone(), output_dir.clone())?;
+		fs::create_dir_all(
+			file_out_dir.clone().parent().unwrap()
+		).unwrap();
+
+		fs::write(&file_out_dir, file.1).context(format!("Failed to write output file to {:?}", file_out_dir))?;
+	}
 	info!("All files are written");
 
 	Ok(())
@@ -132,4 +141,11 @@ fn parse_file(mut file: Vec<u8>, fd: Arc<BlkDecoder>, shared_name_map: Arc<NameM
 
 	let parsed = parse_blk(&file[offset..], file_type.is_slim(), shared_name_map).ok()?;
 	Some(parsed.as_ref_json(FormattingConfiguration::GSZABI_REPO))
+}
+
+fn strip_and_add_prefix(input: PathBuf, input_dir: PathBuf, output_dir: PathBuf) -> Result<PathBuf, anyhow::Error> {
+	let e = input.strip_prefix(input_dir.clone())
+				.with_context(context!(format!("Failed to strip prefix {:?} from base {:?}", input_dir.clone(), input)))?;
+
+	Ok(output_dir.join(e))
 }
