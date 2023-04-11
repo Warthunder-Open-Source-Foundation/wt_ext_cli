@@ -1,7 +1,7 @@
 use std::ffi::OsStr;
 use std::fs;
 use std::fs::ReadDir;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::rc::Rc;
 use std::str::FromStr;
 use std::sync::Arc;
@@ -37,9 +37,9 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<(), CliError> {
 			let parent_folder = parsed_input_dir.parent().ok_or(CliError::InvalidPath)?;
 			parent_folder.join(path)
 		}
-		_ if args.get_one::<bool>("Overwrite") == Some(&true) => {
-			parsed_input_dir.clone()
-		}
+		// _ if args.get_count("Overwrite") >= 1 => { TODO: Fix overwrite
+		// 	parsed_input_dir.clone()
+		// }
 		_ => {
 			let full_parent_folder = parsed_input_dir.parent().ok_or(CliError::InvalidPath)?;
 			let parent_folder = full_parent_folder.file_name().unwrap().to_str().unwrap();
@@ -49,9 +49,7 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<(), CliError> {
 
 	info!("Preparing files from folder into memory");
 	let mut prepared_files = vec![];
-	let discover_start = Instant::now();
 	read_recurse_folder(&mut prepared_files, input_read_dir).unwrap();
-	let discover_end = discover_start.elapsed();
 
 	// The shared name map must always reside at the top level
 	info!("Reading NM file");
@@ -62,6 +60,13 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<(), CliError> {
 	let (name, dict) = find_dict(input_dir).unwrap();
 	info!("Found dict at {}", name);
 
+	parse_and_write_blk(prepared_files,nm, dict, parsed_input_dir, output_folder)?;
+
+
+	Ok(())
+}
+
+pub fn parse_and_write_blk(prepared_files: Vec<(PathBuf, Vec<u8>)>,nm: Vec<u8>, dict: Vec<u8>, input_dir: PathBuf, output_dir: PathBuf) -> Result<(), CliError> {
 	info!("Preparing shared indexes");
 	let frame_decoder = DecoderDictionary::copy(&dict);
 	let shared_nm = NameMap::from_encoded_file(&nm).unwrap();
@@ -76,7 +81,6 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<(), CliError> {
 	);
 	bar.set_length(prepared_files.len() as u64);
 
-	let time_parse = Instant::now();
 	let out = prepared_files.into_iter().map(|file| {
 
 		// Parse BLK files, copy the rest as-is
@@ -98,27 +102,18 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<(), CliError> {
 		}
 	}).filter_map(|x| x)
 							.collect::<Vec<_>>();
-	let parse_end = time_parse.elapsed();
 	bar.finish();
 
 
-	let time_write = Instant::now();
 	info!("Writing parsed files");
 	out.into_par_iter().for_each(|file| {
-		let e = file.0.strip_prefix(parsed_input_dir.clone()).unwrap();
-		let out = output_folder.join(e);
+		let e = file.0.strip_prefix(input_dir.clone()).unwrap();
+		let out = output_dir.join(e);
 		fs::create_dir_all(out.clone().parent().unwrap()).unwrap();
 		fs::write(out, file.1).unwrap();
 		debug!("Successfully written {e:?}")
 	});
-	let write_end = time_write.elapsed();
 	info!("All files are written");
-
-	println!("Reading files: {:?}\nParsing files: {:?}\nWriting files: {:?}",
-			 discover_end,
-			 parse_end,
-			 write_end,
-	);
 
 	Ok(())
 }

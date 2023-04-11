@@ -6,8 +6,10 @@ use tracing::metadata::LevelFilter;
 use tracing_subscriber::filter::Directive;
 use crate::logging::init_logging;
 use crate::subcommands::unpack_raw_blk::unpack_raw_blk;
+use crate::subcommands::unpack_vromf::unpack_vromf;
 
 mod unpack_raw_blk;
+mod unpack_vromf;
 
 pub fn branch_subcommands(args: ArgMatches) {
 	let log_level = if let Some(lvl) = args.get_one::<String>("log_level") {
@@ -31,6 +33,9 @@ pub fn branch_subcommands(args: ArgMatches) {
 	match args.subcommand() {
 		Some(("unpack_raw_blk", args)) => {
 			unpack_raw_blk(args).unwrap();
+		}
+		Some(("unpack_vromf", args)) => {
+			unpack_vromf(args).unwrap();
 		}
 		Some(("get_instruction_manual", _)) => {
 			open::that("https://github.com/Warthunder-Open-Source-Foundation/wt_ext_cli/blob/master/usage_manual.md").expect("Attempted to show manual in browser, but something unexpected failed");
