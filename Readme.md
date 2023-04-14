@@ -17,7 +17,7 @@ Installation
    | Goal                        | Command                          |
    |-----------------------------|----------------------------------|
    | Build a portable executable | `cargo build --release` binary is in `target/release/wt_ext_cli(.exe)`|
-   | Install the tool locally    | `cargo install --release --path .`|
+   | Install the tool locally    | `cargo install --profile release --path .`|
    | Run the tool directly       | `cargo run --release -- {FLAGS}` replace FLAGS with CLI args|
 
 #### Building the project from crates-io
