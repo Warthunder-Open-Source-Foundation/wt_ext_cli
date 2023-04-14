@@ -40,7 +40,7 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<(), anyhow::Error> {
 							let read = fs::read(file.path()).with_context(context!(format!("Failed to read vromf {:?}", file.path())))?;
 							let parent_input_dir = parsed_input_dir.parent().ok_or(FileWithoutParent)?.to_path_buf();
 							let normalized = parent_input_dir.canonicalize()?;
-							parse_and_write_one_vromf(&file.file_name().into_string().unwrap(), &read, normalized, output_folder)?;
+							parse_and_write_one_vromf(&file.file_name().into_string().unwrap(), &read, normalized, output_folder, true)?;
 							Ok(())
 						})
 					))
@@ -54,27 +54,43 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<(), anyhow::Error> {
 		let read = fs::read(&parsed_input_dir)?;
 		let parent_input_dir = parsed_input_dir.parent().ok_or(FileWithoutParent)?.to_path_buf();
 		let normalized = parent_input_dir.canonicalize()?;
-		parse_and_write_one_vromf(input_dir, &read, normalized, output_folder)?;
+		parse_and_write_one_vromf(input_dir, &read, normalized, output_folder, true)?;
 	}
 
 	Ok(())
 }
 
-fn parse_and_write_one_vromf(file_name: &str, read: &[u8], input_dir: PathBuf, output_dir: PathBuf) -> Result<(), anyhow::Error> {
+fn parse_and_write_one_vromf(file_name: &str, read: &[u8], input_dir: PathBuf, output_dir: PathBuf, allow_lossy_dict_or_nm: bool) -> Result<(), anyhow::Error> {
 	let mut vromf_inner = decode_vromf(read).into_iter().map(|x|(PathBuf::from_str(&x.0).unwrap(), x.1)).collect::<Vec<_>>();
 
 	let nm = vromf_inner.iter()
 		.find(|x|
 			x.0 == PathBuf::from_str("nm").expect("infallible")
 		)
+		.map(|x|x.to_owned())
 		.ok_or(CriticalFileMissing)
-		.with_context(context!(format!("Failed to find Name Map (nm) in vromf {}", file_name)))?
+		.with_context(context!(format!("Failed to find Name Map (nm) in vromf {}", file_name)))
+		.unwrap_or_else(|e|{
+			if allow_lossy_dict_or_nm {
+				(PathBuf::from_str("").unwrap(), vec![])
+			} else {
+				panic!("The cheap hack for supporting non-nm vromf broke");
+			}
+		})
 		.to_owned();
 
 	let dict = vromf_inner.iter()
 		.find(|x|
 			x.0.extension() == Some(OsStr::new("dict"))
-		).with_context(context!(format!("Failed to find ZST dictionary in vromf {}", file_name)))?
+		).map(|x|x.to_owned())
+		.with_context(context!(format!("Failed to find ZST dictionary in vromf {}", file_name)))
+		.unwrap_or_else(|e|{
+			if allow_lossy_dict_or_nm  {
+				(PathBuf::from_str("").unwrap(), vec![])
+			} else {
+				panic!("The cheap hack for supporting non-dict vromf broke");
+			}
+		})
 		.to_owned();
 
 	parse_and_write_blk(vromf_inner,nm.1, dict.1, input_dir, output_dir, strip_and_add_prefix)
