@@ -75,6 +75,19 @@ pub fn build_command_structure() -> Command {
 				)
 		)
 		.subcommand(
+			Command::new("unpack_dxp")
+				.long_flag("unpack_dxp")
+				.about("Unpacks folder and subfolder DXP files to text-formatted file")
+				.arg(
+					Arg::new("Input directory")
+						.short('i')
+						.long("input_dir")
+						.help("Folder with dxp files inside")
+						.required(true)
+						.value_hint(ValueHint::AnyPath)
+				)
+		)
+		.subcommand(
 			Command::new("diff_yup NYIMPL")
 				.long_flag("diff_yup")
 				.about("Creates diff from .yup")

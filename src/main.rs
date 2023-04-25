@@ -10,7 +10,7 @@ use std::{
 
 use indicatif::{ProgressBar, ProgressStyle};
 use tracing::info;
-use wt_blk::binary::{nm_file::NameMap, parse_file, DecoderDictionary};
+use wt_blk::blk::{nm_file::NameMap, parse_file, DecoderDictionary};
 
 use crate::{
 	cli::build_command_structure,

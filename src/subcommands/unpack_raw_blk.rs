@@ -17,7 +17,7 @@ use clap::ArgMatches;
 use indicatif::{ProgressBar, ProgressStyle};
 use rayon::{iter::ParallelIterator, prelude::IntoParallelIterator};
 use tracing::{debug, info, warn};
-use wt_blk::binary::{
+use wt_blk::blk::{
 	file::FileType,
 	nm_file::NameMap,
 	output_formatting_conf::FormattingConfiguration,

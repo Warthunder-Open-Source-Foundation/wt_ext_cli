@@ -96,7 +96,7 @@ fn parse_and_write_one_vromf(
 	output_dir: PathBuf,
 	allow_lossy_dict_or_nm: bool,
 ) -> Result<(), anyhow::Error> {
-	let mut vromf_inner = decode_vromf(read)
+	let mut vromf_inner = decode_vromf(read)?
 		.into_iter()
 		.map(|x| (PathBuf::from_str(&x.0).unwrap(), x.1))
 		.collect::<Vec<_>>();

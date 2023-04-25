@@ -6,9 +6,14 @@ use tracing_subscriber::filter::Directive;
 
 use crate::{
 	logging::init_logging,
-	subcommands::{unpack_raw_blk::unpack_raw_blk, unpack_vromf::unpack_vromf},
+	subcommands::{
+		unpack_dxp::unpack_dxp,
+		unpack_raw_blk::unpack_raw_blk,
+		unpack_vromf::unpack_vromf,
+	},
 };
 
+mod unpack_dxp;
 mod unpack_raw_blk;
 mod unpack_vromf;
 
@@ -31,6 +36,9 @@ pub fn branch_subcommands(args: ArgMatches) -> Result<(), anyhow::Error> {
 		},
 		Some(("unpack_vromf", args)) => {
 			unpack_vromf(args)?;
+		},
+		Some(("unpack_dxp", args)) => {
+			unpack_dxp(args)?;
 		},
 		Some(("get_instruction_manual", _)) => {
 			open::that("https://github.com/Warthunder-Open-Source-Foundation/wt_ext_cli/blob/master/usage_manual.md").expect("Attempted to show manual in browser, but something unexpected failed");

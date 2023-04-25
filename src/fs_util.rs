@@ -34,7 +34,7 @@ pub fn find_dict<P: AsRef<Path>>(root: P) -> Option<(String, Vec<u8>)> {
 	None
 }
 
-#[inline]
+#[inline(always)]
 fn is_zst_dict(file: &[u8]) -> bool {
 	file.starts_with(&ZST_DICT_MAGIC)
 }
