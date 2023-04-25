@@ -1,37 +1,50 @@
-use std::ffi::OsStr;
-use std::fs;
-use std::fs::ReadDir;
-use std::path::{Path, PathBuf};
-use std::rc::Rc;
-use std::str::FromStr;
-use std::sync::Arc;
-use std::sync::atomic::{AtomicU64, AtomicUsize};
-use std::sync::atomic::Ordering::Relaxed;
-use std::time::Instant;
+use std::{
+	ffi::OsStr,
+	fs,
+	fs::ReadDir,
+	path::{Path, PathBuf},
+	rc::Rc,
+	str::FromStr,
+	sync::{
+		atomic::{AtomicU64, AtomicUsize, Ordering::Relaxed},
+		Arc,
+	},
+	time::Instant,
+};
 
 use anyhow::{bail, Context, Error};
 use clap::ArgMatches;
 use indicatif::{ProgressBar, ProgressStyle};
-use rayon::iter::ParallelIterator;
-use rayon::prelude::IntoParallelIterator;
+use rayon::{iter::ParallelIterator, prelude::IntoParallelIterator};
 use tracing::{debug, info, warn};
-use wt_blk::binary::DecoderDictionary;
-use wt_blk::binary::file::FileType;
-use wt_blk::binary::nm_file::NameMap;
-use wt_blk::binary::output_formatting_conf::FormattingConfiguration;
-use wt_blk::binary::parser::parse_blk;
-use wt_blk::binary::zstd::{BlkDecoder, decode_zstd};
-use crate::context;
+use wt_blk::binary::{
+	file::FileType,
+	nm_file::NameMap,
+	output_formatting_conf::FormattingConfiguration,
+	parser::parse_blk,
+	zstd::{decode_zstd, BlkDecoder},
+	DecoderDictionary,
+};
 
-use crate::error::CliError;
-use crate::fs_util::{find_dict, read_recurse_folder};
-use crate::task_queue::FileTask;
+use crate::{
+	context,
+	error::CliError,
+	fs_util::{find_dict, read_recurse_folder},
+	task_queue::FileTask,
+};
 
 // This is the entry-point
 pub fn unpack_raw_blk(args: &ArgMatches) -> Result<(), anyhow::Error> {
 	info!("Mode: Unpacking raw BLK directory");
-	let input_dir = args.get_one::<String>("Input directory").ok_or(CliError::RequiredFlagMissing)?;
-	let parsed_input_dir = PathBuf::from_str(&input_dir).or(Err(CliError::InvalidPath)).context(format!("The provided input directory {} is not valid", input_dir))?;
+	let input_dir = args
+		.get_one::<String>("Input directory")
+		.ok_or(CliError::RequiredFlagMissing)?;
+	let parsed_input_dir = PathBuf::from_str(&input_dir)
+		.or(Err(CliError::InvalidPath))
+		.context(format!(
+			"The provided input directory {} is not valid",
+			input_dir
+		))?;
 	let input_read_dir = fs::read_dir(input_dir)?;
 
 	let output_folder = match () {
@@ -62,8 +75,14 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<(), anyhow::Error> {
 	let (name, dict) = find_dict(input_dir).unwrap();
 	info!("Found dict at {}", name);
 
-	parse_and_write_blk(prepared_files, nm, dict, parsed_input_dir, output_folder, strip_and_add_prefix)?;
-
+	parse_and_write_blk(
+		prepared_files,
+		nm,
+		dict,
+		parsed_input_dir,
+		output_folder,
+		strip_and_add_prefix,
+	)?;
 
 	Ok(())
 }
@@ -74,7 +93,7 @@ pub fn parse_and_write_blk(
 	dict: Vec<u8>,
 	input_dir: PathBuf,
 	output_dir: PathBuf,
-	output_file_path_builder: fn(PathBuf, PathBuf, PathBuf) -> Result<PathBuf, Error>, // This fn should take care of turning a (maybe) relative path into a writable absolute/accessible path
+	output_file_path_builder: fn(PathBuf, PathBuf, PathBuf) -> Result<PathBuf, Error>, /* This fn should take care of turning a (maybe) relative path into a writable absolute/accessible path */
 ) -> Result<(), anyhow::Error> {
 	info!("Preparing shared indexes");
 	let frame_decoder = DecoderDictionary::copy(&dict);
@@ -86,49 +105,58 @@ pub fn parse_and_write_blk(
 
 	let bar = Arc::new(ProgressBar::new(0));
 	bar.set_style(
-		ProgressStyle::with_template(" [{elapsed}/{eta}] [{wide_bar:.cyan/blue}] {percent}% {pos}/{len}").unwrap().progress_chars("#>-")
+		ProgressStyle::with_template(
+			" [{elapsed}/{eta}] [{wide_bar:.cyan/blue}] {percent}% {pos}/{len}",
+		)
+		.unwrap()
+		.progress_chars("#>-"),
 	);
 	bar.set_length(prepared_files.len() as u64);
 
-	let out = prepared_files.into_iter().map(|file| {
+	let out = prepared_files
+		.into_iter()
+		.map(|file| {
+			// Parse BLK files, copy the rest as-is
+			let out = if file.0.extension() == Some(OsStr::new("blk"))
+				&& FileType::from_byte(file.1[0]).is_some()
+			{
+				parse_file(file.1, arced_fd.clone(), rc_nm.clone()).map(|x| x.into_bytes())
+			} else {
+				Some(file.1)
+			};
 
-		// Parse BLK files, copy the rest as-is
-		let out = if
-		file.0.extension() == Some(OsStr::new("blk")) && FileType::from_byte(file.1[0]).is_some() {
-			parse_file(file.1, arced_fd.clone(), rc_nm.clone()).map(|x| x.into_bytes())
-		} else {
-			Some(file.1)
-		};
-
-		if out.is_none() {
-			warn!("Failed to parse file {:?}", file.0)
-		}
-		bar.inc(1);
-		if let Some(item) = out {
-			Some((file.0, item))
-		} else {
-			None
-		}
-	}).filter_map(|x| x)
-							.collect::<Vec<_>>();
+			if out.is_none() {
+				warn!("Failed to parse file {:?}", file.0)
+			}
+			bar.inc(1);
+			if let Some(item) = out {
+				Some((file.0, item))
+			} else {
+				None
+			}
+		})
+		.filter_map(|x| x)
+		.collect::<Vec<_>>();
 	bar.finish();
 
 	info!("Writing parsed files");
 	for file in out {
-
 		let file_out_dir = output_file_path_builder(file.0, input_dir.clone(), output_dir.clone())?;
-		fs::create_dir_all(
-			file_out_dir.clone().parent().unwrap()
-		).unwrap();
+		fs::create_dir_all(file_out_dir.clone().parent().unwrap()).unwrap();
 
-		fs::write(&file_out_dir, file.1).context(format!("Failed to write output file to {:?}", file_out_dir))?;
+		fs::write(&file_out_dir, file.1)
+			.context(format!("Failed to write output file to {:?}", file_out_dir))?;
 	}
 	info!("All files are written");
 
 	Ok(())
 }
 
-fn parse_file(mut file: Vec<u8>, fd: Arc<BlkDecoder>, shared_name_map: Arc<NameMap>) -> Option<String> {
+fn parse_file(
+	mut file: Vec<u8>,
+	fd: Arc<BlkDecoder>,
+	shared_name_map: Arc<NameMap>,
+) -> Option<String> {
 	let mut offset = 0;
 	let file_type = FileType::from_byte(file[0])?;
 	if file_type.is_zstd() {
@@ -138,14 +166,22 @@ fn parse_file(mut file: Vec<u8>, fd: Arc<BlkDecoder>, shared_name_map: Arc<NameM
 		offset = 1;
 	};
 
-
 	let parsed = parse_blk(&file[offset..], file_type.is_slim(), shared_name_map).ok()?;
 	Some(parsed.as_ref_json(FormattingConfiguration::GSZABI_REPO))
 }
 
-fn strip_and_add_prefix(input: PathBuf, input_dir: PathBuf, output_dir: PathBuf) -> Result<PathBuf, anyhow::Error> {
-	let e = input.strip_prefix(input_dir.clone())
-				.with_context(context!(format!("Failed to strip prefix {:?} from base {:?}", input_dir.clone(), input)))?;
+fn strip_and_add_prefix(
+	input: PathBuf,
+	input_dir: PathBuf,
+	output_dir: PathBuf,
+) -> Result<PathBuf, anyhow::Error> {
+	let e = input
+		.strip_prefix(input_dir.clone())
+		.with_context(context!(format!(
+			"Failed to strip prefix {:?} from base {:?}",
+			input_dir.clone(),
+			input
+		)))?;
 
 	Ok(output_dir.join(e))
 }

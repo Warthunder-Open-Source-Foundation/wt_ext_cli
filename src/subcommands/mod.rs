@@ -1,12 +1,13 @@
-use std::fs;
-use std::str::FromStr;
+use std::{fs, str::FromStr};
+
 use clap::ArgMatches;
-use tracing::Level;
-use tracing::metadata::LevelFilter;
+use tracing::{metadata::LevelFilter, Level};
 use tracing_subscriber::filter::Directive;
-use crate::logging::init_logging;
-use crate::subcommands::unpack_raw_blk::unpack_raw_blk;
-use crate::subcommands::unpack_vromf::unpack_vromf;
+
+use crate::{
+	logging::init_logging,
+	subcommands::{unpack_raw_blk::unpack_raw_blk, unpack_vromf::unpack_vromf},
+};
 
 mod unpack_raw_blk;
 mod unpack_vromf;
@@ -27,16 +28,16 @@ pub fn branch_subcommands(args: ArgMatches) -> Result<(), anyhow::Error> {
 	match args.subcommand() {
 		Some(("unpack_raw_blk", args)) => {
 			unpack_raw_blk(args)?;
-		}
+		},
 		Some(("unpack_vromf", args)) => {
 			unpack_vromf(args)?;
-		}
+		},
 		Some(("get_instruction_manual", _)) => {
 			open::that("https://github.com/Warthunder-Open-Source-Foundation/wt_ext_cli/blob/master/usage_manual.md").expect("Attempted to show manual in browser, but something unexpected failed");
-		}
+		},
 		_ => {
 			panic!("Ruh oh, looks like command args were bad");
-		}
+		},
 	}
 	Ok(())
 }

@@ -2,7 +2,7 @@ use std::path::{Path, PathBuf};
 
 #[derive(Clone, Debug)]
 pub struct FileTask {
-	pub path: PathBuf,
+	pub path:      PathBuf,
 	pub task_type: TaskType,
 }
 

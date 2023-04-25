@@ -1,8 +1,8 @@
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct Diff {
 	file_name: String,
-	old: FileDiff,
-	new: FileDiff,
+	old:       FileDiff,
+	new:       FileDiff,
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
@@ -14,8 +14,7 @@ pub struct FileDiff {
 
 #[cfg(test)]
 mod test {
-	use std::fs;
-	use std::io::BufRead;
+	use std::{fs, io::BufRead};
 
 	use crate::update_diff::{Diff, FileDiff};
 
@@ -23,12 +22,12 @@ mod test {
 	fn sample_output_diff() {
 		let diff = Diff {
 			file_name: "aces.vromfs.bin".to_string(),
-			old: FileDiff {
+			old:       FileDiff {
 				sha1: "hexnumbersandstuff".to_string(),
 				time: "sometime".to_string(),
 				size: 42,
 			},
-			new: FileDiff {
+			new:       FileDiff {
 				sha1: "newhexnumbersandstuff".to_string(),
 				time: "laterthansometime".to_string(),
 				size: 42,

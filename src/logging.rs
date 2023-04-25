@@ -1,17 +1,15 @@
-use std::fs;
-use std::fs::File;
-use std::io::stdout;
-use std::sync::Mutex;
+use std::{fs, fs::File, io::stdout, sync::Mutex};
 
 use tracing::Level;
-use tracing_subscriber::{EnvFilter, Registry};
-use tracing_subscriber::filter::{Directive, LevelFilter};
-use tracing_subscriber::fmt::MakeWriter;
-use tracing_subscriber::fmt::writer::MakeWriterExt;
+use tracing_subscriber::{
+	filter::{Directive, LevelFilter},
+	fmt::{writer::MakeWriterExt, MakeWriter},
+	EnvFilter,
+	Registry,
+};
 
 pub fn init_logging(log_level: LevelFilter) {
-	let env_filter = EnvFilter::from_default_env()
-		.add_directive(log_level.into());
+	let env_filter = EnvFilter::from_default_env().add_directive(log_level.into());
 
 	tracing_subscriber::fmt()
 		.with_env_filter(env_filter)

@@ -1,9 +1,14 @@
-use std::fs;
-use std::fs::ReadDir;
-use std::io::Read;
-use std::path::{Path, PathBuf};
-use crate::error::CliError;
-use crate::task_queue::{FileTask, TaskType};
+use std::{
+	fs,
+	fs::ReadDir,
+	io::Read,
+	path::{Path, PathBuf},
+};
+
+use crate::{
+	error::CliError,
+	task_queue::{FileTask, TaskType},
+};
 
 const ZST_DICT_MAGIC: [u8; 4] = [0x37, 0xA4, 0x30, 0xEC];
 const ZST_MAGIC: [u8; 4] = [0x28, 0xB5, 0x2F, 0xFD];
@@ -18,7 +23,10 @@ pub fn find_dict<P: AsRef<Path>>(root: P) -> Option<(String, Vec<u8>)> {
 				let mut buff = [0_u8; 4];
 				file.read_exact(&mut buff).ok()?;
 				if is_zst_dict(&buff) {
-					return Some((dir_entry.file_name().to_str()?.to_owned(), fs::read(dir_entry.path()).ok()?));
+					return Some((
+						dir_entry.file_name().to_str()?.to_owned(),
+						fs::read(dir_entry.path()).ok()?,
+					));
 				}
 			}
 		}
@@ -31,7 +39,10 @@ fn is_zst_dict(file: &[u8]) -> bool {
 	file.starts_with(&ZST_DICT_MAGIC)
 }
 
-pub fn read_recurse_folder(pile: &mut Vec<(PathBuf, Vec<u8>)>, dir: ReadDir) -> Result<(), CliError> {
+pub fn read_recurse_folder(
+	pile: &mut Vec<(PathBuf, Vec<u8>)>,
+	dir: ReadDir,
+) -> Result<(), CliError> {
 	for file in dir {
 		let file = file.as_ref().unwrap();
 		if file.metadata().unwrap().is_dir() {

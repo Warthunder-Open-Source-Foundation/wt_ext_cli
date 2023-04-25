@@ -1,30 +1,32 @@
 #![feature(if_let_guard)]
 
-use std::{fs, thread};
-use std::fs::ReadDir;
-use std::rc::Rc;
-use std::sync::Arc;
-use std::sync::atomic::AtomicUsize;
+use std::{
+	fs,
+	fs::ReadDir,
+	rc::Rc,
+	sync::{atomic::AtomicUsize, Arc},
+	thread,
+};
 
 use indicatif::{ProgressBar, ProgressStyle};
 use tracing::info;
-use wt_blk::binary::{DecoderDictionary, parse_file};
-use wt_blk::binary::nm_file::NameMap;
+use wt_blk::binary::{nm_file::NameMap, parse_file, DecoderDictionary};
 
-use crate::cli::build_command_structure;
-use crate::fs_util::find_dict;
-use crate::logging::init_logging;
-use crate::subcommands::branch_subcommands;
+use crate::{
+	cli::build_command_structure,
+	fs_util::find_dict,
+	logging::init_logging,
+	subcommands::branch_subcommands,
+};
 
-mod fs_util;
-mod update_diff;
 mod cli;
+mod error;
+mod fs_util;
 mod logging;
 mod subcommands;
-mod error;
 mod task_queue;
+mod update_diff;
 mod util;
-
 
 fn main() -> Result<(), anyhow::Error> {
 	let command = build_command_structure().get_matches();
