@@ -14,7 +14,7 @@ lto = true
 [dependencies]
 clap = {version = "4.1.9", features = ["cargo"]}
 indicatif = "0.17.3"
-wt_blk = {path = "../wt_blk"}
+wt_blk = {git = "https://github.com/Warthunder-Open-Source-Foundation/wt_blk"}
 thiserror = "^1.0"
 rayon = "^1.7.0"
 open = "^4"
