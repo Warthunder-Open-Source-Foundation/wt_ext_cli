@@ -50,8 +50,8 @@ pub fn read_recurse_folder(
 pub fn read_recurse_folder_filtered(
 	pile: &mut Vec<(PathBuf, Vec<u8>)>,
 	dir: ReadDir,
-	filter_name: fn(&PathBuf) -> bool, // Mark true or false whether or not the function should yield
-	filter_content: fn(&Vec<u8>) -> bool, // Mark true or false whether or not the function should yield
+	filter_name: fn(&PathBuf) -> bool, /* Mark true or false whether or not the function should yield */
+	filter_content: fn(&Vec<u8>) -> bool, /* Mark true or false whether or not the function should yield */
 ) -> Result<(), CliError> {
 	for file in dir {
 		let file = file.as_ref().unwrap();
@@ -60,11 +60,11 @@ pub fn read_recurse_folder_filtered(
 		} else {
 			let path = file.path();
 			if !filter_name(&path) {
-				continue
+				continue;
 			}
 			let mut read = fs::read(&path)?;
 			if !filter_content(&read) {
-				continue
+				continue;
 			}
 
 			pile.push((path, read));

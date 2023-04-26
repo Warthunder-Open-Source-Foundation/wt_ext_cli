@@ -4,7 +4,10 @@ use anyhow::Context;
 use clap::ArgMatches;
 use wt_blk::dxp;
 
-use crate::{error::CliError, fs_util::read_recurse_folder};
+use crate::{
+	error::CliError,
+	fs_util::{read_recurse_folder, read_recurse_folder_filtered},
+};
 
 pub fn unpack_dxp(args: &ArgMatches) -> Result<(), anyhow::Error> {
 	let input_dir = args
@@ -19,7 +22,19 @@ pub fn unpack_dxp(args: &ArgMatches) -> Result<(), anyhow::Error> {
 	let input_read_dir = fs::read_dir(input_dir)?;
 
 	let mut prepared_files = vec![];
-	read_recurse_folder(&mut prepared_files, input_read_dir).unwrap();
+	read_recurse_folder_filtered(
+		&mut prepared_files,
+		input_read_dir,
+		|path| {
+			path.file_name()
+				.expect("Bad OSstring file TODO: implement")
+				.to_str()
+				.unwrap()
+				.ends_with(".dxp.bin")
+		},
+		|_| true,
+	)
+	.unwrap();
 
 	let mut output = vec![];
 	for prepared_file in prepared_files {
