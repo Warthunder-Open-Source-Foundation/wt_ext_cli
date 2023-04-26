@@ -53,7 +53,7 @@ pub fn unpack_dxp(args: &ArgMatches) -> Result<(), anyhow::Error> {
 		let final_content = format!("{file_name}\n\n{parsed}");
 
 		let mut final_path = prepared_file.0;
-		final_path.set_extension("dxp.bin.txt");
+		final_path.set_extension("bin.txt");
 		output.push((
 			final_path,
 			final_content,
