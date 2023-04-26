@@ -57,7 +57,7 @@ pub fn read_recurse_folder_filtered(
 	for file in dir {
 		let file = file.as_ref().unwrap();
 		if file.metadata().unwrap().is_dir() {
-			read_recurse_folder(pile, file.path().read_dir()?)?;
+			read_recurse_folder_filtered(pile, file.path().read_dir()?, filter_name, filter_content)?;
 		} else {
 			let path = file.path();
 			if !filter_name(&path) {
