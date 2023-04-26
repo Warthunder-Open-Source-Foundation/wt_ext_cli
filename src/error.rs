@@ -1,6 +1,7 @@
 use tracing::error;
 
 #[derive(Debug, thiserror::Error)]
+#[allow(dead_code)]
 pub enum CliError {
 	// This error might onl occur when a flag was improperly configured and not caught by clap
 	#[error("This is an internal error, it should not occur unless internal logic failed")]
