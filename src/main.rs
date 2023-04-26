@@ -16,7 +16,6 @@ mod error;
 mod fs_util;
 mod logging;
 mod subcommands;
-mod task_queue;
 mod update_diff;
 mod util;
 
