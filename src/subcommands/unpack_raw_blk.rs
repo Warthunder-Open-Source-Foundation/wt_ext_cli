@@ -11,7 +11,6 @@ use std::{
 use anyhow::{Context, Error};
 use clap::ArgMatches;
 use indicatif::{ProgressBar, ProgressStyle};
-use rayon::{iter::ParallelIterator};
 use tracing::{info, warn};
 use wt_blk::blk::{
 	file::FileType,
