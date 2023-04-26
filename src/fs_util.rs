@@ -43,13 +43,29 @@ pub fn read_recurse_folder(
 	pile: &mut Vec<(PathBuf, Vec<u8>)>,
 	dir: ReadDir,
 ) -> Result<(), CliError> {
+	// 													Yields any file
+	read_recurse_folder_filtered(pile, dir, |_| true, |_| true)
+}
+
+pub fn read_recurse_folder_filtered(
+	pile: &mut Vec<(PathBuf, Vec<u8>)>,
+	dir: ReadDir,
+	filter_name: fn(&PathBuf) -> bool, // Mark true or false whether or not the function should yield
+	filter_content: fn(&Vec<u8>) -> bool, // Mark true or false whether or not the function should yield
+) -> Result<(), CliError> {
 	for file in dir {
 		let file = file.as_ref().unwrap();
 		if file.metadata().unwrap().is_dir() {
 			read_recurse_folder(pile, file.path().read_dir()?)?;
 		} else {
 			let path = file.path();
+			if !filter_name(&path) {
+				continue
+			}
 			let mut read = fs::read(&path)?;
+			if !filter_content(&read) {
+				continue
+			}
 
 			pile.push((path, read));
 		}
