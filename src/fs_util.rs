@@ -7,7 +7,6 @@ use std::{
 
 use crate::{
 	error::CliError,
-	task_queue::{FileTask, TaskType},
 };
 
 const ZST_DICT_MAGIC: [u8; 4] = [0x37, 0xA4, 0x30, 0xEC];
@@ -62,7 +61,7 @@ pub fn read_recurse_folder_filtered(
 			if !filter_name(&path) {
 				continue;
 			}
-			let mut read = fs::read(&path)?;
+			let read = fs::read(&path)?;
 			if !filter_content(&read) {
 				continue;
 			}

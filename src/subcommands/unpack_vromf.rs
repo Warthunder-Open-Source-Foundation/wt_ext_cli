@@ -1,7 +1,7 @@
 use std::{
 	ffi::OsStr,
 	fs,
-	path::{Path, PathBuf},
+	path::{PathBuf},
 	str::FromStr,
 	thread,
 	thread::JoinHandle,
@@ -96,7 +96,7 @@ fn parse_and_write_one_vromf(
 	output_dir: PathBuf,
 	allow_lossy_dict_or_nm: bool,
 ) -> Result<(), anyhow::Error> {
-	let mut vromf_inner = decode_vromf(read)?
+	let vromf_inner = decode_vromf(read)?
 		.into_iter()
 		.map(|x| (PathBuf::from_str(&x.0).unwrap(), x.1))
 		.collect::<Vec<_>>();
@@ -110,7 +110,7 @@ fn parse_and_write_one_vromf(
 			"Failed to find Name Map (nm) in vromf {}",
 			file_name
 		)))
-		.unwrap_or_else(|e| {
+		.unwrap_or_else(|_e| {
 			if allow_lossy_dict_or_nm {
 				(PathBuf::from_str("").unwrap(), vec![])
 			} else {
@@ -127,7 +127,7 @@ fn parse_and_write_one_vromf(
 			"Failed to find ZST dictionary in vromf {}",
 			file_name
 		)))
-		.unwrap_or_else(|e| {
+		.unwrap_or_else(|_e| {
 			if allow_lossy_dict_or_nm {
 				(PathBuf::from_str("").unwrap(), vec![])
 			} else {

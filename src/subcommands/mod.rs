@@ -1,8 +1,8 @@
 use std::{fs, str::FromStr};
 
 use clap::ArgMatches;
-use tracing::{metadata::LevelFilter, Level};
-use tracing_subscriber::filter::Directive;
+use tracing::{metadata::LevelFilter};
+
 
 use crate::{
 	logging::init_logging,
@@ -23,7 +23,7 @@ pub fn branch_subcommands(args: ArgMatches) -> Result<(), anyhow::Error> {
 	} else {
 		LevelFilter::WARN
 	};
-	let file_writer = if let Some(log_path) = args.get_one::<String>("log_path") {
+	let _file_writer = if let Some(log_path) = args.get_one::<String>("log_path") {
 		Some(fs::File::create(log_path)?)
 	} else {
 		None

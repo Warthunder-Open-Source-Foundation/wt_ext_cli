@@ -1,4 +1,4 @@
-use std::{env, fs, path::PathBuf, str::FromStr};
+use std::{fs, path::PathBuf, str::FromStr};
 
 use anyhow::Context;
 use clap::ArgMatches;
@@ -6,7 +6,7 @@ use wt_blk::dxp;
 
 use crate::{
 	error::CliError,
-	fs_util::{read_recurse_folder, read_recurse_folder_filtered},
+	fs_util::{read_recurse_folder_filtered},
 };
 
 pub fn unpack_dxp(args: &ArgMatches) -> Result<(), anyhow::Error> {

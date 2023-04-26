@@ -1,21 +1,13 @@
 #![feature(if_let_guard)]
 
-use std::{
-	fs,
-	fs::ReadDir,
-	rc::Rc,
-	sync::{atomic::AtomicUsize, Arc},
-	thread,
-};
 
-use indicatif::{ProgressBar, ProgressStyle};
-use tracing::info;
-use wt_blk::blk::{nm_file::NameMap, parse_file, DecoderDictionary};
+
+
+
+
 
 use crate::{
 	cli::build_command_structure,
-	fs_util::find_dict,
-	logging::init_logging,
 	subcommands::branch_subcommands,
 };
 

@@ -1,22 +1,18 @@
 use std::{
 	ffi::OsStr,
 	fs,
-	fs::ReadDir,
-	path::{Path, PathBuf},
-	rc::Rc,
+	path::{PathBuf},
 	str::FromStr,
 	sync::{
-		atomic::{AtomicU64, AtomicUsize, Ordering::Relaxed},
 		Arc,
 	},
-	time::Instant,
 };
 
-use anyhow::{bail, Context, Error};
+use anyhow::{Context, Error};
 use clap::ArgMatches;
 use indicatif::{ProgressBar, ProgressStyle};
-use rayon::{iter::ParallelIterator, prelude::IntoParallelIterator};
-use tracing::{debug, info, warn};
+use rayon::{iter::ParallelIterator};
+use tracing::{info, warn};
 use wt_blk::blk::{
 	file::FileType,
 	nm_file::NameMap,
@@ -30,7 +26,6 @@ use crate::{
 	context,
 	error::CliError,
 	fs_util::{find_dict, read_recurse_folder},
-	task_queue::FileTask,
 };
 
 // This is the entry-point

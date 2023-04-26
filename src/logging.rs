@@ -1,11 +1,9 @@
-use std::{fs, fs::File, io::stdout, sync::Mutex};
 
-use tracing::Level;
+
+
 use tracing_subscriber::{
-	filter::{Directive, LevelFilter},
-	fmt::{writer::MakeWriterExt, MakeWriter},
+	filter::{LevelFilter},
 	EnvFilter,
-	Registry,
 };
 
 pub fn init_logging(log_level: LevelFilter) {
