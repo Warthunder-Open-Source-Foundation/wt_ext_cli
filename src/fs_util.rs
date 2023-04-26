@@ -9,7 +9,9 @@ use crate::{
 	error::CliError,
 };
 
+#[allow(dead_code)]
 const ZST_DICT_MAGIC: [u8; 4] = [0x37, 0xA4, 0x30, 0xEC];
+#[allow(dead_code)]
 const ZST_MAGIC: [u8; 4] = [0x28, 0xB5, 0x2F, 0xFD];
 
 /// Non-recursive function for finding a dictionary file
