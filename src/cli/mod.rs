@@ -86,6 +86,13 @@ pub fn build_command_structure() -> Command {
 						.required(true)
 						.value_hint(ValueHint::AnyPath)
 				)
+				.arg(
+					Arg::new("Output directory")
+						.short('o')
+						.long("output_dir")
+						.help("Target folder that will be created to contain new files, preserving file structure")
+						.value_hint(ValueHint::FilePath)
+				)
 		)
 		.subcommand(
 			Command::new("diff_yup NYIMPL")
