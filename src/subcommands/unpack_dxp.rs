@@ -1,4 +1,5 @@
 use std::{fs, path::PathBuf, str::FromStr};
+use std::fs::create_dir_all;
 
 use anyhow::Context;
 use clap::ArgMatches;
@@ -51,18 +52,18 @@ pub fn unpack_dxp(args: &ArgMatches) -> Result<(), anyhow::Error> {
 			.expect("Has to be valid str");
 		let final_content = format!("{file_name}\n\n{parsed}");
 
-		let appended_path = file_name.to_string() + ".txt";
+		let mut final_path = prepared_file.0;
+		final_path.set_extension("dxp.bin.txt");
 		output.push((
-			parsed_input_dir.join(PathBuf::from_str(&appended_path).expect("Infallible")),
+			final_path,
 			final_content,
 		));
 	}
 	for file in output {
 		let final_out = if let Some(out_dir) = &complete_out_dir {
-			// dbg!(out_dir.canonicalize());
-			// dbg!(&file.0.strip_prefix(&parsed_input_dir));
-
-			file.0
+			let out = out_dir.join(file.0.strip_prefix(&parsed_input_dir)?);
+			create_dir_all(&out.parent().unwrap())?;
+			out
 		} else {
 			file.0
 		};
