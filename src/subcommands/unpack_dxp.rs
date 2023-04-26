@@ -6,8 +6,9 @@ use wt_blk::dxp;
 
 use crate::{
 	error::CliError,
-	fs_util::{read_recurse_folder_filtered},
+	fs_util::read_recurse_folder_filtered,
 };
+use crate::error::CliError::DxpParse;
 
 pub fn unpack_dxp(args: &ArgMatches) -> Result<(), anyhow::Error> {
 	let input_dir = args
@@ -20,6 +21,9 @@ pub fn unpack_dxp(args: &ArgMatches) -> Result<(), anyhow::Error> {
 			input_dir
 		))?;
 	let input_read_dir = fs::read_dir(input_dir)?;
+
+	let out_dir = args.get_one::<String>("Output directory");
+	let complete_out_dir = out_dir.and_then(|p| PathBuf::from_str(p).ok());
 
 	let mut prepared_files = vec![];
 	read_recurse_folder_filtered(
@@ -34,11 +38,11 @@ pub fn unpack_dxp(args: &ArgMatches) -> Result<(), anyhow::Error> {
 		},
 		|_| true,
 	)
-	.unwrap();
+		.unwrap();
 
 	let mut output = vec![];
 	for prepared_file in prepared_files {
-		let parsed = dxp::parse_dxp(&prepared_file.1)?.join("\n");
+		let parsed = dxp::parse_dxp(&prepared_file.1).map_err(|e|DxpParse { dxp_error: e, file_name: prepared_file.0.to_str().unwrap().to_string() })?.join("\n");
 		let file_name = prepared_file
 			.0
 			.file_name()
@@ -54,7 +58,15 @@ pub fn unpack_dxp(args: &ArgMatches) -> Result<(), anyhow::Error> {
 		));
 	}
 	for file in output {
-		fs::write(file.0, file.1)?;
+		let final_out = if let Some(out_dir) = &complete_out_dir {
+			// dbg!(out_dir.canonicalize());
+			// dbg!(&file.0.strip_prefix(&parsed_input_dir));
+
+			file.0
+		} else {
+			file.0
+		};
+		fs::write(final_out, file.1)?;
 	}
 
 	Ok(())

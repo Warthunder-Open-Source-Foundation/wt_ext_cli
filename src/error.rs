@@ -1,4 +1,6 @@
+use std::path::{Path, PathBuf};
 use tracing::error;
+use wt_blk::dxp::DxpError;
 
 #[derive(Debug, thiserror::Error)]
 #[allow(dead_code)]
@@ -21,4 +23,10 @@ pub enum CliError {
 
 	#[error("A critical file is missing")]
 	CriticalFileMissing,
+
+	#[error("File {file_name} failed to parse DxP with: {dxp_error}")]
+	DxpParse {
+		dxp_error: DxpError,
+		file_name: String,
+	}
 }
