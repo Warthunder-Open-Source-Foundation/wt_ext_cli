@@ -1,5 +1,4 @@
-use 	std::{fs, fs::create_dir_all, path::PathBuf, str::FromStr};
-use std::io::Read;
+use std::{fs, fs::create_dir_all, io::Read, path::PathBuf, str::FromStr};
 
 use anyhow::Context;
 use clap::ArgMatches;
@@ -10,9 +9,8 @@ use crate::{
 		CliError,
 		CliError::{DxpParse, DxpSplitMissing},
 	},
-	fs_util::read_recurse_folder_filtered,
+	fs_util::{fd_recurse_folder_filtered, read_recurse_folder_filtered},
 };
-use crate::fs_util::fd_recurse_folder_filtered;
 
 pub fn unpack_dxp(args: &ArgMatches) -> Result<(), anyhow::Error> {
 	let input_dir = args
@@ -32,17 +30,13 @@ pub fn unpack_dxp(args: &ArgMatches) -> Result<(), anyhow::Error> {
 	let keep_suffix = args.get_flag("Keep suffix");
 
 	let mut prepared_files = vec![];
-	fd_recurse_folder_filtered(
-		&mut prepared_files,
-		input_read_dir,
-		|path| {
-			path.file_name()
-				.expect("Bad OSstring file TODO: implement")
-				.to_str()
-				.unwrap()
-				.ends_with(".dxp.bin")
-		},
-	)
+	fd_recurse_folder_filtered(&mut prepared_files, input_read_dir, |path| {
+		path.file_name()
+			.expect("Bad OSstring file TODO: implement")
+			.to_str()
+			.unwrap()
+			.ends_with(".dxp.bin")
+	})
 	.unwrap();
 
 	let mut output = vec![];

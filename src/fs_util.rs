@@ -1,11 +1,10 @@
 use std::{
 	fs,
-	fs::ReadDir,
+	fs::{File, ReadDir},
 	io::Read,
+	ops::Deref,
 	path::{Path, PathBuf},
 };
-use std::fs::File;
-use std::ops::Deref;
 
 use crate::error::CliError;
 
@@ -79,10 +78,7 @@ pub fn read_recurse_folder_filtered(
 	Ok(())
 }
 
-pub fn fd_recurse_folder(
-	pile: &mut Vec<(PathBuf, File)>,
-	dir: ReadDir,
-) -> Result<(), CliError> {
+pub fn fd_recurse_folder(pile: &mut Vec<(PathBuf, File)>, dir: ReadDir) -> Result<(), CliError> {
 	// 									Yields any file
 	fd_recurse_folder_filtered(pile, dir, |_| true)
 }
@@ -102,9 +98,8 @@ pub fn fd_recurse_folder_filtered(
 				continue;
 			}
 			let fd = File::open(&path)?;
-			pile.push((path,fd));
+			pile.push((path, fd));
 		}
 	}
 	Ok(())
 }
-
