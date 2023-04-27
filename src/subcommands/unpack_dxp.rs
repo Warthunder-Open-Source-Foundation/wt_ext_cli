@@ -1,4 +1,5 @@
 use 	std::{fs, fs::create_dir_all, path::PathBuf, str::FromStr};
+use std::io::Read;
 
 use anyhow::Context;
 use clap::ArgMatches;
@@ -11,6 +12,7 @@ use crate::{
 	},
 	fs_util::read_recurse_folder_filtered,
 };
+use crate::fs_util::fd_recurse_folder_filtered;
 
 pub fn unpack_dxp(args: &ArgMatches) -> Result<(), anyhow::Error> {
 	let input_dir = args
@@ -30,7 +32,7 @@ pub fn unpack_dxp(args: &ArgMatches) -> Result<(), anyhow::Error> {
 	let keep_suffix = args.get_flag("Keep suffix");
 
 	let mut prepared_files = vec![];
-	read_recurse_folder_filtered(
+	fd_recurse_folder_filtered(
 		&mut prepared_files,
 		input_read_dir,
 		|path| {
@@ -40,13 +42,14 @@ pub fn unpack_dxp(args: &ArgMatches) -> Result<(), anyhow::Error> {
 				.unwrap()
 				.ends_with(".dxp.bin")
 		},
-		|_| true,
 	)
 	.unwrap();
 
 	let mut output = vec![];
-	for prepared_file in prepared_files {
-		let mut dxp = dxp::parse_dxp(&prepared_file.1).map_err(|e| DxpParse {
+	for mut prepared_file in prepared_files {
+		let mut buf = vec![];
+		prepared_file.1.read_to_end(&mut buf)?;
+		let mut dxp = dxp::parse_dxp(&buf).map_err(|e| DxpParse {
 			dxp_error: e,
 			file_name: prepared_file.0.to_str().unwrap().to_string(),
 		})?;
