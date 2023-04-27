@@ -1,15 +1,6 @@
 #![feature(if_let_guard)]
 
-
-
-
-
-
-
-use crate::{
-	cli::build_command_structure,
-	subcommands::branch_subcommands,
-};
+use crate::{cli::build_command_structure, subcommands::branch_subcommands};
 
 mod cli;
 mod error;

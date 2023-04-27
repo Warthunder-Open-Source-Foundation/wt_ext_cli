@@ -1,12 +1,4 @@
-use std::{
-	ffi::OsStr,
-	fs,
-	path::{PathBuf},
-	str::FromStr,
-	sync::{
-		Arc,
-	},
-};
+use std::{ffi::OsStr, fs, path::PathBuf, str::FromStr, sync::Arc};
 
 use anyhow::{Context, Error};
 use clap::ArgMatches;

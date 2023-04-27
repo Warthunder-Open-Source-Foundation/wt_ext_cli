@@ -1,8 +1,7 @@
 use std::{fs, str::FromStr};
 
 use clap::ArgMatches;
-use tracing::{metadata::LevelFilter};
-
+use tracing::metadata::LevelFilter;
 
 use crate::{
 	logging::init_logging,

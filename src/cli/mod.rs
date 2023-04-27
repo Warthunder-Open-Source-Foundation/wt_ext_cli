@@ -1,4 +1,4 @@
-use clap::{command, Arg, ColorChoice, Command, ValueHint, ArgAction};
+use clap::{command, Arg, ArgAction, ColorChoice, Command, ValueHint};
 
 pub fn build_command_structure() -> Command {
 	let matches = command!("wt_ext_cli")

@@ -1,11 +1,4 @@
-use std::{
-	ffi::OsStr,
-	fs,
-	path::{PathBuf},
-	str::FromStr,
-	thread,
-	thread::JoinHandle,
-};
+use std::{ffi::OsStr, fs, path::PathBuf, str::FromStr, thread, thread::JoinHandle};
 
 use anyhow::Context;
 use clap::ArgMatches;

@@ -1,15 +1,16 @@
-use std::{fs, path::PathBuf, str::FromStr};
-use std::fs::create_dir_all;
+use std::{fs, fs::create_dir_all, path::PathBuf, str::FromStr};
 
 use anyhow::Context;
 use clap::ArgMatches;
 use wt_blk::dxp;
 
 use crate::{
-	error::CliError,
+	error::{
+		CliError,
+		CliError::{DxpParse, DxpSplitMissing},
+	},
 	fs_util::read_recurse_folder_filtered,
 };
-use crate::error::CliError::{DxpParse, DxpSplitMissing};
 
 pub fn unpack_dxp(args: &ArgMatches) -> Result<(), anyhow::Error> {
 	let input_dir = args
@@ -41,18 +42,27 @@ pub fn unpack_dxp(args: &ArgMatches) -> Result<(), anyhow::Error> {
 		},
 		|_| true,
 	)
-		.unwrap();
+	.unwrap();
 
 	let mut output = vec![];
 	for prepared_file in prepared_files {
-		let mut dxp = dxp::parse_dxp(&prepared_file.1).map_err(|e|DxpParse { dxp_error: e, file_name: prepared_file.0.to_str().unwrap().to_string() })?;
+		let mut dxp = dxp::parse_dxp(&prepared_file.1).map_err(|e| DxpParse {
+			dxp_error: e,
+			file_name: prepared_file.0.to_str().unwrap().to_string(),
+		})?;
 		if !keep_suffix {
 			for name in &mut dxp {
-				*name = name.split("*").next().ok_or(DxpSplitMissing { line: name.to_string() })?.to_owned();
+				*name = name
+					.split("*")
+					.next()
+					.ok_or(DxpSplitMissing {
+						line: name.to_string(),
+					})?
+					.to_owned();
 			}
 		}
 
-		let parsed = dxp.join("\n");;
+		let parsed = dxp.join("\n");
 		let file_name = prepared_file
 			.0
 			.file_name()
@@ -63,10 +73,7 @@ pub fn unpack_dxp(args: &ArgMatches) -> Result<(), anyhow::Error> {
 
 		let mut final_path = prepared_file.0;
 		final_path.set_extension("txt");
-		output.push((
-			final_path,
-			final_content,
-		));
+		output.push((final_path, final_content));
 	}
 	for file in output {
 		let final_out = if let Some(out_dir) = &complete_out_dir {

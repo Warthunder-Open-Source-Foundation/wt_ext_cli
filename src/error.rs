@@ -1,4 +1,3 @@
-use std::path::{Path, PathBuf};
 use tracing::error;
 use wt_blk::dxp::DxpError;
 
@@ -31,7 +30,5 @@ pub enum CliError {
 	},
 
 	#[error("The line {line} failed to split at a '*' char")]
-	DxpSplitMissing {
-		line: String
-	}
+	DxpSplitMissing { line: String },
 }

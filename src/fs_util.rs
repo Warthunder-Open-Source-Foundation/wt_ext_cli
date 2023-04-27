@@ -5,9 +5,7 @@ use std::{
 	path::{Path, PathBuf},
 };
 
-use crate::{
-	error::CliError,
-};
+use crate::error::CliError;
 
 #[allow(dead_code)]
 const ZST_DICT_MAGIC: [u8; 4] = [0x37, 0xA4, 0x30, 0xEC];
@@ -57,7 +55,12 @@ pub fn read_recurse_folder_filtered(
 	for file in dir {
 		let file = file.as_ref().unwrap();
 		if file.metadata().unwrap().is_dir() {
-			read_recurse_folder_filtered(pile, file.path().read_dir()?, filter_name, filter_content)?;
+			read_recurse_folder_filtered(
+				pile,
+				file.path().read_dir()?,
+				filter_name,
+				filter_content,
+			)?;
 		} else {
 			let path = file.path();
 			if !filter_name(&path) {

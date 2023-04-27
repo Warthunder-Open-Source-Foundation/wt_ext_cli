@@ -14,7 +14,7 @@ pub struct FileDiff {
 
 #[cfg(test)]
 mod test {
-	use std::{fs, io::BufRead};
+	use std::fs;
 
 	use crate::update_diff::{Diff, FileDiff};
 
