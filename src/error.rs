@@ -28,5 +28,10 @@ pub enum CliError {
 	DxpParse {
 		dxp_error: DxpError,
 		file_name: String,
+	},
+
+	#[error("The line {line} failed to split at a '*' char")]
+	DxpSplitMissing {
+		line: String
 	}
 }

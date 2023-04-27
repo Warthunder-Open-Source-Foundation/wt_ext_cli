@@ -1,4 +1,4 @@
-use clap::{command, Arg, ColorChoice, Command, ValueHint};
+use clap::{command, Arg, ColorChoice, Command, ValueHint, ArgAction};
 
 pub fn build_command_structure() -> Command {
 	let matches = command!("wt_ext_cli")
@@ -92,6 +92,13 @@ pub fn build_command_structure() -> Command {
 						.long("output_dir")
 						.help("Target folder that will be created to contain new files, preserving file structure")
 						.value_hint(ValueHint::FilePath)
+				)
+				.arg(
+					Arg::new("Keep suffix")
+						.long("keep_suffix")
+						.help("Paths and Names inside the final DXP are always followed by \"water_garbage_pile_b_tex_d$hq*\" or random unicode chars \"u+4575\"")
+						.num_args(0) // Expects only a flag, no data
+						.action(ArgAction::SetTrue)
 				)
 		)
 		.subcommand(

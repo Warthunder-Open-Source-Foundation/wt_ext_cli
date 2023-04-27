@@ -9,7 +9,7 @@ use crate::{
 	error::CliError,
 	fs_util::read_recurse_folder_filtered,
 };
-use crate::error::CliError::DxpParse;
+use crate::error::CliError::{DxpParse, DxpSplitMissing};
 
 pub fn unpack_dxp(args: &ArgMatches) -> Result<(), anyhow::Error> {
 	let input_dir = args
@@ -25,6 +25,8 @@ pub fn unpack_dxp(args: &ArgMatches) -> Result<(), anyhow::Error> {
 
 	let out_dir = args.get_one::<String>("Output directory");
 	let complete_out_dir = out_dir.and_then(|p| PathBuf::from_str(p).ok());
+
+	let keep_suffix = args.get_flag("Keep suffix");
 
 	let mut prepared_files = vec![];
 	read_recurse_folder_filtered(
@@ -43,7 +45,14 @@ pub fn unpack_dxp(args: &ArgMatches) -> Result<(), anyhow::Error> {
 
 	let mut output = vec![];
 	for prepared_file in prepared_files {
-		let parsed = dxp::parse_dxp(&prepared_file.1).map_err(|e|DxpParse { dxp_error: e, file_name: prepared_file.0.to_str().unwrap().to_string() })?.join("\n");
+		let mut dxp = dxp::parse_dxp(&prepared_file.1).map_err(|e|DxpParse { dxp_error: e, file_name: prepared_file.0.to_str().unwrap().to_string() })?;
+		if !keep_suffix {
+			for name in &mut dxp {
+				*name = name.split("*").next().ok_or(DxpSplitMissing { line: name.to_string() })?.to_owned();
+			}
+		}
+
+		let parsed = dxp.join("\n");;
 		let file_name = prepared_file
 			.0
 			.file_name()
