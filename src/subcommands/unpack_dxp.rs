@@ -69,7 +69,7 @@ pub fn unpack_dxp(args: &ArgMatches) -> Result<(), anyhow::Error> {
 			.expect("Has to be valid str")
 			.to_str()
 			.expect("Has to be valid str");
-		let final_content = format!("folder {file_name}\n\n{parsed}\n");
+		let final_content = format!("folder {file_name}\n\n{parsed}");
 
 		let mut final_path = prepared_file.0;
 		final_path.set_extension("txt");
