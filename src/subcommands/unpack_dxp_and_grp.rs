@@ -2,6 +2,8 @@ use std::{fs, fs::create_dir_all, io::Read, path::PathBuf, str::FromStr};
 
 use anyhow::Context;
 use clap::ArgMatches;
+use rayon::iter::IntoParallelIterator;
+use rayon::iter::ParallelIterator;
 use wt_blk::dxp_and_grp::{dxp, parse_buffered};
 
 use crate::{
@@ -38,7 +40,7 @@ pub fn unpack_dxp_and_grp(args: &ArgMatches) -> Result<(), anyhow::Error> {
 	})
 	.unwrap();
 
-	for mut prepared_file in prepared_files {
+	prepared_files.into_par_iter().map(|mut prepared_file|{
 		let mut dxp_or_grp = parse_buffered(&prepared_file.1).map_err(|e| DxpGrpError {
 			dxp_error: e,
 			file_name: prepared_file.0.to_str().unwrap().to_string(),
@@ -80,7 +82,6 @@ pub fn unpack_dxp_and_grp(args: &ArgMatches) -> Result<(), anyhow::Error> {
 			file.0
 		};
 		fs::write(final_out, file.1)?;
-	}
-
-	Ok(())
+		Ok(())
+	}).collect::<Result<(), _>>()
 }
