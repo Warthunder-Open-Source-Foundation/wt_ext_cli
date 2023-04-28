@@ -75,14 +75,14 @@ pub fn build_command_structure() -> Command {
 				)
 		)
 		.subcommand(
-			Command::new("unpack_dxp")
+			Command::new("unpack_dxp_and_grp")
 				.long_flag("unpack_dxp")
-				.about("Unpacks folder and subfolder DXP files to text-formatted file")
+				.about("Unpacks folder and subfolder DXP and GRP files to text-formatted file")
 				.arg(
 					Arg::new("Input directory")
 						.short('i')
 						.long("input_dir")
-						.help("Folder with dxp files inside")
+						.help("Folder with DXP/GRP files inside")
 						.required(true)
 						.value_hint(ValueHint::AnyPath)
 				)
@@ -96,7 +96,7 @@ pub fn build_command_structure() -> Command {
 				.arg(
 					Arg::new("Keep suffix")
 						.long("keep_suffix")
-						.help("Paths and Names inside the final DXP are always followed by \"water_garbage_pile_b_tex_d$hq*\" or random unicode chars \"u+4575\"")
+						.help("Paths and Names inside the final DXP/GRP are always followed by \"water_garbage_pile_b_tex_d$hq*\" or random unicode chars \"u+4575\"")
 						.num_args(0) // Expects only a flag, no data
 						.action(ArgAction::SetTrue)
 				)

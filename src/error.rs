@@ -1,5 +1,4 @@
 use tracing::error;
-use wt_blk::dxp::DxpError;
 
 #[derive(Debug, thiserror::Error)]
 #[allow(dead_code)]
@@ -24,11 +23,11 @@ pub enum CliError {
 	CriticalFileMissing,
 
 	#[error("File {file_name} failed to parse DxP with: {dxp_error}")]
-	DxpParse {
-		dxp_error: DxpError,
+	DxpGrpError {
+		dxp_error: wt_blk::dxp_and_grp::error::DxpGrpError,
 		file_name: String,
 	},
 
 	#[error("The line {line} failed to split at a '*' char")]
-	DxpSplitMissing { line: String },
+	DxpGrpSplitMissing { line: String },
 }
