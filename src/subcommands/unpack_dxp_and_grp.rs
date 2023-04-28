@@ -38,9 +38,8 @@ pub fn unpack_dxp_and_grp(args: &ArgMatches) -> Result<(), anyhow::Error> {
 	})
 	.unwrap();
 
-	let mut output = vec![];
 	for mut prepared_file in prepared_files {
-		let mut dxp_or_grp = wt_blk::dxp_and_grp::parse_buffered(&prepared_file.1).map_err(|e| DxpGrpError {
+		let mut dxp_or_grp = parse_buffered(&prepared_file.1).map_err(|e| DxpGrpError {
 			dxp_error: e,
 			file_name: prepared_file.0.to_str().unwrap().to_string(),
 		})?;
@@ -71,9 +70,8 @@ pub fn unpack_dxp_and_grp(args: &ArgMatches) -> Result<(), anyhow::Error> {
 		} else {
 			final_path.set_extension("txt");
 		}
-		output.push((final_path, final_content));
-	}
-	for file in output {
+		let file = (final_path, final_content);
+
 		let final_out = if let Some(out_dir) = &complete_out_dir {
 			let out = out_dir.join(file.0.strip_prefix(&parsed_input_dir)?);
 			create_dir_all(&out.parent().unwrap())?;
