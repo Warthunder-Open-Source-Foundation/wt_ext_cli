@@ -41,9 +41,9 @@ pub fn unpack_dxp(args: &ArgMatches) -> Result<(), anyhow::Error> {
 
 	let mut output = vec![];
 	for mut prepared_file in prepared_files {
-		let mut buf = vec![];
-		prepared_file.1.read_to_end(&mut buf)?;
-		let mut dxp = dxp::parse_dxp(&buf).map_err(|e| DxpParse {
+		// let mut buf = vec![];
+		// prepared_file.1.read_to_end(&mut buf)?;
+		let mut dxp = dxp::parse_dxp_buffered(&prepared_file.1).map_err(|e| DxpParse {
 			dxp_error: e,
 			file_name: prepared_file.0.to_str().unwrap().to_string(),
 		})?;
