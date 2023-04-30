@@ -1,16 +1,20 @@
-name: Nightly release build
-on:
-  push:
-    tags:
-      - 'v*'
+name: Nightly release
+
+on: push
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Release nightly build
-        uses: elgohr/Github-Release-Action@v4
-        env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Build
+        run: cargo build --release
+      - name: Release
+        prerelease: true
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
         with:
-          title: Nightly${{  github.ref_name }}
+          files: |
+            target/release/wt_ext_cli
+            LICENSE
