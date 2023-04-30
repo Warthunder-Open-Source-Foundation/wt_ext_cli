@@ -13,4 +13,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
         with:
-          title: TEST NIGHTLY RELEASE A
+          title: TEST NIGHTLY RELEASE B
