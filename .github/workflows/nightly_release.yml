@@ -13,4 +13,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
         with:
-          title: Release nightly build ${{  github.ref_name }}
+          title: Nightly${{  github.ref_name }}
