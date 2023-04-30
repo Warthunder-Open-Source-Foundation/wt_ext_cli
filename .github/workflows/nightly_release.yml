@@ -3,7 +3,7 @@ name: Nightly release
 on:
   push:
     tags:
-      - "v*.*.*"
+      - "nv*.*.*"
 
 env:
   CARGO_TERM_COLOR: always
