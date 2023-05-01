@@ -1,4 +1,4 @@
-# **FYI: Any command marked with not-yet-implemented (NYIMPL) will not work properly or at all**
+# **Disclaimer: Any command marked with not-yet-implemented (NYIMPL) will not work properly or at all**
 
 # Usage
 As a first point of reference, you may always call `--help` in order to get a print-out of the current arguments expected.  
