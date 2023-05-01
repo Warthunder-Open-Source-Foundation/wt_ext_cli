@@ -1,8 +1,6 @@
 # wt_ext_cli
 >**Download, extract and transform in-game files**
 
-Licensed under the [Apache 2.0](https://github.com/Warthunder-Open-Source-Foundation/wt_blk/blob/master/LICENSE) license
-
 ## Installing
 
 ### Easy way:
@@ -25,3 +23,6 @@ Licensed under the [Apache 2.0](https://github.com/Warthunder-Open-Source-Founda
 
 ## Usage
 For usage, view [this guide](https://github.com/Warthunder-Open-Source-Foundation/wt_ext_cli/blob/master/usage_manual.md)
+  
+  
+Licensed under the [Apache 2.0](https://github.com/Warthunder-Open-Source-Foundation/wt_blk/blob/master/LICENSE) license
