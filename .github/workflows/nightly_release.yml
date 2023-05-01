@@ -33,6 +33,7 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
+          generate_release_notes: true
           prerelease: true
           files: |
             target/release/wt_ext_cli
