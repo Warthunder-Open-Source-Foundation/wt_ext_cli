@@ -31,6 +31,13 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<(), anyhow::Error> {
 		}
 	};
 
+	let mode = match args.get_one::<String>("format").map(|e|e.as_str()) {
+		Some("Json") => OutFormat::Json,
+		Some("BlkText") => OutFormat::BlkText,
+		Some("BlkRaw") => OutFormat::BlkRaw,
+		_ => {panic!("Unrecognized output format: {:?}", args.get_one::<String>("format"))}
+	};
+
 	if parsed_input_dir.is_dir() {
 		let mut threads: Vec<Box<JoinHandle<Result<(), anyhow::Error>>>> = vec![];
 		let inner = fs::read_dir(&parsed_input_dir)?;
@@ -60,6 +67,7 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<(), anyhow::Error> {
 							normalized,
 							output_folder,
 							true,
+							mode,
 						)?;
 						Ok(())
 					})))
@@ -76,7 +84,7 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<(), anyhow::Error> {
 			.ok_or(FileWithoutParent)?
 			.to_path_buf();
 		let normalized = parent_input_dir.canonicalize()?;
-		parse_and_write_one_vromf(input_dir, &read, normalized, output_folder, true)?;
+		parse_and_write_one_vromf(input_dir, &read, normalized, output_folder, true, mode)?;
 	}
 
 	Ok(())
@@ -88,6 +96,7 @@ fn parse_and_write_one_vromf(
 	input_dir: PathBuf,
 	output_dir: PathBuf,
 	allow_lossy_dict_or_nm: bool,
+	format: OutFormat,
 ) -> Result<(), anyhow::Error> {
 	let vromf_inner = decode_vromf(read)?
 		.into_iter()
@@ -131,6 +140,7 @@ fn parse_and_write_one_vromf(
 
 	parse_and_write_blk(
 		vromf_inner,
+		format,
 		nm.1,
 		dict.1,
 		input_dir,
@@ -145,4 +155,11 @@ fn strip_and_add_prefix(
 	output_dir: PathBuf,
 ) -> Result<PathBuf, anyhow::Error> {
 	Ok(output_dir.join(input))
+}
+
+#[derive(Clone, Copy)]
+pub enum OutFormat {
+	BlkText,
+	BlkRaw,
+	Json,
 }

@@ -18,6 +18,7 @@ use crate::{
 	error::CliError,
 	fs_util::{find_dict, read_recurse_folder},
 };
+use crate::subcommands::unpack_vromf::OutFormat;
 
 // This is the entry-point
 pub fn unpack_raw_blk(args: &ArgMatches) -> Result<(), anyhow::Error> {
@@ -63,6 +64,7 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<(), anyhow::Error> {
 
 	parse_and_write_blk(
 		prepared_files,
+		OutFormat::Json,  // TODO: Replace default
 		nm,
 		dict,
 		parsed_input_dir,
@@ -75,6 +77,7 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<(), anyhow::Error> {
 
 pub fn parse_and_write_blk(
 	prepared_files: Vec<(PathBuf, Vec<u8>)>,
+	format: OutFormat,
 	nm: Vec<u8>,
 	dict: Vec<u8>,
 	input_dir: PathBuf,
@@ -106,7 +109,7 @@ pub fn parse_and_write_blk(
 			let out = if file.0.extension() == Some(OsStr::new("blk"))
 				&& FileType::from_byte(file.1[0]).is_some()
 			{
-				parse_file(file.1, arced_fd.clone(), rc_nm.clone()).map(|x| x.into_bytes())
+				parse_file(file.1, arced_fd.clone(), rc_nm.clone(), format)
 			} else {
 				Some(file.1)
 			};
@@ -142,7 +145,8 @@ fn parse_file(
 	mut file: Vec<u8>,
 	fd: Arc<BlkDecoder>,
 	shared_name_map: Arc<NameMap>,
-) -> Option<String> {
+	format: OutFormat,
+) -> Option<Vec<u8>> {
 	let mut offset = 0;
 	let file_type = FileType::from_byte(file[0])?;
 	if file_type.is_zstd() {
@@ -153,7 +157,17 @@ fn parse_file(
 	};
 
 	let parsed = parse_blk(&file[offset..], file_type.is_slim(), shared_name_map).ok()?;
-	Some(parsed.as_ref_json(FormattingConfiguration::GSZABI_REPO))
+	return match format {
+		OutFormat::BlkText => {
+			Some(parsed.as_blk_text().into_bytes())
+		}
+		OutFormat::BlkRaw => {
+			Some(file)
+		}
+		OutFormat::Json => {
+			Some(parsed.as_ref_json(FormattingConfiguration::GSZABI_REPO).into_bytes())
+		}
+	}
 }
 
 fn strip_and_add_prefix(
