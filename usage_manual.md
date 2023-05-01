@@ -1,8 +1,8 @@
 # **Disclaimer: Any command marked with not-yet-implemented (NYIMPL) will not work properly or at all**
 
 # Usage
-As a first point of reference, you may always call `--help` in order to get a print-out of the current arguments expected.  
-Example (may be outdated): `wt_ext_cli --help`
+As a first point of reference, you may always call `--help` (including sub-commands such as `wt_ext_cli --unpack_vromf --help`), as it is always up-to-date.  
+Example help-output: `wt_ext_cli --help`
 ```
 WarThunder datamining extraction tools
 
