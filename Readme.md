@@ -15,7 +15,7 @@ Licensed under the [Apache 2.0](https://github.com/Warthunder-Open-Source-Founda
 3. Depending on the goal, do the following:
    | Goal                        | Command                          |
    |-----------------------------|----------------------------------|
-   | Build a portable executable | `cargo build --release` binary is in `target/release/wt_ext_cli(.exe)`|
+   | Build a portable executable | `cargo build --release` binary can be found in `target/release/wt_ext_cli(.exe)`|
    | Install the tool locally    | `cargo install --profile release --path .`|
    | Run the tool directly       | `cargo run --release -- {FLAGS}` replace FLAGS with CLI args|
 
