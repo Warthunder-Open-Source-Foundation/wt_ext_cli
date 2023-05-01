@@ -28,16 +28,16 @@ jobs:
         run: cross build --release --target x86_64-pc-windows-gnu
 
       - name: Rename linux bin
-        run: mv target/release/wt_ext_cli target/release/wt_ext_cli_linux_x86
+        run: mv target/release/wt_ext_cli target/release/wt_ext_cli
 
-      - name: Rename linux bin
-        run: mv target/release/wt_ext_cli.exe target/release/wt_ext_cli_windows_x86.exe
+      - name: Rename windows bin
+        run: mv target/x86_64-pc-windows-gnu/release/wt_ext_cli.exe target/x86_64-pc-windows-gnu/release/wt_ext_cli-windows-x86.exe
 
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
           prerelease: true
           files: |
-            target/release/wt_ext_cli_linux_x86
-            target/release/wt_ext_cli_windows_x86.exe
+            target/release/wt_ext_cli
+            target/x86_64-pc-windows-gnu/release/wt_ext_cli-windows-x86.exe
             LICENSE
