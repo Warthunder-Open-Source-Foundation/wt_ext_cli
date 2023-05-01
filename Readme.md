@@ -6,7 +6,8 @@ Licensed under the [Apache 2.0](https://github.com/Warthunder-Open-Source-Founda
 ## Installing
 
 Installation
-- [Download from the latest release](https://github.com/Warthunder-Open-Source-Foundation/wt_ext_cli/releases)
+- [Download from the latest stable-release](https://github.com/Warthunder-Open-Source-Foundation/wt_ext_cli/releases?q=prerelease%253Afalse)
+- [Download from the latest pre-release](https://github.com/Warthunder-Open-Source-Foundation/wt_ext_cli/releases?q=prerelease%253Atrue)
 - From source as shown below
 
 ### From source
