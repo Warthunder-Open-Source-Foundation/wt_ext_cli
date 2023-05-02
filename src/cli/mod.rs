@@ -74,6 +74,12 @@ pub fn build_command_structure() -> Command {
 						.help("Output format, can be one of: [Json, BlkText, Raw]. Defaults to Json")
 						.default_value("Json")
 				)
+				.arg(
+					Arg::new("vromf_format")
+						.long("vromf_format")
+						.help("May be one of: [Regular, Grp]")
+						.default_value("Regular")
+				)
 		)
 		.subcommand(
 			Command::new("unpack_dxp_and_grp")

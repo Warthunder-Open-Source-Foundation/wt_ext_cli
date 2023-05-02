@@ -39,6 +39,12 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<(), anyhow::Error> {
 		_ => {panic!("Unrecognized output format: {:?}", args.get_one::<String>("format"))}
 	};
 
+	let vromf_format = match args.get_one::<String>("vromf_format").map(|e|e.as_str()) {
+		Some("Regular") => FileMode::Regular,
+		Some("Grp") => FileMode::Grp,
+		_ => {panic!("Unrecognized  vromf_format: {:?}", args.get_one::<String>("vromf_format"))}
+	};
+
 	if parsed_input_dir.is_dir() {
 		let mut threads: Vec<Box<JoinHandle<Result<(), anyhow::Error>>>> = vec![];
 		let inner = fs::read_dir(&parsed_input_dir)?;
@@ -69,6 +75,7 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<(), anyhow::Error> {
 							output_folder,
 							true,
 							mode,
+							vromf_format,
 						)?;
 						Ok(())
 					})))
@@ -85,7 +92,7 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<(), anyhow::Error> {
 			.ok_or(FileWithoutParent)?
 			.to_path_buf();
 		let normalized = parent_input_dir.canonicalize()?;
-		parse_and_write_one_vromf(input_dir, &read, normalized, output_folder, true, mode)?;
+		parse_and_write_one_vromf(input_dir, &read, normalized, output_folder, true, mode, vromf_format)?;
 	}
 
 	Ok(())
@@ -98,8 +105,9 @@ fn parse_and_write_one_vromf(
 	output_dir: PathBuf,
 	allow_lossy_dict_or_nm: bool,
 	format: OutFormat,
+	vromf_format: FileMode,
 ) -> Result<(), anyhow::Error> {
-	let vromf_inner = decode_vromf(read, FileMode::Regular)?
+	let vromf_inner = decode_vromf(read, vromf_format)?
 		.into_iter()
 		.map(|x| (PathBuf::from_str(&x.0).unwrap(), x.1))
 		.collect::<Vec<_>>();
