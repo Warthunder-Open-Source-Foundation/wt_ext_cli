@@ -161,7 +161,7 @@ fn parse_file(
 		OutFormat::BlkText => {
 			Some(parsed.as_blk_text().into_bytes())
 		}
-		OutFormat::BlkRaw => {
+		OutFormat::Raw => {
 			Some(file)
 		}
 		OutFormat::Json => {

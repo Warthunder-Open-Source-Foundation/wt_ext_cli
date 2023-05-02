@@ -4,6 +4,7 @@ use anyhow::Context;
 use clap::ArgMatches;
 use tracing::info;
 use wt_blk::vromf::decode_vromf;
+use wt_blk::vromf::enums::FileMode;
 
 use crate::{
 	context,
@@ -34,7 +35,7 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<(), anyhow::Error> {
 	let mode = match args.get_one::<String>("format").map(|e|e.as_str()) {
 		Some("Json") => OutFormat::Json,
 		Some("BlkText") => OutFormat::BlkText,
-		Some("BlkRaw") => OutFormat::BlkRaw,
+		Some("Raw") => OutFormat::Raw,
 		_ => {panic!("Unrecognized output format: {:?}", args.get_one::<String>("format"))}
 	};
 
@@ -98,7 +99,7 @@ fn parse_and_write_one_vromf(
 	allow_lossy_dict_or_nm: bool,
 	format: OutFormat,
 ) -> Result<(), anyhow::Error> {
-	let vromf_inner = decode_vromf(read)?
+	let vromf_inner = decode_vromf(read, FileMode::Regular)?
 		.into_iter()
 		.map(|x| (PathBuf::from_str(&x.0).unwrap(), x.1))
 		.collect::<Vec<_>>();
@@ -160,6 +161,6 @@ fn strip_and_add_prefix(
 #[derive(Clone, Copy)]
 pub enum OutFormat {
 	BlkText,
-	BlkRaw,
+	Raw,
 	Json,
 }

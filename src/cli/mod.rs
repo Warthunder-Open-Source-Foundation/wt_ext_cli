@@ -71,7 +71,7 @@ pub fn build_command_structure() -> Command {
 				.arg(
 					Arg::new("format")
 						.long("format")
-						.help("Output format, can be one of: [Json, BlkText, BlkRaw]. Defaults to Json")
+						.help("Output format, can be one of: [Json, BlkText, Raw]. Defaults to Json")
 						.default_value("Json")
 				)
 		)
