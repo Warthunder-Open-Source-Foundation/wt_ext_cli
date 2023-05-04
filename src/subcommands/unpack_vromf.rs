@@ -1,18 +1,16 @@
-use std::{ffi::OsStr, fs, path::PathBuf, str::FromStr, thread, thread::JoinHandle};
+use std::{fs, path::PathBuf, str::FromStr, thread, thread::JoinHandle};
 
 use anyhow::Context;
 use clap::ArgMatches;
 use tracing::info;
-use wt_blk::blk::BlkOutputFormat;
-use wt_blk::blk::output_formatting_conf::FormattingConfiguration;
-use wt_blk::vromf::unpacker::VromfUnpacker;
+use wt_blk::{
+	blk::{output_formatting_conf::FormattingConfiguration, BlkOutputFormat},
+	vromf::unpacker::VromfUnpacker,
+};
 
 use crate::{
 	context,
-	error::{
-		CliError,
-		CliError::{CriticalFileMissing, FileWithoutParent},
-	},
+	error::{CliError, CliError::FileWithoutParent},
 };
 
 pub fn unpack_vromf(args: &ArgMatches) -> Result<(), anyhow::Error> {
@@ -32,11 +30,16 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<(), anyhow::Error> {
 		}
 	};
 
-	let mode = match args.get_one::<String>("format").map(|e|e.as_str()) {
+	let mode = match args.get_one::<String>("format").map(|e| e.as_str()) {
 		Some("Json") => Some(BlkOutputFormat::Json(FormattingConfiguration::GSZABI_REPO)),
 		Some("BlkText") => Some(BlkOutputFormat::BlkText),
 		Some("Raw") => None,
-		_ => {panic!("Unrecognized output format: {:?}", args.get_one::<String>("format"))}
+		_ => {
+			panic!(
+				"Unrecognized output format: {:?}",
+				args.get_one::<String>("format")
+			)
+		},
 	};
 
 	if parsed_input_dir.is_dir() {
@@ -93,13 +96,12 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<(), anyhow::Error> {
 fn parse_and_write_one_vromf(
 	file_name: &str,
 	read: Vec<u8>,
-	input_dir: PathBuf,
-	output_dir: PathBuf,
+	_input_dir: PathBuf,
+	_output_dir: PathBuf,
 	format: Option<BlkOutputFormat>,
 ) -> Result<(), anyhow::Error> {
 	let parser = VromfUnpacker::from_file((PathBuf::from_str(file_name)?, read))?;
-	let files = parser.unpack_all(format)?;
-	//
+	let _files = parser.unpack_all(format)?;
 	// parse_and_write_blk(
 	// 	vromf_inner,
 	// 	format,
