@@ -1,4 +1,5 @@
 use std::{fs, path::PathBuf, str::FromStr, thread, thread::JoinHandle};
+use std::ffi::OsStr;
 
 use anyhow::Context;
 use clap::ArgMatches;
@@ -26,7 +27,7 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<(), anyhow::Error> {
 			parent_folder.join(path)
 		}
 		_ => {
-			PathBuf::from_str(&format!("{}_u", input_dir))?
+			parsed_input_dir.clone().parent().ok_or(CliError::InvalidPath)?.to_owned()
 		}
 	};
 
@@ -39,7 +40,7 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<(), anyhow::Error> {
 				"Unrecognized output format: {:?}",
 				args.get_one::<String>("format")
 			)
-		},
+		}
 	};
 
 	if parsed_input_dir.is_dir() {
@@ -64,11 +65,9 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<(), anyhow::Error> {
 							.parent()
 							.ok_or(FileWithoutParent)?
 							.to_path_buf();
-						let normalized = parent_input_dir.canonicalize()?;
 						parse_and_write_one_vromf(
-							&file.file_name().into_string().unwrap(),
+							file.path(),
 							read,
-							normalized,
 							output_folder,
 							mode,
 						)?;
@@ -82,34 +81,31 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<(), anyhow::Error> {
 		}
 	} else {
 		let read = fs::read(&parsed_input_dir)?;
-		let parent_input_dir = parsed_input_dir
-			.parent()
-			.ok_or(FileWithoutParent)?
-			.to_path_buf();
-		let normalized = parent_input_dir.canonicalize()?;
-		parse_and_write_one_vromf(input_dir, read, normalized, output_folder, mode)?;
+		parse_and_write_one_vromf(parsed_input_dir, read, output_folder, mode)?;
 	}
 
 	Ok(())
 }
 
 fn parse_and_write_one_vromf(
-	file_name: &str,
+	file_path: PathBuf,
 	read: Vec<u8>,
-	_input_dir: PathBuf,
-	_output_dir: PathBuf,
+	output_dir: PathBuf,
 	format: Option<BlkOutputFormat>,
 ) -> Result<(), anyhow::Error> {
-	let parser = VromfUnpacker::from_file((PathBuf::from_str(file_name)?, read))?;
-	let _files = parser.unpack_all(format)?;
-	// parse_and_write_blk(
-	// 	vromf_inner,
-	// 	format,
-	// 	nm.1,
-	// 	dict.1,
-	// 	input_dir,
-	// 	output_dir,
-	// 	strip_and_add_prefix,
-	// )
+	let parser = VromfUnpacker::from_file((file_path.clone(), read))?;
+	let files = parser.unpack_all(format)?;
+
+
+	let mut vromf_name = PathBuf::from(file_path.file_name().ok_or(CliError::InvalidPath)?);
+	let mut old_extension = vromf_name.extension().ok_or(CliError::InvalidPath)?.to_os_string();
+	old_extension.push("_u");
+	vromf_name.set_extension(old_extension);
+
+	for file in files {
+		let joined_final_path = output_dir.join(vromf_name.clone().join(&file.0));
+		fs::create_dir_all(joined_final_path.parent().ok_or(CliError::InvalidPath)?)?;
+		fs::write(joined_final_path, file.1)?;
+	}
 	Ok(())
 }
