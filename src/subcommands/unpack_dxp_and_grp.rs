@@ -1,10 +1,10 @@
-use std::{fs, fs::create_dir_all, io::Read, path::PathBuf, str::FromStr};
+use std::{fs, fs::create_dir_all, path::PathBuf, str::FromStr};
 
 use anyhow::Context;
 use clap::ArgMatches;
 use rayon::iter::IntoParallelIterator;
 use rayon::iter::ParallelIterator;
-use wt_blk::dxp_and_grp::{dxp, parse_buffered};
+use wt_blk::dxp_and_grp::{parse_buffered};
 
 use crate::{
 	fs_util::{fd_recurse_folder_filtered, read_recurse_folder_filtered},

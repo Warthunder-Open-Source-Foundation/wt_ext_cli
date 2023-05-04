@@ -2,7 +2,6 @@ use std::{
 	fs,
 	fs::{File, ReadDir},
 	io::Read,
-	ops::Deref,
 	path::{Path, PathBuf},
 };
 
@@ -15,6 +14,7 @@ const ZST_MAGIC: [u8; 4] = [0x28, 0xB5, 0x2F, 0xFD];
 
 /// Non-recursive function for finding a dictionary file
 /// Searches folder for the first match
+#[allow(dead_code)]
 pub fn find_dict<P: AsRef<Path>>(root: P) -> Option<(String, Vec<u8>)> {
 	for f in fs::read_dir(root).ok()? {
 		if let Ok(dir_entry) = f {
@@ -34,11 +34,13 @@ pub fn find_dict<P: AsRef<Path>>(root: P) -> Option<(String, Vec<u8>)> {
 	None
 }
 
+#[allow(dead_code)]
 #[inline(always)]
 fn is_zst_dict(file: &[u8]) -> bool {
 	file.starts_with(&ZST_DICT_MAGIC)
 }
 
+#[allow(dead_code)]
 pub fn read_recurse_folder(
 	pile: &mut Vec<(PathBuf, Vec<u8>)>,
 	dir: ReadDir,
@@ -47,6 +49,7 @@ pub fn read_recurse_folder(
 	read_recurse_folder_filtered(pile, dir, |_| true, |_| true)
 }
 
+#[allow(dead_code)]
 pub fn read_recurse_folder_filtered(
 	pile: &mut Vec<(PathBuf, Vec<u8>)>,
 	dir: ReadDir,
@@ -78,6 +81,7 @@ pub fn read_recurse_folder_filtered(
 	Ok(())
 }
 
+#[allow(dead_code)]
 pub fn fd_recurse_folder(pile: &mut Vec<(PathBuf, File)>, dir: ReadDir) -> Result<(), CliError> {
 	// 									Yields any file
 	fd_recurse_folder_filtered(pile, dir, |_| true)

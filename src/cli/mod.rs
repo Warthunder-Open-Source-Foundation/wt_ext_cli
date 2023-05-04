@@ -19,7 +19,7 @@ pub fn build_command_structure() -> Command {
 				.help("Set log level, may be one of [Trace, Debug, Info, Warn, Error], default: Warn")
 		)
 		.subcommand(
-			Command::new("unpack_raw_blk")
+			Command::new("unpack_raw_blk NYIMPL")
 				.long_flag("unpack_raw_blk")
 				.about("Unpacks a folder of raw/binary blk files into their unpacked format")
 				.arg(
@@ -73,12 +73,6 @@ pub fn build_command_structure() -> Command {
 						.long("format")
 						.help("Output format, can be one of: [Json, BlkText, Raw]. Defaults to Json")
 						.default_value("Json")
-				)
-				.arg(
-					Arg::new("vromf_format")
-						.long("vromf_format")
-						.help("May be one of: [Regular, Grp]")
-						.default_value("Regular")
 				)
 		)
 		.subcommand(

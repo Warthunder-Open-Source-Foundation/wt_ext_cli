@@ -3,8 +3,9 @@ use std::{ffi::OsStr, fs, path::PathBuf, str::FromStr, thread, thread::JoinHandl
 use anyhow::Context;
 use clap::ArgMatches;
 use tracing::info;
-use wt_blk::vromf::decode_vromf;
-use wt_blk::vromf::enums::FileMode;
+use wt_blk::blk::BlkOutputFormat;
+use wt_blk::blk::output_formatting_conf::FormattingConfiguration;
+use wt_blk::vromf::unpacker::VromfUnpacker;
 
 use crate::{
 	context,
@@ -12,7 +13,6 @@ use crate::{
 		CliError,
 		CliError::{CriticalFileMissing, FileWithoutParent},
 	},
-	subcommands::unpack_raw_blk::parse_and_write_blk,
 };
 
 pub fn unpack_vromf(args: &ArgMatches) -> Result<(), anyhow::Error> {
@@ -33,16 +33,10 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<(), anyhow::Error> {
 	};
 
 	let mode = match args.get_one::<String>("format").map(|e|e.as_str()) {
-		Some("Json") => OutFormat::Json,
-		Some("BlkText") => OutFormat::BlkText,
-		Some("Raw") => OutFormat::Raw,
+		Some("Json") => Some(BlkOutputFormat::Json(FormattingConfiguration::GSZABI_REPO)),
+		Some("BlkText") => Some(BlkOutputFormat::BlkText),
+		Some("Raw") => None,
 		_ => {panic!("Unrecognized output format: {:?}", args.get_one::<String>("format"))}
-	};
-
-	let vromf_format = match args.get_one::<String>("vromf_format").map(|e|e.as_str()) {
-		Some("Regular") => FileMode::Regular,
-		Some("Grp") => FileMode::Grp,
-		_ => {panic!("Unrecognized  vromf_format: {:?}", args.get_one::<String>("vromf_format"))}
 	};
 
 	if parsed_input_dir.is_dir() {
@@ -70,12 +64,10 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<(), anyhow::Error> {
 						let normalized = parent_input_dir.canonicalize()?;
 						parse_and_write_one_vromf(
 							&file.file_name().into_string().unwrap(),
-							&read,
+							read,
 							normalized,
 							output_folder,
-							true,
 							mode,
-							vromf_format,
 						)?;
 						Ok(())
 					})))
@@ -92,7 +84,7 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<(), anyhow::Error> {
 			.ok_or(FileWithoutParent)?
 			.to_path_buf();
 		let normalized = parent_input_dir.canonicalize()?;
-		parse_and_write_one_vromf(input_dir, &read, normalized, output_folder, true, mode, vromf_format)?;
+		parse_and_write_one_vromf(input_dir, read, normalized, output_folder, mode)?;
 	}
 
 	Ok(())
@@ -100,75 +92,22 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<(), anyhow::Error> {
 
 fn parse_and_write_one_vromf(
 	file_name: &str,
-	read: &[u8],
+	read: Vec<u8>,
 	input_dir: PathBuf,
 	output_dir: PathBuf,
-	allow_lossy_dict_or_nm: bool,
-	format: OutFormat,
-	vromf_format: FileMode,
+	format: Option<BlkOutputFormat>,
 ) -> Result<(), anyhow::Error> {
-	let vromf_inner = decode_vromf(read, vromf_format)?
-		.into_iter()
-		.map(|x| (PathBuf::from_str(&x.0).unwrap(), x.1))
-		.collect::<Vec<_>>();
-
-	let nm = vromf_inner
-		.iter()
-		.find(|x| x.0 == PathBuf::from_str("nm").expect("infallible"))
-		.map(|x| x.to_owned())
-		.ok_or(CriticalFileMissing)
-		.with_context(context!(format!(
-			"Failed to find Name Map (nm) in vromf {}",
-			file_name
-		)))
-		.unwrap_or_else(|_e| {
-			if allow_lossy_dict_or_nm {
-				(PathBuf::from_str("").unwrap(), vec![])
-			} else {
-				panic!("The cheap hack for supporting non-nm vromf broke");
-			}
-		})
-		.to_owned();
-
-	let dict = vromf_inner
-		.iter()
-		.find(|x| x.0.extension() == Some(OsStr::new("dict")))
-		.map(|x| x.to_owned())
-		.with_context(context!(format!(
-			"Failed to find ZST dictionary in vromf {}",
-			file_name
-		)))
-		.unwrap_or_else(|_e| {
-			if allow_lossy_dict_or_nm {
-				(PathBuf::from_str("").unwrap(), vec![])
-			} else {
-				panic!("The cheap hack for supporting non-dict vromf broke");
-			}
-		})
-		.to_owned();
-
-	parse_and_write_blk(
-		vromf_inner,
-		format,
-		nm.1,
-		dict.1,
-		input_dir,
-		output_dir,
-		strip_and_add_prefix,
-	)
-}
-
-fn strip_and_add_prefix(
-	input: PathBuf,
-	_: PathBuf,
-	output_dir: PathBuf,
-) -> Result<PathBuf, anyhow::Error> {
-	Ok(output_dir.join(input))
-}
-
-#[derive(Clone, Copy)]
-pub enum OutFormat {
-	BlkText,
-	Raw,
-	Json,
+	let parser = VromfUnpacker::from_file((PathBuf::from_str(file_name)?, read))?;
+	let files = parser.unpack_all(format)?;
+	//
+	// parse_and_write_blk(
+	// 	vromf_inner,
+	// 	format,
+	// 	nm.1,
+	// 	dict.1,
+	// 	input_dir,
+	// 	output_dir,
+	// 	strip_and_add_prefix,
+	// )
+	Ok(())
 }

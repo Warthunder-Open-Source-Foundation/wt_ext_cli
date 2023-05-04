@@ -1,5 +1,3 @@
-use std::{ffi::OsStr, fs, path::PathBuf, str::FromStr, sync::Arc};
-
 use anyhow::{Context, Error};
 use clap::ArgMatches;
 use indicatif::{ProgressBar, ProgressStyle};
@@ -18,9 +16,13 @@ use crate::{
 	error::CliError,
 	fs_util::{find_dict, read_recurse_folder},
 };
-use crate::subcommands::unpack_vromf::OutFormat;
 
 // This is the entry-point
+pub fn unpack_raw_blk(_: &ArgMatches) -> Result<(), anyhow::Error> {
+	unimplemented!("This submode will be re-added in a later point in time, if required.")
+}
+
+/*
 pub fn unpack_raw_blk(args: &ArgMatches) -> Result<(), anyhow::Error> {
 	info!("Mode: Unpacking raw BLK directory");
 	let input_dir = args
@@ -185,3 +187,4 @@ fn strip_and_add_prefix(
 
 	Ok(output_dir.join(e))
 }
+ */
