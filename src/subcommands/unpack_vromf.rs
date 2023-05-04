@@ -1,5 +1,4 @@
 use std::{fs, path::PathBuf, str::FromStr, thread, thread::JoinHandle};
-use std::ffi::OsStr;
 
 use anyhow::Context;
 use clap::ArgMatches;
@@ -9,10 +8,7 @@ use wt_blk::{
 	vromf::unpacker::VromfUnpacker,
 };
 
-use crate::{
-	context,
-	error::{CliError, CliError::FileWithoutParent},
-};
+use crate::{context, error::CliError};
 
 pub fn unpack_vromf(args: &ArgMatches) -> Result<(), anyhow::Error> {
 	info!("Mode: Unpacking vromf");
@@ -40,7 +36,7 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<(), anyhow::Error> {
 				"Unrecognized output format: {:?}",
 				args.get_one::<String>("format")
 			)
-		}
+		},
 	};
 
 	if parsed_input_dir.is_dir() {
@@ -54,23 +50,13 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<(), anyhow::Error> {
 					.unwrap_or("")
 					.ends_with("vromfs.bin")
 				{
-					let parsed_input_dir = parsed_input_dir.clone();
 					let output_folder = output_folder.clone();
 					threads.push(Box::new(thread::spawn(move || {
 						let read = fs::read(file.path()).with_context(context!(format!(
 							"Failed to read vromf {:?}",
 							file.path()
 						)))?;
-						let parent_input_dir = parsed_input_dir
-							.parent()
-							.ok_or(FileWithoutParent)?
-							.to_path_buf();
-						parse_and_write_one_vromf(
-							file.path(),
-							read,
-							output_folder,
-							mode,
-						)?;
+						parse_and_write_one_vromf(file.path(), read, output_folder, mode)?;
 						Ok(())
 					})))
 				}
@@ -96,9 +82,11 @@ fn parse_and_write_one_vromf(
 	let parser = VromfUnpacker::from_file((file_path.clone(), read))?;
 	let files = parser.unpack_all(format)?;
 
-
 	let mut vromf_name = PathBuf::from(file_path.file_name().ok_or(CliError::InvalidPath)?);
-	let mut old_extension = vromf_name.extension().ok_or(CliError::InvalidPath)?.to_os_string();
+	let mut old_extension = vromf_name
+		.extension()
+		.ok_or(CliError::InvalidPath)?
+		.to_os_string();
 	old_extension.push("_u");
 	vromf_name.set_extension(old_extension);
 
