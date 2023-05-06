@@ -17,16 +17,6 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<(), anyhow::Error> {
 		.ok_or(CliError::RequiredFlagMissing)?;
 	let parsed_input_dir = PathBuf::from_str(&input_dir).or(Err(CliError::InvalidPath))?;
 
-	let output_folder = match () {
-		_ if let Some(path) = args.get_one::<String>("Output directory") => {
-			let parent_folder = parsed_input_dir.parent().ok_or(CliError::InvalidPath)?;
-			parent_folder.join(path)
-		}
-		_ => {
-			parsed_input_dir.clone().parent().ok_or(CliError::InvalidPath)?.to_owned()
-		}
-	};
-
 	let mode = match args.get_one::<String>("format").map(|e| e.as_str()) {
 		Some("Json") => Some(BlkOutputFormat::Json(FormattingConfiguration::GSZABI_REPO)),
 		Some("BlkText") => Some(BlkOutputFormat::BlkText),
@@ -40,6 +30,21 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<(), anyhow::Error> {
 	};
 
 	if parsed_input_dir.is_dir() {
+		let output_folder = match () {
+			_ if let Some(path) = args.get_one::<String>("Output directory") => {
+				let buf = PathBuf::from_str(path)?;
+				if buf.is_absolute() {
+					buf
+				} else {
+					let exec_dir = std::env::current_dir()?;
+					exec_dir.join(buf)
+				}
+			}
+			_ => {
+				parsed_input_dir.clone()
+			}
+		};
+
 		let mut threads: Vec<Box<JoinHandle<Result<(), anyhow::Error>>>> = vec![];
 		let inner = fs::read_dir(&parsed_input_dir)?;
 		for file in inner {
@@ -66,6 +71,20 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<(), anyhow::Error> {
 			thread.join().expect("Thread join error")?
 		}
 	} else {
+		let output_folder = match () {
+			_ if let Some(path) = args.get_one::<String>("Output directory") => {
+				let buf = PathBuf::from_str(path)?;
+				if buf.is_absolute() {
+					buf
+				} else {
+					let exec_dir = std::env::current_dir()?;
+					exec_dir.join(buf)
+				}
+			}
+			_ => {
+				parsed_input_dir.clone().parent().ok_or(CliError::InvalidPath)?.to_owned()
+			}
+		};
 		let read = fs::read(&parsed_input_dir)?;
 		parse_and_write_one_vromf(parsed_input_dir, read, output_folder, mode)?;
 	}
