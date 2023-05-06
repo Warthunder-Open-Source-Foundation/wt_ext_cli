@@ -866,7 +866,7 @@ checksum = "1a515f5799fe4961cb532f983ce2b23082366b898e52ffbce459c86f67c8378a"
 [[package]]
 name = "wt_blk"
 version = "0.1.2"
-source = "git+https://github.com/Warthunder-Open-Source-Foundation/wt_blk#1364bc2ebdf10b296748d4fb995a10587c7c0002"
+source = "git+https://github.com/Warthunder-Open-Source-Foundation/wt_blk#89336e804f32eff7b21987fa2c609e502faab117"
 dependencies = [
  "hex",
  "lazy_static",
