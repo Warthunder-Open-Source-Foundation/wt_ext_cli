@@ -7,9 +7,12 @@ edition = "2021"
 #opt-level = 3
 #lto = "thin"
 
+
 [profile.release]
 opt-level = 3
 lto = true
+strip = true
+codegen-units = 4
 
 [dependencies]
 clap = {version = "4.1.9", features = ["cargo"]}
