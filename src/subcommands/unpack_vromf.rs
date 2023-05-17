@@ -2,6 +2,8 @@ use std::{fs, path::PathBuf, str::FromStr, thread, thread::JoinHandle};
 
 use anyhow::Context;
 use clap::ArgMatches;
+use rayon::iter::IntoParallelIterator;
+use rayon::iter::ParallelIterator;
 use tracing::info;
 use wt_blk::{
 	blk::{output_formatting_conf::FormattingConfiguration, BlkOutputFormat},
@@ -109,16 +111,19 @@ fn parse_and_write_one_vromf(
 	old_extension.push("_u");
 	vromf_name.set_extension(old_extension);
 
-	for mut file in files {
-		// The version file in some vromfs is prefixed with /, which is incorrect as this causes
-		// all relative paths to resolve to /
-		if file.0.starts_with("/") {
-			file.0 = file.0.strip_prefix("/")?.to_path_buf();
-		}
-		let rel_file_path = vromf_name.clone().join(&file.0);
-		let joined_final_path = output_dir.join(&rel_file_path);
-		fs::create_dir_all(joined_final_path.parent().ok_or(CliError::InvalidPath)?)?;
-		fs::write(&joined_final_path, file.1)?;
-	}
+	files.into_par_iter()
+		.map(|mut file|{
+			// The version file in some vromfs is prefixed with /, which is incorrect as this causes
+			// all relative paths to resolve to /
+			if file.0.starts_with("/") {
+				file.0 = file.0.strip_prefix("/")?.to_path_buf();
+			}
+			let rel_file_path = vromf_name.clone().join(&file.0);
+			let joined_final_path = output_dir.join(&rel_file_path);
+			fs::create_dir_all(joined_final_path.parent().ok_or(CliError::InvalidPath)?)?;
+			fs::write(&joined_final_path, file.1)?;
+			Ok(())
+		}).collect::<Result<(), anyhow::Error>>()?;
+
 	Ok(())
 }
