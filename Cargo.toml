@@ -21,6 +21,7 @@ wt_blk = {git = "https://github.com/Warthunder-Open-Source-Foundation/wt_blk"}
 thiserror = "^1.0"
 rayon = "^1.7.0"
 open = "^4"
+tokio = { version = "1.28.1", features = ["rt-multi-thread", "fs", "macros"]}
 
 tracing = "^0.1.37"
 tracing-subscriber = {version  = "^0.3.16", features = ["tracing-log", "env-filter", "fmt", "std"]}

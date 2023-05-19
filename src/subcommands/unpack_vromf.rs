@@ -1,9 +1,12 @@
-use std::{fs, path::PathBuf, str::FromStr, thread, thread::JoinHandle};
+use std::{fs, path::PathBuf, str::FromStr};
 
 use anyhow::Context;
 use clap::ArgMatches;
 use rayon::iter::IntoParallelIterator;
 use rayon::iter::ParallelIterator;
+use tokio::{join, try_join};
+use tokio::runtime::Runtime;
+use tokio::task::JoinHandle;
 use tracing::info;
 use wt_blk::{
 	blk::{output_formatting_conf::FormattingConfiguration, BlkOutputFormat},
@@ -47,7 +50,7 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<(), anyhow::Error> {
 			}
 		};
 
-		let mut threads: Vec<Box<JoinHandle<Result<(), anyhow::Error>>>> = vec![];
+		let mut threads: Vec<Box<std::thread::JoinHandle<Result<(), anyhow::Error>>>> = vec![];
 		let inner = fs::read_dir(&parsed_input_dir)?;
 		for file in inner {
 			if let Ok(file) = file {
@@ -58,7 +61,7 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<(), anyhow::Error> {
 					.ends_with("vromfs.bin")
 				{
 					let output_folder = output_folder.clone();
-					threads.push(Box::new(thread::spawn(move || {
+					threads.push(Box::new(std::thread::spawn(move || {
 						let read = fs::read(file.path()).with_context(context!(format!(
 							"Failed to read vromf {:?}",
 							file.path()
@@ -111,19 +114,36 @@ fn parse_and_write_one_vromf(
 	old_extension.push("_u");
 	vromf_name.set_extension(old_extension);
 
-	files.into_par_iter()
-		.map(|mut file|{
+	let rt = Runtime::new()?;
+	let mut handles: Vec<JoinHandle<Result<(), anyhow::Error>>> = vec![];
+
+	for mut file in files {
+		let vromf_name = vromf_name.clone();
+		let output_dir = output_dir.clone();
+		let handle = rt.spawn(async move {
 			// The version file in some vromfs is prefixed with /, which is incorrect as this causes
 			// all relative paths to resolve to /
 			if file.0.starts_with("/") {
 				file.0 = file.0.strip_prefix("/")?.to_path_buf();
 			}
-			let rel_file_path = vromf_name.clone().join(&file.0);
+			let rel_file_path = vromf_name.join(&file.0);
 			let joined_final_path = output_dir.join(&rel_file_path);
-			fs::create_dir_all(joined_final_path.parent().ok_or(CliError::InvalidPath)?)?;
-			fs::write(&joined_final_path, file.1)?;
+			tokio::fs::create_dir_all(joined_final_path.parent().ok_or(CliError::InvalidPath)?).await?;
+			tokio::fs::write(&joined_final_path, file.1).await?;
 			Ok(())
-		}).collect::<Result<(), anyhow::Error>>()?;
+		});
+		handles.push(handle);
+	}
+
+	let mut results = vec![];
+	rt.block_on(async {
+		for handle in handles {
+			results.push(handle.await);
+		}
+	});
+	for result in results {
+		result??;
+	}
 
 	Ok(())
 }
