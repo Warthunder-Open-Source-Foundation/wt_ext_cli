@@ -21,10 +21,10 @@ wt_blk = {git = "https://github.com/Warthunder-Open-Source-Foundation/wt_blk"}
 thiserror = "^1.0"
 rayon = "^1.7.0"
 open = "^4"
+color-eyre = { version = "^0.6", default-features = false }
 
 tracing = "^0.1.37"
 tracing-subscriber = {version  = "^0.3.16", features = ["tracing-log", "env-filter", "fmt", "std"]}
 serde_json = "^1.0"
 serde = { version = "^1.0", features = ["serde_derive"] }
 serde_bencode = "0.2.3"
-anyhow = "1.0.70"

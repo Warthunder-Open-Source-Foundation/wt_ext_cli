@@ -1,11 +1,12 @@
 use clap::ArgMatches;
+use color_eyre::eyre::Result;
 
 // This is the entry-point
-pub fn unpack_raw_blk(_: &ArgMatches) -> Result<(), anyhow::Error> {
+pub fn unpack_raw_blk(_: &ArgMatches) -> Result<()> {
 	unimplemented!("This submode will be re-added in a later point in time, if required.")
 }
 
-// pub fn unpack_raw_blk(args: &ArgMatches) -> Result<(), anyhow::Error> {
+// pub fn unpack_raw_blk(args: &ArgMatches) -> Result<()> {
 // info!("Mode: Unpacking raw BLK directory");
 // let input_dir = args
 // .get_one::<String>("Input directory")
@@ -67,7 +68,7 @@ pub fn unpack_raw_blk(_: &ArgMatches) -> Result<(), anyhow::Error> {
 // input_dir: PathBuf,
 // output_dir: PathBuf,
 // output_file_path_builder: fn(PathBuf, PathBuf, PathBuf) -> Result<PathBuf, Error>, /* This fn should take care of turning a (maybe) relative path into a writable absolute/accessible path */
-// ) -> Result<(), anyhow::Error> {
+// ) -> Result<()> {
 // info!("Preparing shared indexes");
 // let frame_decoder = DecoderDictionary::copy(&dict);
 // let shared_nm = NameMap::from_encoded_file(&nm).unwrap();

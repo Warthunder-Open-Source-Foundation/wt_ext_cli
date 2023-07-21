@@ -1,9 +1,10 @@
 use std::{fs, fs::create_dir_all, path::PathBuf, str::FromStr};
 
-use anyhow::Context;
 use clap::ArgMatches;
+use color_eyre::eyre::Context;
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use wt_blk::dxp_and_grp::parse_buffered;
+use color_eyre::eyre::Result;
 
 use crate::{
 	error::{
@@ -13,7 +14,7 @@ use crate::{
 	fs_util::fd_recurse_folder_filtered,
 };
 
-pub fn unpack_dxp_and_grp(args: &ArgMatches) -> Result<(), anyhow::Error> {
+pub fn unpack_dxp_and_grp(args: &ArgMatches) -> Result<()> {
 	let input_dir = args
 		.get_one::<String>("Input directory")
 		.ok_or(CliError::RequiredFlagMissing)?;

@@ -1,7 +1,7 @@
 use std::{fs, path::PathBuf, str::FromStr, thread, thread::JoinHandle};
 
-use anyhow::Context;
 use clap::ArgMatches;
+use color_eyre::eyre::Context;
 use rayon::iter::IntoParallelIterator;
 use rayon::iter::ParallelIterator;
 use tracing::info;
@@ -9,10 +9,11 @@ use wt_blk::{
 	blk::{output_formatting_conf::FormattingConfiguration, BlkOutputFormat},
 	vromf::unpacker::VromfUnpacker,
 };
+use color_eyre::eyre::Result;
 
 use crate::{context, error::CliError};
 
-pub fn unpack_vromf(args: &ArgMatches) -> Result<(), anyhow::Error> {
+pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 	info!("Mode: Unpacking vromf");
 	let input_dir = args
 		.get_one::<String>("Input file/directory")
@@ -47,7 +48,7 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<(), anyhow::Error> {
 			}
 		};
 
-		let mut threads: Vec<Box<JoinHandle<Result<(), anyhow::Error>>>> = vec![];
+		let mut threads: Vec<Box<JoinHandle<Result<()>>>> = vec![];
 		let inner = fs::read_dir(&parsed_input_dir)?;
 		for file in inner {
 			if let Ok(file) = file {
@@ -99,7 +100,7 @@ fn parse_and_write_one_vromf(
 	read: Vec<u8>,
 	output_dir: PathBuf,
 	format: Option<BlkOutputFormat>,
-) -> Result<(), anyhow::Error> {
+) -> Result<()> {
 	let parser = VromfUnpacker::from_file((file_path.clone(), read))?;
 	let files = parser.unpack_all(format)?;
 
@@ -123,7 +124,7 @@ fn parse_and_write_one_vromf(
 			fs::create_dir_all(joined_final_path.parent().ok_or(CliError::InvalidPath)?)?;
 			fs::write(&joined_final_path, file.1)?;
 			Ok(())
-		}).collect::<Result<(), anyhow::Error>>()?;
+		}).collect::<Result<()>>()?;
 
 	Ok(())
 }
