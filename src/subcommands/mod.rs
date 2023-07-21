@@ -1,6 +1,7 @@
 use std::{fs, str::FromStr};
 
 use clap::ArgMatches;
+use color_eyre::eyre::Result;
 use tracing::metadata::LevelFilter;
 
 use crate::{
@@ -11,7 +12,6 @@ use crate::{
 		unpack_vromf::unpack_vromf,
 	},
 };
-use color_eyre::eyre::Result;
 
 mod unpack_dxp_and_grp;
 mod unpack_raw_blk;

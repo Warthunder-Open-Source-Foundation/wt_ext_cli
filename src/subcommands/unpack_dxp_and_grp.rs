@@ -1,10 +1,9 @@
 use std::{fs, fs::create_dir_all, path::PathBuf, str::FromStr};
 
 use clap::ArgMatches;
-use color_eyre::eyre::Context;
+use color_eyre::eyre::{Context, Result};
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use wt_blk::dxp_and_grp::parse_buffered;
-use color_eyre::eyre::Result;
 
 use crate::{
 	error::{

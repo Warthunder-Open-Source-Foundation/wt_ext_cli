@@ -1,8 +1,10 @@
 #![feature(if_let_guard)]
 
 use std::env;
-use crate::{cli::build_command_structure, subcommands::branch_subcommands};
+
 use color_eyre::eyre::Result;
+
+use crate::{cli::build_command_structure, subcommands::branch_subcommands};
 
 mod cli;
 mod error;

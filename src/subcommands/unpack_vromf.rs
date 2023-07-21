@@ -1,15 +1,13 @@
 use std::{fs, path::PathBuf, str::FromStr, thread, thread::JoinHandle};
 
 use clap::ArgMatches;
-use color_eyre::eyre::Context;
-use rayon::iter::IntoParallelIterator;
-use rayon::iter::ParallelIterator;
+use color_eyre::eyre::{Context, Result};
+use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use tracing::info;
 use wt_blk::{
 	blk::{output_formatting_conf::FormattingConfiguration, BlkOutputFormat},
 	vromf::unpacker::VromfUnpacker,
 };
-use color_eyre::eyre::Result;
 
 use crate::{context, error::CliError};
 
@@ -112,8 +110,9 @@ fn parse_and_write_one_vromf(
 	old_extension.push("_u");
 	vromf_name.set_extension(old_extension);
 
-	files.into_par_iter()
-		.map(|mut file|{
+	files
+		.into_par_iter()
+		.map(|mut file| {
 			// The version file in some vromfs is prefixed with /, which is incorrect as this causes
 			// all relative paths to resolve to /
 			if file.0.starts_with("/") {
@@ -124,7 +123,8 @@ fn parse_and_write_one_vromf(
 			fs::create_dir_all(joined_final_path.parent().ok_or(CliError::InvalidPath)?)?;
 			fs::write(&joined_final_path, file.1)?;
 			Ok(())
-		}).collect::<Result<()>>()?;
+		})
+		.collect::<Result<()>>()?;
 
 	Ok(())
 }
