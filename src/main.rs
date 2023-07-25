@@ -15,7 +15,7 @@ mod update_diff;
 mod util;
 
 fn main() -> Result<()> {
-	env::set_var("RUST_BACKTRACE", "full");
+	env::set_var("RUST_BACKTRACE", "1");
 	color_eyre::install()?;
 
 	let command = build_command_structure().get_matches();
