@@ -19,7 +19,7 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 	let parsed_input_dir = PathBuf::from_str(&input_dir).or(Err(CliError::InvalidPath))?;
 
 	let mode = match args.get_one::<String>("format").map(|e| e.as_str()) {
-		Some("Json") => Some(BlkOutputFormat::JsonMerged),
+		Some("Json") => Some(BlkOutputFormat::Json),
 		Some("BlkText") => Some(BlkOutputFormat::BlkText),
 		Some("Raw") => None,
 		_ => {
