@@ -1,15 +1,25 @@
 use std::{fs, path::PathBuf, str::FromStr, thread, thread::JoinHandle};
 
 use clap::ArgMatches;
-use color_eyre::eyre::{Context, Result};
+use color_eyre::eyre::{Context, ContextCompat, Result};
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use tracing::info;
 use wt_blk::{
-	blk::{output_formatting_conf::FormattingConfiguration, BlkOutputFormat},
+	blk::BlkOutputFormat,
 	vromf::unpacker::VromfUnpacker,
 };
 
 use crate::{context, error::CliError};
+
+const REPLACE_CRLF: [&str; 7] = [
+	"blk",
+	"nut",
+	"tpl",
+	"css",
+	"das",
+	"txt",
+	"json"
+];
 
 pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 	info!("Mode: Unpacking vromf");
@@ -27,8 +37,11 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 				"Unrecognized output format: {:?}",
 				args.get_one::<String>("format")
 			)
-		},
+		}
 	};
+
+	let crlf = *args.get_one::<bool>("crlf").context("Invalid argument: crlf")?;
+
 
 	if parsed_input_dir.is_dir() {
 		let output_folder = match () {
@@ -62,7 +75,7 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 							"Failed to read vromf {:?}",
 							file.path()
 						)))?;
-						parse_and_write_one_vromf(file.path(), read, output_folder, mode)?;
+						parse_and_write_one_vromf(file.path(), read, output_folder, mode, crlf)?;
 						Ok(())
 					})))
 				}
@@ -87,7 +100,7 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 			}
 		};
 		let read = fs::read(&parsed_input_dir)?;
-		parse_and_write_one_vromf(parsed_input_dir, read, output_folder, mode)?;
+		parse_and_write_one_vromf(parsed_input_dir, read, output_folder, mode, crlf)?;
 	}
 
 	Ok(())
@@ -98,6 +111,7 @@ fn parse_and_write_one_vromf(
 	read: Vec<u8>,
 	output_dir: PathBuf,
 	format: Option<BlkOutputFormat>,
+	crlf: bool,
 ) -> Result<()> {
 	let parser = VromfUnpacker::from_file((file_path.clone(), read))?;
 	let files = parser.unpack_all(format)?;
@@ -110,6 +124,7 @@ fn parse_and_write_one_vromf(
 	old_extension.push("_u");
 	vromf_name.set_extension(old_extension);
 
+
 	files
 		.into_par_iter()
 		.map(|mut file| {
@@ -117,6 +132,15 @@ fn parse_and_write_one_vromf(
 			// all relative paths to resolve to /
 			if file.0.starts_with("/") {
 				file.0 = file.0.strip_prefix("/")?.to_path_buf();
+			}
+			 if crlf {
+				if let Some(extension) = file.0.extension() {
+					if let Some(extension) = extension.to_str() {
+						if REPLACE_CRLF.contains(&extension) {
+							file.1 = String::from_utf8(file.1)?.replace("\n"," \r\n").into_bytes();
+						}
+					}
+				}
 			}
 			let rel_file_path = vromf_name.clone().join(&file.0);
 			let joined_final_path = output_dir.join(&rel_file_path);

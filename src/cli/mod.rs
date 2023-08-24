@@ -74,6 +74,13 @@ pub fn build_command_structure() -> Command {
 						.help("Output format, can be one of: [Json, BlkText, Raw]. Defaults to Json")
 						.default_value("Json")
 				)
+				.arg(
+					Arg::new("crlf")
+						.long("crlf")
+						.num_args(0) // expects no values
+						.required(false)
+						.help("Returns files with \r\n instead of \n newlines")
+				)
 		)
 		.subcommand(
 			Command::new("unpack_dxp_and_grp")
