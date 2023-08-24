@@ -1,4 +1,5 @@
 use std::{fs, path::PathBuf, str::FromStr, thread, thread::JoinHandle};
+use std::ffi::OsStr;
 
 use clap::ArgMatches;
 use color_eyre::eyre::{Context, ContextCompat, Result};
@@ -10,16 +11,6 @@ use wt_blk::{
 };
 
 use crate::{context, error::CliError};
-
-const REPLACE_CRLF: [&str; 7] = [
-	"blk",
-	"nut",
-	"tpl",
-	"css",
-	"das",
-	"txt",
-	"json"
-];
 
 pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 	info!("Mode: Unpacking vromf");
@@ -133,13 +124,16 @@ fn parse_and_write_one_vromf(
 			if file.0.starts_with("/") {
 				file.0 = file.0.strip_prefix("/")?.to_path_buf();
 			}
-			 if crlf {
-				if let Some(extension) = file.0.extension() {
-					if let Some(extension) = extension.to_str() {
-						if REPLACE_CRLF.contains(&extension) {
-							file.1 = String::from_utf8(file.1)?.replace("\n"," \r\n").into_bytes();
+			if crlf {
+				if file.0.extension() == Some(&OsStr::new("blk"))  {
+					let mut new = Vec::with_capacity(file.1.len() * 1024 * 8);
+					for byte in file.1 {
+						new.push(byte);
+						if byte == b'\n' {
+							new.push(b'\r');
 						}
 					}
+					file.1 = new;
 				}
 			}
 			let rel_file_path = vromf_name.clone().join(&file.0);
