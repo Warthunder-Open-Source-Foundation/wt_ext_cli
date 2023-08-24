@@ -126,7 +126,7 @@ fn parse_and_write_one_vromf(
 			}
 			if crlf {
 				if file.0.extension() == Some(&OsStr::new("blk"))  {
-					let mut new = Vec::with_capacity(file.1.len() * 1024 * 8);
+					let mut new = Vec::with_capacity(file.1.len() + 1024 * 4);
 					for byte in file.1 {
 						new.push(byte);
 						if byte == b'\n' {
