@@ -5,10 +5,7 @@ use clap::ArgMatches;
 use color_eyre::eyre::{Context, ContextCompat, Result};
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use tracing::info;
-use wt_blk::{
-	blk::BlkOutputFormat,
-	vromf::unpacker::VromfUnpacker,
-};
+use wt_blk::vromf::{BlkOutputFormat, VromfUnpacker};
 
 use crate::{context, error::CliError};
 
