@@ -2,7 +2,7 @@ use std::env;
 use std::io::stdout;
 use color_eyre::eyre::ContextCompat;
 use time::OffsetDateTime;
-use tracing::{info, warn};
+use tracing::{info};
 use tracing_appender::rolling;
 use tracing_subscriber::{filter::LevelFilter, EnvFilter};
 use tracing_subscriber::fmt::writer::MakeWriterExt;
