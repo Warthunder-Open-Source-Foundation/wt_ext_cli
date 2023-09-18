@@ -1,7 +1,8 @@
-use std::{fs, str::FromStr};
+use std::{str::FromStr};
 
-use clap::ArgMatches;
-use color_eyre::eyre::Result;
+use clap::{ArgMatches};
+use color_eyre::eyre::{bail, Result};
+use tracing::error;
 use tracing::metadata::LevelFilter;
 
 use crate::{
@@ -23,12 +24,7 @@ pub fn branch_subcommands(args: ArgMatches) -> Result<()> {
 	} else {
 		LevelFilter::WARN
 	};
-	let _file_writer = if let Some(log_path) = args.get_one::<String>("log_path") {
-		Some(fs::File::create(log_path)?)
-	} else {
-		None
-	};
-	init_logging(log_level);
+	init_logging(log_level, args.get_one::<String>("log_path"))?;
 
 	match args.subcommand() {
 		Some(("unpack_raw_blk", args)) => {
@@ -44,7 +40,12 @@ pub fn branch_subcommands(args: ArgMatches) -> Result<()> {
 			open::that("https://github.com/Warthunder-Open-Source-Foundation/wt_ext_cli/blob/master/usage_manual.md").expect("Attempted to show manual in browser, but something unexpected failed");
 		},
 		_ => {
-			panic!("Ruh oh, looks like command args were bad");
+			error!("Unmatched subcommand: {:?}", args.subcommand());
+			if let Some((command,_)) = args.subcommand() {
+				bail!("Unmatched subcommand: {:}", command)
+			} else {
+				bail!("Missing Subcommand argument")
+			}
 		},
 	}
 	Ok(())
