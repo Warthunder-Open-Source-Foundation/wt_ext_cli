@@ -19,12 +19,15 @@ mod unpack_raw_blk;
 mod unpack_vromf;
 
 pub fn branch_subcommands(args: ArgMatches) -> Result<()> {
+	// Specific option to run and log everything for debugging
+	let crashlog = args.get_flag("crashlog");
+
 	let log_level = if let Some(lvl) = args.get_one::<String>("log_level") {
 		LevelFilter::from_str(lvl).expect(&format!("Incorrect log-level provided, expected one of [Trace, Debug, Info, Warn, Error], found {lvl}"))
 	} else {
 		LevelFilter::WARN
 	};
-	init_logging(log_level, args.get_one::<String>("log_path"))?;
+	init_logging(log_level, args.get_one::<String>("log_path").cloned(), crashlog)?;
 
 	match args.subcommand() {
 		Some(("unpack_raw_blk", args)) => {

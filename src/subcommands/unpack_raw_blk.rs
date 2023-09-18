@@ -3,7 +3,7 @@ use color_eyre::eyre::Result;
 
 // This is the entry-point
 pub fn unpack_raw_blk(_: &ArgMatches) -> Result<()> {
-	unimplemented!("This submode will be re-added in a later point in time, if required.")
+	unimplemented!("Raw BLK unpack will be re-added in a later point in time")
 }
 
 // pub fn unpack_raw_blk(args: &ArgMatches) -> Result<()> {

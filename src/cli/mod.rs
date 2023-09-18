@@ -18,8 +18,15 @@ pub fn build_command_structure() -> Command {
 				.long("log_level")
 				.help("Set log level, may be one of [Trace, Debug, Info, Warn, Error], default: Warn")
 		)
+		.arg(
+			Arg::new("crashlog")
+				.long("crashlog")
+				.required(false)
+				.num_args(0)
+				.help("Set this to run at maximum log level to aid in debugging")
+		)
 		.subcommand(
-			Command::new("unpack_raw_blk NYIMPL")
+			Command::new("unpack_raw_blk")
 				.long_flag("unpack_raw_blk")
 				.about("Unpacks a folder of raw/binary blk files into their unpacked format")
 				.arg(
