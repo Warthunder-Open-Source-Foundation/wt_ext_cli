@@ -78,7 +78,7 @@ pub fn build_command_structure() -> Command {
 				.arg(
 					Arg::new("format")
 						.long("format")
-						.help("Output format, can be one of: [Json, BlkText, Raw]. Defaults to Json")
+						.help("Output format, can be one of: [Json, BlkText, Raw]")
 						.default_value("Json")
 				)
 				.arg(
@@ -86,7 +86,7 @@ pub fn build_command_structure() -> Command {
 						.long("crlf")
 						.num_args(0) // expects no values
 						.required(false)
-						.help("Returns files with \r\n instead of \n newlines")
+						.help("Returns files with \\r\\n instead of \\n newlines")
 				)
 		)
 		.subcommand(
