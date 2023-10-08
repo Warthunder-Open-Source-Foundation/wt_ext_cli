@@ -16,7 +16,6 @@ codegen-units = 2
 
 [dependencies]
 clap = {version = "4.1.9", features = ["cargo"]}
-indicatif = "0.17.3"
 wt_blk = {git = "https://github.com/Warthunder-Open-Source-Foundation/wt_blk"}
 #wt_blk = {path = "../wt_blk"}
 thiserror = "^1.0"
@@ -31,5 +30,4 @@ tracing-appender = { version = "0.2.2"}
 
 serde_json = "^1.0"
 serde = { version = "^1.0", features = ["serde_derive"] }
-serde_bencode = "0.2.3"
 const_format = { version = "0.2.31", default-features = false, features = ["fmt"] }
