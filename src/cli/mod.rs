@@ -23,7 +23,7 @@ pub fn build_command_structure() -> Command {
 				.long("crashlog")
 				.required(false)
 				.num_args(0)
-				.help("Set this to run at maximum log level to aid in debugging")
+				.help("Runs at maximum log level and writes logfile to aid in debugging")
 		)
 		.subcommand(
 			Command::new("unpack_raw_blk")
@@ -52,7 +52,7 @@ pub fn build_command_structure() -> Command {
 						.num_args(0) // expects no values
 						.help("Overwrites files in input folder")
 						.conflicts_with("Output directory")
-				)
+				).hide(true)
 		)
 		.subcommand(
 			Command::new("unpack_vromf")
@@ -120,11 +120,13 @@ pub fn build_command_structure() -> Command {
 			Command::new("diff_yup NYIMPL")
 				.long_flag("diff_yup")
 				.about("Creates diff from .yup")
+				.hide(true)
 		)
 		.subcommand(
 			Command::new("update_check NYIMPL")
 				.long_flag("check_update")
 				.about("Checks folder for client update")
+				.hide(true)
 		)
 		.subcommand(
 			Command::new({
