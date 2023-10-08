@@ -15,6 +15,7 @@ mod update_diff;
 mod util;
 
 pub const COMMIT_HASH: &str = env!("GIT_HASH");
+pub const GIT_TAG: &str = env!("GIT_TAG");
 
 fn main() -> Result<()> {
 	env::set_var("RUST_BACKTRACE", "1");

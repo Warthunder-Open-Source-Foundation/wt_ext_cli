@@ -1,7 +1,10 @@
 use clap::{command, Arg, ArgAction, ColorChoice, Command, ValueHint};
+use const_format::formatcp;
+use crate::{COMMIT_HASH, GIT_TAG};
 
 pub fn build_command_structure() -> Command {
 	let matches = command!("wt_ext_cli")
+		.version(formatcp!("{} {}", GIT_TAG,  COMMIT_HASH))
 		.about("WarThunder datamining extraction tools")
 		.subcommand_required(true)
 		.arg_required_else_help(true)
