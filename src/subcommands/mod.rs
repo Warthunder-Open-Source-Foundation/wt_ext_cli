@@ -46,6 +46,9 @@ pub fn branch_subcommands(args: ArgMatches) -> Result<()> {
 		Some(("get_instruction_manual", _)) => {
 			open::that("https://github.com/Warthunder-Open-Source-Foundation/wt_ext_cli/blob/master/usage_manual.md").expect("Attempted to show manual in browser, but something unexpected failed");
 		},
+		Some(("hash",_)) => {
+			println!("https://github.com/Warthunder-Open-Source-Foundation/wt_ext_cli/commit/{}", env!("GIT_HASH"));
+		}
 		_ => {
 			error!("Unmatched subcommand: {:?}", args.subcommand());
 			if let Some((command,_)) = args.subcommand() {

@@ -134,6 +134,11 @@ pub fn build_command_structure() -> Command {
 				.long_flag("instruction_manual")
 				.about("Opens or writes the manual")
 		)
+		.subcommand(
+			Command::new("hash")
+				.long_flag("hash")
+				.about("Prints commit hash from binary (link)")
+		)
 		;
 
 	matches
