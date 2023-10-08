@@ -6,14 +6,11 @@ use color_eyre::eyre::{bail, Result};
 use tracing::error;
 use tracing::metadata::LevelFilter;
 
-use crate::{
-	logging::init_logging,
-	subcommands::{
-		unpack_dxp_and_grp::unpack_dxp_and_grp,
-		unpack_raw_blk::unpack_raw_blk,
-		unpack_vromf::unpack_vromf,
-	},
-};
+use crate::{COMMIT_HASH, logging::init_logging, subcommands::{
+	unpack_dxp_and_grp::unpack_dxp_and_grp,
+	unpack_raw_blk::unpack_raw_blk,
+	unpack_vromf::unpack_vromf,
+}};
 
 mod unpack_dxp_and_grp;
 mod unpack_raw_blk;
@@ -47,7 +44,7 @@ pub fn branch_subcommands(args: ArgMatches) -> Result<()> {
 			open::that("https://github.com/Warthunder-Open-Source-Foundation/wt_ext_cli/blob/master/usage_manual.md").expect("Attempted to show manual in browser, but something unexpected failed");
 		},
 		Some(("hash",_)) => {
-			println!("https://github.com/Warthunder-Open-Source-Foundation/wt_ext_cli/commit/{}", env!("GIT_HASH"));
+			println!("https://github.com/Warthunder-Open-Source-Foundation/wt_ext_cli/commit/{}", COMMIT_HASH);
 		}
 		_ => {
 			error!("Unmatched subcommand: {:?}", args.subcommand());

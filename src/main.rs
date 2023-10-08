@@ -14,6 +14,8 @@ mod subcommands;
 mod update_diff;
 mod util;
 
+pub const COMMIT_HASH: &str = env!("GIT_HASH");
+
 fn main() -> Result<()> {
 	env::set_var("RUST_BACKTRACE", "1");
 	color_eyre::install()?;
