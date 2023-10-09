@@ -2,9 +2,10 @@
 
 use std::env;
 
-use color_eyre::eyre::Result;
+use color_eyre::eyre::{Result};
 
 use crate::{cli::build_command_structure, subcommands::branch_subcommands};
+use crate::update_message::update_message;
 
 mod cli;
 mod error;
@@ -13,6 +14,7 @@ mod logging;
 mod subcommands;
 mod update_diff;
 mod util;
+mod update_message;
 
 pub const COMMIT_HASH: &str = env!("GIT_HASH");
 pub const GIT_TAG: &str = env!("GIT_TAG");
@@ -24,5 +26,6 @@ fn main() -> Result<()> {
 	let command = build_command_structure().get_matches();
 	branch_subcommands(command)?;
 
+	update_message()?;
 	Ok(())
 }
