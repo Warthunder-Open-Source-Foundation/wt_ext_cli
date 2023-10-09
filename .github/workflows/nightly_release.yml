@@ -21,11 +21,19 @@ jobs:
           crate: cross
           version: latest
 
+      # Clean because of https://github.com/cross-rs/cross/issues/724
+      - name: Clean cross cache
+        run: cross clean
+
       - name: Build linux
-        run: cross clean & cargo build --release  # Clean because of https://github.com/cross-rs/cross/issues/724
+        run: cargo build --release
+
+      # Clean because of https://github.com/cross-rs/cross/issues/724
+      - name: Clean cross cache
+        run: cross clean
 
       - name: Build windows
-        run: cross clean & cross build --release --target x86_64-pc-windows-gnu  # Clean because of https://github.com/cross-rs/cross/issues/724
+        run: cross build --release --target x86_64-pc-windows-gnu
 
       - name: Rename windows bin
         run: mv target/x86_64-pc-windows-gnu/release/wt_ext_cli.exe target/x86_64-pc-windows-gnu/release/wt_ext_cli-windows-x86.exe
