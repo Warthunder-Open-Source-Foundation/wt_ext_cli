@@ -28,6 +28,9 @@ jobs:
       - name: Build linux
         run: cargo build --release
 
+      - name: Copy linux executable
+        run: mv target/release/wt_ext_cli wt_ext_cli
+
       # Clean because of https://github.com/cross-rs/cross/issues/724
       - name: Clean cross cache
         run: cross clean
@@ -44,7 +47,7 @@ jobs:
           generate_release_notes: true
           prerelease: true
           files: |
-            target/release/wt_ext_cli
+            wt_ext_cli
             target/x86_64-pc-windows-gnu/release/wt_ext_cli-windows-x86.exe
             usage_manual.md
             LICENSE
