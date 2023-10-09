@@ -21,10 +21,6 @@ jobs:
           crate: cross
           version: latest
 
-      # Clean because of https://github.com/cross-rs/cross/issues/724
-      - name: Clean cross cache
-        run: cross clean
-
       - name: Build linux
         run: cargo build --release
 
