@@ -3,16 +3,26 @@ name = "wt_ext_cli"
 version = "0.0.0" # Unused
 edition = "2021"
 license = "Apache-2.0"
+repository = "https://github.com/Warthunder-Open-Source-Foundation/wt_ext_cli"
+authors = ["flareflo"]
+description = "Extracts WT game files such as VROMFS and BLK"
+
+[package.metadata.wix]
+upgrade-guid = "61EB7409-B54F-4417-949F-BB6BB4F6B0AA"
+path-guid = "A3B863C5-31F1-4EC3-BA57-81C9A03B0EB1"
 
 #[profile.dev]
 #opt-level = 3
 #lto = "thin"
 
-
 [profile.release]
 opt-level = 3
 lto = true
 codegen-units = 2
+
+# The profile that 'cargo dist' will build with
+[profile.dist]
+inherits = "release"
 
 [dependencies]
 clap = {version = "4.1.9", features = ["cargo"]}
@@ -35,3 +45,16 @@ octocrab = { version = "0.31.1", default-features = false, features = ["rustls",
 smol-timeout = "0.6.0"
 tokio = { version = "1.33.0", default-features = false, features = ["rt"] }
 semver = "1.0.18"
+
+# Config for 'cargo dist'
+[workspace.metadata.dist]
+# The preferred cargo-dist version to use in CI (Cargo.toml SemVer syntax)
+cargo-dist-version = "0.3.1"
+# CI backends to support
+ci = ["github"]
+# The installers to generate for each app
+installers = ["shell", "powershell", "msi"]
+# Target platforms to build apps for (Rust target-triple syntax)
+targets = ["x86_64-unknown-linux-gnu", "aarch64-apple-darwin", "x86_64-apple-darwin", "x86_64-pc-windows-msvc"]
+# Publish jobs to run in CI
+pr-run-mode = "skip"
