@@ -21,9 +21,9 @@ pub fn update_message() -> Result<(), Report> {
 
 		if let Some(tags) = tags {
 			let latest_prefixed = tags?.items.first().context("No tags available. This is a bug")?.name.clone();
-			let latest = latest_prefixed.replace("nv", "").replace("n", ""); // trim off version prefix
+			let latest = latest_prefixed.replace("v", ""); // trim off version prefix
 			let latest = Version::from_str(&latest)?;
-			let current = Version::from_str(&GIT_TAG.replace("nv", "").replace("n", ""))?;
+			let current = Version::from_str(&GIT_TAG.replace("v", ""))?;
 			if latest > current {
 				warn!("Good news, a new version of this tool is available. You may download it here: https://github.com/Warthunder-Open-Source-Foundation/wt_ext_cli/releases/tag/{}", latest_prefixed)
 			} else {
