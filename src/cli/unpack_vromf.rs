@@ -31,7 +31,7 @@ pub fn unpack_vromf() -> Command {
 			Arg::new("override")
 				.long("override")
 				.help("Applies `override:` fields in every json")
-				.default_value("false")
+				.num_args(0)
 				.required(false)
 		)
 		.arg(
