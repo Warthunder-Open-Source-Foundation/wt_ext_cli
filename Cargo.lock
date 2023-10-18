@@ -2049,7 +2049,7 @@ checksum = "ed94fce61571a4006852b7389a063ab983c02eb1bb37b47f8272ce92d06d9538"
 [[package]]
 name = "wt_blk"
 version = "0.1.2"
-source = "git+https://github.com/Warthunder-Open-Source-Foundation/wt_blk#314890580d0e6b86213e05cd2a22cd7027d026e8"
+source = "git+https://github.com/Warthunder-Open-Source-Foundation/wt_blk#fc5553f7cbac5854ba3c0e7064f816e9f0d47fea"
 dependencies = [
  "color-eyre",
  "hex",
