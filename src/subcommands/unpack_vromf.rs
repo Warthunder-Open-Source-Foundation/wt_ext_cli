@@ -30,6 +30,8 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 
 	let crlf = *args.get_one::<bool>("crlf").context("Invalid argument: crlf")?;
 
+	let should_override = *args.get_one::<bool>("override").context("Invalid argument: override")?;
+
 
 	if parsed_input_dir.is_dir() {
 		let output_folder = match () {
@@ -63,7 +65,7 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 							"Failed to read vromf {:?}",
 							file.path()
 						)))?;
-						parse_and_write_one_vromf(file.path(), read, output_folder, mode, crlf)?;
+						parse_and_write_one_vromf(file.path(), read, output_folder, mode, crlf, should_override)?;
 						Ok(())
 					})))
 				}
@@ -88,7 +90,7 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 			}
 		};
 		let read = fs::read(&parsed_input_dir)?;
-		parse_and_write_one_vromf(parsed_input_dir, read, output_folder, mode, crlf)?;
+		parse_and_write_one_vromf(parsed_input_dir, read, output_folder, mode, crlf, should_override)?;
 	}
 
 	Ok(())
@@ -100,9 +102,10 @@ fn parse_and_write_one_vromf(
 	output_dir: PathBuf,
 	format: Option<BlkOutputFormat>,
 	crlf: bool,
+	should_override: bool,
 ) -> Result<()> {
 	let parser = VromfUnpacker::from_file((file_path.clone(), read))?;
-	let files = parser.unpack_all(format)?;
+	let files = parser.unpack_all(format, should_override)?;
 
 	let mut vromf_name = PathBuf::from(file_path.file_name().ok_or(CliError::InvalidPath)?);
 	let mut old_extension = vromf_name

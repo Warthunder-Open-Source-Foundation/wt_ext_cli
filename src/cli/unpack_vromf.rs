@@ -28,6 +28,13 @@ pub fn unpack_vromf() -> Command {
 				.default_value("Json")
 		)
 		.arg(
+			Arg::new("override")
+				.long("override")
+				.help("Applies `override:` fields in every json")
+				.default_value("false")
+				.required(false)
+		)
+		.arg(
 			Arg::new("crlf")
 				.long("crlf")
 				.num_args(0) // expects no values
