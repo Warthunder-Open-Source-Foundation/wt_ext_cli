@@ -21,7 +21,25 @@ pub const GIT_TAG: &str = env!("GIT_TAG");
 
 fn main() -> Result<()> {
 	env::set_var("RUST_BACKTRACE", "1");
-	color_eyre::install()?;
+
+	let enable_color = if let Ok(force_color) = env::var("FORCE_SET_COLOR") {
+		force_color.parse::<bool>()
+			.expect("FORCE_COLOR was not 'false' or 'true'")
+	} else {
+		if cfg!(windows) {
+			false
+		} else {
+			true
+		}
+	};
+
+	if enable_color {
+		color_eyre::install()?;
+	} else {
+		color_eyre::config::HookBuilder::new()
+			.theme(color_eyre::config::Theme::new())
+			.install()?;
+	}
 
 	let command = build_command_structure().get_matches();
 	branch_subcommands(command)?;
