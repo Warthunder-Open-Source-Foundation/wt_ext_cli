@@ -3,3 +3,4 @@
 test_data/vromfs
 test_data/aces.vromfs.bin_u
 *.dxp.txt
+test_data_untracked
