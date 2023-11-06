@@ -8,7 +8,7 @@ authors = ["flareflo"]
 description = "Extracts WT game files such as VROMFS and BLK"
 
 [profile.dev]
-opt-level = 3
+opt-level = 2
 
 [profile.release]
 opt-level = 3
