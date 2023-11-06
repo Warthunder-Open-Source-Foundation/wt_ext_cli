@@ -1,14 +1,16 @@
 use std::{fs, path::PathBuf, str::FromStr, thread, thread::JoinHandle};
 use std::ffi::OsStr;
+use std::io::{Cursor};
 
 use clap::ArgMatches;
 use color_eyre::eyre::{Context, ContextCompat, Result};
+use color_eyre::Help;
+use image::{ImageFormat, ImageResult};
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
-use tracing::info;
+use tracing::{info, warn};
 use wt_blk::vromf::{BlkOutputFormat, VromfUnpacker};
 
 use crate::{context, error::CliError};
-
 pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 	info!("Mode: Unpacking vromf");
 	let input_dir = args
@@ -32,6 +34,7 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 
 	let should_override = *args.get_one::<bool>("override").context("Invalid argument: override")?;
 
+	let avif2dds = *args.get_one::<bool>("avif2dds").context("Invalid argument: avif2dds")?;
 
 	if parsed_input_dir.is_dir() {
 		let output_folder = match () {
@@ -65,7 +68,8 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 							"Failed to read vromf {:?}",
 							file.path()
 						)))?;
-						parse_and_write_one_vromf(file.path(), read, output_folder, mode, crlf, should_override)?;
+						parse_and_write_one_vromf(file.path(), read, output_folder, mode, crlf, should_override, avif2dds)
+							.suggestion(format!("Error filename: {}", file.file_name().to_string_lossy()))?;
 						Ok(())
 					})))
 				}
@@ -90,7 +94,7 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 			}
 		};
 		let read = fs::read(&parsed_input_dir)?;
-		parse_and_write_one_vromf(parsed_input_dir, read, output_folder, mode, crlf, should_override)?;
+		parse_and_write_one_vromf(parsed_input_dir, read, output_folder, mode, crlf, should_override, avif2dds)?;
 	}
 
 	Ok(())
@@ -103,6 +107,7 @@ fn parse_and_write_one_vromf(
 	format: Option<BlkOutputFormat>,
 	crlf: bool,
 	should_override: bool,
+	avif2dds: bool,
 ) -> Result<()> {
 	let parser = VromfUnpacker::from_file((file_path.clone(), read))?;
 	let files = parser.unpack_all(format, should_override)?;
@@ -134,6 +139,21 @@ fn parse_and_write_one_vromf(
 						new.push(byte);
 					}
 					file.1 = new;
+				}
+			}
+			if avif2dds {
+				if file.0.extension() == Some(&OsStr::new("avif"))  {
+					let image = image::load_from_memory_with_format(&file.1, ImageFormat::Avif);
+					match image {
+						Ok(image) => {
+							file.1.clear();
+							image.write_to(&mut Cursor::new(&mut file.1), ImageFormat::Dds)?;
+							file.0.set_extension("dds");
+						}
+						Err(e) => {
+							warn!("{} was unable to convert to PNG because of: {e}", file.0.to_string_lossy());
+						}
+					}
 				}
 			}
 			let rel_file_path = vromf_name.clone().join(&file.0);

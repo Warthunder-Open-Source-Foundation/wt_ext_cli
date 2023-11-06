@@ -14,7 +14,7 @@ use crate::{COMMIT_HASH, logging::init_logging, subcommands::{
 
 mod unpack_dxp_and_grp;
 mod unpack_raw_blk;
-mod unpack_vromf;
+pub mod unpack_vromf;
 
 pub static CRASHLOG: OnceLock<bool> = OnceLock::new();
 

@@ -35,6 +35,13 @@ pub fn unpack_vromf() -> Command {
 				.required(false)
 		)
 		.arg(
+			Arg::new("avif2dds")
+				.long("avif2dds")
+				.help("Converts all avif images to dds")
+				.num_args(0)
+				.required(false)
+		)
+		.arg(
 			Arg::new("crlf")
 				.long("crlf")
 				.num_args(0) // expects no values

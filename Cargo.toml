@@ -7,9 +7,8 @@ repository = "https://github.com/Warthunder-Open-Source-Foundation/wt_ext_cli"
 authors = ["flareflo"]
 description = "Extracts WT game files such as VROMFS and BLK"
 
-#[profile.dev]
-#opt-level = 3
-#lto = "thin"
+[profile.dev]
+opt-level = 3
 
 [profile.release]
 opt-level = 3
@@ -41,6 +40,7 @@ octocrab = { version = "0.31.1", default-features = false, features = ["rustls",
 smol-timeout = "0.6.0"
 tokio = { version = "1.33.0", default-features = false, features = ["rt"] }
 semver = "1.0.18"
+image = { git = "https://github.com/image-rs/image.git", rev = "84438eba205e971a8a90a7039719e26157df1cbf", features = ["avif-decoder", "dds"], default-features = false}
 
 # Config for 'cargo dist'
 [workspace.metadata.dist]
