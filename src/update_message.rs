@@ -1,13 +1,21 @@
 #[cfg(feature = "curl-github-api")]
 #[cfg(feature = "native-github-api")]
-compile_error!("native-github-api and curl-github-api are mutuall exclusive");
+compile_error!("native-github-api and curl-github-api are mutually exclusive");
 
-fn print_update_msg(tag: &str) {
-	warn!("Good news, a new version of this tool is available. You may download it here: https://github.com/Warthunder-Open-Source-Foundation/wt_ext_cli/releases/tag/{}", tag)
-
+fn print_if_new(latest: Version) -> Result<(), Report> {
+	let current = Version::from_str(&GIT_TAG.replace("v", ""))?;
+	if latest > current {
+		warn!("Good news, a new version of this tool is available. You may download it here: https://github.com/Warthunder-Open-Source-Foundation/wt_ext_cli/releases/tag/v{}", latest)
+	} else {}
+	Ok(())
 }
 
+use std::str::FromStr;
+use color_eyre::Report;
+use semver::Version;
 use tracing::warn;
+use crate::GIT_TAG;
+
 #[cfg(feature = "curl-github-api")]
 pub use curl_github_api::update_message;
 
@@ -24,6 +32,7 @@ mod native_github_api {
 	use smol_timeout::TimeoutExt;
 	use tracing::warn;
 	use crate::GIT_TAG;
+	use crate::update_message::fmt_version;
 
 	pub fn update_message() -> Result<(), Report> {
 		use smol_timeout::TimeoutExt;
@@ -39,13 +48,10 @@ mod native_github_api {
 				.timeout(Duration::from_secs(1)).await;
 
 			if let Some(tags) = tags {
-				let latest_prefixed = tags?.items.first().context("No tags available. This is a bug")?.name.clone();
+				let latest_prefix = tags?.items.first().context("No tags available. This is a bug")?.name.clone();
 				let latest = latest_prefixed.replace("v", ""); // trim off version prefix
 				let latest = Version::from_str(&latest)?;
-				let current = Version::from_str(&GIT_TAG.replace("v", ""))?;
-				if latest > current {
-					print_update_msg(&latest_prefixed);
-				} else {}
+				print_if_new(latest)?;
 			} else {
 				// Do nothing, as this means the request timed out and no message will be displayed
 			}
@@ -56,37 +62,48 @@ mod native_github_api {
 
 #[cfg(feature = "curl-github-api")]
 mod curl_github_api {
-	use std::iter::{Once, once};
-	use std::process::Command;
-	use std::str::FromStr;
-	use std::thread::sleep;
-	use std::time::Duration;
-	use color_eyre::Report;
-
-	pub fn update_message() -> Result<(), Report> {
-		todo!()
+	#[derive(Debug, serde::Deserialize)]
+	struct TaggedCommit {
+		#[serde(rename(deserialize = "ref"))]
+		reference: String,
 	}
 
-	fn curl_api() -> Result<serde_json::Value, Report> {
-		let proc = Command::new("curl")
+	use std::process::Command;
+	use std::str::FromStr;
+	use color_eyre::eyre::ContextCompat;
+	use color_eyre::Report;
+	use semver::Version;
+	use crate::update_message::print_if_new;
+
+	pub fn update_message() -> Result<(), Report> {
+		let json = curl_api()?;
+		let latest = json.into_iter()
+			.map(|e|e.reference.split("/").nth(2).map(|e|e.to_owned()).context("Invalid refs, missing slashes"))
+			.last().context("Zero refs found")??;
+		print_if_new(Version::from_str(&latest.replace("v", ""))?)?;
+		Ok(())
+	}
+
+	fn curl_api() -> Result<Vec<TaggedCommit>, Report> {
+		let output = Command::new("curl")
 			.args(&[
 				"-L",
+				"--silent",
 				r#"-H "Accept: application/vnd.github+json""#,
 				r#"-H "X-GitHub-Api-Version: 2022-11-28""#,
 				"https://api.github.com/repos/Warthunder-Open-Source-Foundation/wt_ext_cli/git/refs/tags"
 			])
-			.spawn()?;
-		let output = dbg!(proc.wait_with_output()?);
-		Ok(serde_json::Value::from_str(&String::from_utf8(output.stdout)?)?)
+			.output()?;
+		Ok(serde_json::from_slice::<Vec<TaggedCommit>>(&output.stdout)?)
 	}
 
 	#[cfg(test)]
 	mod test {
-		use crate::update_message::curl_github_api::curl_api;
+		use crate::update_message::update_message;
 
 		#[test]
 		fn test_curl() {
-			curl_api();
+			update_message().unwrap();
 		}
 	}
 }
