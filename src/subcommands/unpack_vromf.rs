@@ -9,7 +9,7 @@ use color_eyre::Help;
 #[cfg(feature = "avif2dds")]
 use image::{ImageFormat, ImageResult};
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
-use tracing::{info, warn};
+use tracing::{info};
 use wt_blk::vromf::{BlkOutputFormat, VromfUnpacker};
 
 use crate::{context, error::CliError};
@@ -109,6 +109,7 @@ fn parse_and_write_one_vromf(
 	format: Option<BlkOutputFormat>,
 	crlf: bool,
 	should_override: bool,
+	#[allow(unused)] // Conditionally depending on target
 	avif2dds: bool,
 ) -> Result<()> {
 	let parser = VromfUnpacker::from_file((file_path.clone(), read))?;
@@ -154,7 +155,7 @@ fn parse_and_write_one_vromf(
 							file.0.set_extension("dds");
 						}
 						Err(e) => {
-							warn!("{} was unable to convert to PNG because of: {e}", file.0.to_string_lossy());
+							tracing::warn!("{} was unable to convert to PNG because of: {e}", file.0.to_string_lossy());
 						}
 					}
 				}
