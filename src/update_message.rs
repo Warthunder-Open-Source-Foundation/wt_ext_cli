@@ -29,13 +29,10 @@ mod native_github_api {
 	use color_eyre::eyre::ContextCompat;
 	use color_eyre::Report;
 	use semver::Version;
+	use crate::update_message::print_if_new;
 	use smol_timeout::TimeoutExt;
-	use tracing::warn;
-	use crate::GIT_TAG;
-	use crate::update_message::fmt_version;
 
 	pub fn update_message() -> Result<(), Report> {
-		use smol_timeout::TimeoutExt;
 		let rt = tokio::runtime::Builder::new_current_thread()
 			.enable_io()
 			.enable_time()
@@ -48,7 +45,7 @@ mod native_github_api {
 				.timeout(Duration::from_secs(1)).await;
 
 			if let Some(tags) = tags {
-				let latest_prefix = tags?.items.first().context("No tags available. This is a bug")?.name.clone();
+				let latest_prefixed = tags?.items.first().context("No tags available. This is a bug")?.name.clone();
 				let latest = latest_prefixed.replace("v", ""); // trim off version prefix
 				let latest = Version::from_str(&latest)?;
 				print_if_new(latest)?;
