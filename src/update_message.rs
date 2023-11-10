@@ -96,14 +96,4 @@ mod curl_github_api {
 			.output()?;
 		Ok(serde_json::from_slice::<Vec<TaggedCommit>>(&output.stdout)?)
 	}
-
-	#[cfg(test)]
-	mod test {
-		use crate::update_message::update_message;
-
-		#[test]
-		fn test_curl() {
-			update_message().unwrap();
-		}
-	}
 }
