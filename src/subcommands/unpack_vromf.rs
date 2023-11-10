@@ -7,7 +7,7 @@ use clap::ArgMatches;
 use color_eyre::eyre::{Context, ContextCompat, Result};
 use color_eyre::Help;
 #[cfg(feature = "avif2dds")]
-use image::{ImageFormat, ImageResult};
+use image::{ImageFormat};
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use tracing::{info};
 use wt_blk::vromf::{BlkOutputFormat, VromfUnpacker};
