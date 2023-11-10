@@ -1,4 +1,4 @@
-name: Test build default features
+name: Test build native github api feature
 
 on:
   push:
