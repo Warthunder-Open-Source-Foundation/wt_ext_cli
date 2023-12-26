@@ -1,16 +1,19 @@
 use std::{fs, path::PathBuf, str::FromStr, thread, thread::JoinHandle};
 use std::ffi::OsStr;
-#[cfg(feature = "avif2dds")]
-use std::io::{Cursor};
+use std::fs::File;
+use std::io::Write;
+use std::ops::ControlFlow;
 
 use clap::ArgMatches;
 use color_eyre::eyre::{Context, ContextCompat, Result};
-use color_eyre::Help;
+use color_eyre::{Help};
 #[cfg(feature = "avif2dds")]
 use image::{ImageFormat};
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use tracing::{info};
 use wt_blk::vromf::{BlkOutputFormat, VromfUnpacker};
+use zip::CompressionMethod;
+use zip::write::FileOptions;
 
 use crate::{context, error::CliError};
 pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
@@ -33,6 +36,8 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 	};
 
 	let crlf = *args.get_one::<bool>("crlf").context("Invalid argument: crlf")?;
+
+	let zip = *args.get_one::<bool>("zip").context("Invalid argument: zip")?;
 
 	let should_override = *args.get_one::<bool>("override").context("Invalid argument: override")?;
 
@@ -70,7 +75,7 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 							"Failed to read vromf {:?}",
 							file.path()
 						)))?;
-						parse_and_write_one_vromf(file.path(), read, output_folder, mode, crlf, should_override, avif2dds)
+						parse_and_write_one_vromf(file.path(), read, output_folder, mode, crlf, should_override, avif2dds, zip)
 							.suggestion(format!("Error filename: {}", file.file_name().to_string_lossy()))?;
 						Ok(())
 					})))
@@ -96,7 +101,7 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 			}
 		};
 		let read = fs::read(&parsed_input_dir)?;
-		parse_and_write_one_vromf(parsed_input_dir, read, output_folder, mode, crlf, should_override, avif2dds)?;
+		parse_and_write_one_vromf(parsed_input_dir, read, output_folder, mode, crlf, should_override, avif2dds, zip)?;
 	}
 
 	Ok(())
@@ -111,6 +116,7 @@ fn parse_and_write_one_vromf(
 	should_override: bool,
 	#[allow(unused)] // Conditionally depending on target
 	avif2dds: bool,
+	zip: bool,
 ) -> Result<()> {
 	let parser = VromfUnpacker::from_file((file_path.clone(), read))?;
 	let files = parser.unpack_all(format, should_override)?;
@@ -123,6 +129,32 @@ fn parse_and_write_one_vromf(
 	old_extension.push("_u");
 	vromf_name.set_extension(old_extension);
 
+	let (sender, receiver) = std::sync::mpsc::channel();
+	let handle = if zip {
+		let output_dir = output_dir.clone();
+		let handle = thread::spawn(move||{
+			let mut file = File::create(output_dir).unwrap();
+
+			let mut writer = zip::ZipWriter::new(&mut file);
+
+			loop {
+				let con: ControlFlow<(), (Vec<u8>, PathBuf)> = receiver.recv().unwrap();
+
+				match con {
+					ControlFlow::Continue((buffer, path)) => {
+						writer.start_file(path.to_string_lossy(), FileOptions::default().compression_method(CompressionMethod::Deflated)).unwrap();
+						writer.write_all(&buffer).unwrap();
+					}
+					ControlFlow::Break(_) => {
+						break;
+					}
+				}
+			}
+		});
+		Some(handle)
+	} else {
+		None
+	};
 
 	files
 		.into_par_iter()
@@ -162,11 +194,20 @@ fn parse_and_write_one_vromf(
 			}
 			let rel_file_path = vromf_name.clone().join(&file.0);
 			let joined_final_path = output_dir.join(&rel_file_path);
-			fs::create_dir_all(joined_final_path.parent().ok_or(CliError::InvalidPath)?)?;
-			fs::write(&joined_final_path, file.1)?;
+			if zip {
+				sender.send(ControlFlow::Continue((file.1, rel_file_path)))?;
+			} else {
+				fs::create_dir_all(joined_final_path.parent().ok_or(CliError::InvalidPath)?)?;
+				fs::write(&joined_final_path, file.1)?;
+			}
 			Ok(())
 		})
 		.collect::<Result<()>>()?;
+
+	if let Some(thread) = handle {
+		sender.send(ControlFlow::Break(()))?;
+		thread.join().unwrap();
+	}
 
 	Ok(())
 }

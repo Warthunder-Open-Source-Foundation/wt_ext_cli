@@ -48,4 +48,11 @@ pub fn unpack_vromf() -> Command {
 				.required(false)
 				.help("Returns files with \\r\\n instead of \\n newlines")
 		)
+		.arg(
+			Arg::new("zip")
+				.long("zip")
+				.num_args(0)
+				.required(false)
+				.help("Packs output into single zipfile")
+		)
 }
