@@ -1,9 +1,40 @@
+use std::fs;
+use std::path::{Path, PathBuf};
+use std::str::FromStr;
+use std::sync::Arc;
 use clap::ArgMatches;
-use color_eyre::eyre::Result;
+use color_eyre::eyre::{ContextCompat, Result};
+use color_eyre::Help;
+use crate::error::CliError;
 
 // This is the entry-point
-pub fn unpack_raw_blk(_: &ArgMatches) -> Result<()> {
-	unimplemented!("Raw BLK unpack will be re-added in a later point in time")
+pub fn unpack_raw_blk(args: &ArgMatches) -> Result<()> {
+	let input = args
+		.get_one::<String>("Input directory")
+		.ok_or(CliError::RequiredFlagMissing)?;
+	let input = Path::new(input);
+	let read = fs::read(input)?;
+
+	let parsed = wt_blk::blk::parser::parse_blk(&read, false, None)?;
+
+	let output_folder = match () {
+		_ if let Some(path) = args.get_one::<String>("Output directory") => {
+			let buf = PathBuf::from_str(path)?;
+			if buf.is_absolute() {
+				buf
+			} else {
+				let exec_dir = std::env::current_dir()?;
+				exec_dir.join(buf)
+			}
+		}
+		_ => {
+			input.to_owned()
+		}
+	};
+
+	fs::write(output_folder, parsed.as_blk_text()?)?;
+
+	Ok(())
 }
 
 // pub fn unpack_raw_blk(args: &ArgMatches) -> Result<()> {

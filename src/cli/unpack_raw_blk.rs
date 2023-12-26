@@ -18,14 +18,6 @@ pub fn unpack_raw_blk() -> Command {
 				.short('o')
 				.long("output_dir")
 				.help("Target folder that will be created to contain new files")
-				.conflicts_with("Overwrite")
 				.value_hint(ValueHint::FilePath)
 		)
-		.arg(
-			Arg::new("Overwrite")
-				.long("overwrite")
-				.num_args(0) // expects no values
-				.help("Overwrites files in input folder")
-				.conflicts_with("Output directory")
-		).hide(true)
 }
