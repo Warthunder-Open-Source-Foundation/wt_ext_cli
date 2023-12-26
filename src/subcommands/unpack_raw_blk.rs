@@ -1,10 +1,8 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
-use std::sync::Arc;
 use clap::ArgMatches;
-use color_eyre::eyre::{ContextCompat, Result};
-use color_eyre::Help;
+use color_eyre::eyre::{Result};
 use crate::error::CliError;
 
 // This is the entry-point
