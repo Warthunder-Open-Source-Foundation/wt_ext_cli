@@ -183,7 +183,7 @@ fn parse_and_write_one_vromf(
 					match image {
 						Ok(image) => {
 							file.1.clear();
-							image.write_to(&mut Cursor::new(&mut file.1), ImageFormat::Dds)?;
+							image.write_to(&mut std::io::Cursor::new(&mut file.1), ImageFormat::Dds)?;
 							file.0.set_extension("dds");
 						}
 						Err(e) => {
