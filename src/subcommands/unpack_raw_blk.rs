@@ -2,7 +2,9 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 use clap::ArgMatches;
-use color_eyre::eyre::{Result};
+use color_eyre::eyre::{bail, Result};
+use wt_blk::blk;
+use wt_blk::blk::file::FileType;
 use crate::error::CliError;
 
 // This is the entry-point
@@ -13,9 +15,24 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<()> {
 	let input = Path::new(input);
 	let read = fs::read(input)?;
 
-	let parsed = wt_blk::blk::parser::parse_blk(&read, false, None)?;
+	match FileType::from_byte(read[0])? {
+		FileType::BBF => {}
+		FileType::FAT => {}
+		FileType::FAT_ZSTD => {}
+		FileType::SLIM => {
+			bail!("External name-map is not implemented yet");
+		}
+		FileType::SLIM_ZSTD => {
+			bail!("External name-map is not implemented yet");
+		}
+		FileType::SLIM_ZST_DICT => {
+			bail!("ZSTD dictionary is not implemented yet");
+		}
+	}
 
-	let output_folder = match () {
+	let parsed = blk::unpack_blk(read, None, None)?;
+
+	let mut output_folder = match () {
 		_ if let Some(path) = args.get_one::<String>("Output directory") => {
 			let buf = PathBuf::from_str(path)?;
 			if buf.is_absolute() {
@@ -30,7 +47,9 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<()> {
 		}
 	};
 
-	fs::write(output_folder, parsed.as_blk_text()?)?;
+	output_folder.set_extension("json");
+
+	fs::write(output_folder,  serde_json::to_string_pretty(&parsed.as_serde_json(false).1)?)?;
 
 	Ok(())
 }
