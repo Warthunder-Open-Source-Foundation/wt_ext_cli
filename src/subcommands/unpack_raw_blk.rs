@@ -15,6 +15,9 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<()> {
 	let input = Path::new(input);
 	let read = fs::read(input)?;
 
+	let zstd_dict = None;
+	let nm = None;
+
 	match FileType::from_byte(read[0])? {
 		FileType::BBF => {}
 		FileType::FAT => {}
@@ -30,7 +33,7 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<()> {
 		}
 	}
 
-	let parsed = blk::unpack_blk(read, None, None)?;
+	let parsed = blk::unpack_blk(read, zstd_dict, nm)?;
 
 	let mut output_folder = match () {
 		_ if let Some(path) = args.get_one::<String>("Output directory") => {
