@@ -44,6 +44,10 @@ fn main() -> Result<()> {
 	let command = build_command_structure().get_matches();
 	branch_subcommands(command)?;
 
-	update_message()?;
+
+	// Only fetch and print update message when override is disabled
+	if !env::var_os("NO_UPDT_CHK").is_some() {
+		update_message()?;
+	}
 	Ok(())
 }
