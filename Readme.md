@@ -5,7 +5,6 @@
 
 ### Easy way:
 - [Download from the latest stable-release](https://github.com/Warthunder-Open-Source-Foundation/wt_ext_cli/releases?q=prerelease:false)
-- [Download from the latest pre-release](https://github.com/Warthunder-Open-Source-Foundation/wt_ext_cli/releases?q=prerelease:true)
 
 ### From source:
 #### Building the project from git
