@@ -55,4 +55,10 @@ pub fn unpack_vromf() -> Command {
 				.required(false)
 				.help("Packs output into single zipfile")
 		)
+		.arg(
+			Arg::new("blk_extension")
+				.long("blk_extension")
+				.required(false)
+				.help("Replaces all blk files extension to this when provided, leaves them unchanged otherwise")
+		)
 }

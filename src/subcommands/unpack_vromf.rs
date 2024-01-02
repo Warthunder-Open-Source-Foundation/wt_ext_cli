@@ -3,6 +3,7 @@ use std::ffi::OsStr;
 use std::fs::File;
 use std::io::Write;
 use std::ops::ControlFlow;
+use std::sync::Arc;
 
 use clap::ArgMatches;
 use color_eyre::eyre::{Context, ContextCompat, Result};
@@ -43,6 +44,8 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 
 	let avif2dds = *args.get_one::<bool>("avif2dds").context("Invalid argument: avif2dds")?;
 
+	let blk_extension = args.get_one::<String>("blk_extension").map(|e|Arc::new(e.to_owned()));
+
 	if parsed_input_dir.is_dir() {
 		let output_folder = match () {
 			_ if let Some(path) = args.get_one::<String>("Output directory") => {
@@ -70,12 +73,13 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 					.ends_with("vromfs.bin")
 				{
 					let output_folder = output_folder.clone();
+					let blk_extension = blk_extension.clone();
 					threads.push(Box::new(thread::spawn(move || {
 						let read = fs::read(file.path()).with_context(context!(format!(
 							"Failed to read vromf {:?}",
 							file.path()
 						)))?;
-						parse_and_write_one_vromf(file.path(), read, output_folder, mode, crlf, should_override, avif2dds, zip)
+						parse_and_write_one_vromf(file.path(), read, output_folder, mode, crlf, should_override, avif2dds, zip, blk_extension)
 							.suggestion(format!("Error filename: {}", file.file_name().to_string_lossy()))?;
 						Ok(())
 					})))
@@ -101,7 +105,7 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 			}
 		};
 		let read = fs::read(&parsed_input_dir)?;
-		parse_and_write_one_vromf(parsed_input_dir, read, output_folder, mode, crlf, should_override, avif2dds, zip)?;
+		parse_and_write_one_vromf(parsed_input_dir, read, output_folder, mode, crlf, should_override, avif2dds, zip, blk_extension)?;
 	}
 
 	Ok(())
@@ -117,6 +121,7 @@ fn parse_and_write_one_vromf(
 	#[allow(unused)] // Conditionally depending on target
 	avif2dds: bool,
 	zip: bool,
+	blk_extension: Option<Arc<String>>
 ) -> Result<()> {
 	let parser = VromfUnpacker::from_file((file_path.clone(), read))?;
 	let files = parser.unpack_all(format, should_override)?;
@@ -193,7 +198,14 @@ fn parse_and_write_one_vromf(
 				}
 			}
 			let rel_file_path = vromf_name.clone().join(&file.0);
-			let joined_final_path = output_dir.join(&rel_file_path);
+			let mut joined_final_path = output_dir.join(&rel_file_path);
+
+			if let Some(extension) = blk_extension.clone() {
+				if joined_final_path.extension() == Some(OsStr::new("blk")) {
+					joined_final_path.set_extension(extension.as_str());
+				}
+			}
+
 			if zip {
 				sender.send(ControlFlow::Continue((file.1, rel_file_path)))?;
 			} else {
