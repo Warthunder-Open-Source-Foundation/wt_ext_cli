@@ -33,7 +33,7 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<()> {
 		}
 	}
 
-	let parsed = blk::unpack_blk(read, zstd_dict, nm)?;
+	let mut parsed = blk::unpack_blk(read, zstd_dict, nm)?;
 
 	let mut output_folder = match () {
 		_ if let Some(path) = args.get_one::<String>("Output directory") => {
@@ -52,7 +52,7 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<()> {
 
 	output_folder.set_extension("json");
 
-	fs::write(output_folder,  serde_json::to_string_pretty(&parsed.as_serde_json(false).1)?)?;
+	fs::write(output_folder,  serde_json::to_string_pretty(&mut parsed.as_serde_json(false).1)?)?;
 
 	Ok(())
 }
