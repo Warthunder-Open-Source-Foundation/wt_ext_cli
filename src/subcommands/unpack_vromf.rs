@@ -7,16 +7,16 @@ use std::sync::Arc;
 
 use clap::ArgMatches;
 use color_eyre::eyre::{Context, ContextCompat, Result};
-use color_eyre::{Help};
+use color_eyre::Help;
 #[cfg(feature = "avif2dds")]
-use image::{ImageFormat};
-use rayon::iter::{IntoParallelIterator, ParallelIterator};
-use tracing::{info};
+use image::ImageFormat;
+use tracing::info;
 use wt_blk::vromf::{BlkOutputFormat, VromfUnpacker};
 use zip::CompressionMethod;
 use zip::write::FileOptions;
 
 use crate::{context, error::CliError};
+
 pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 	info!("Mode: Unpacking vromf");
 	let input_dir = args
@@ -44,7 +44,7 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 
 	let avif2dds = *args.get_one::<bool>("avif2dds").context("Invalid argument: avif2dds")?;
 
-	let blk_extension = args.get_one::<String>("blk_extension").map(|e|Arc::new(e.to_owned()));
+	let blk_extension = args.get_one::<String>("blk_extension").map(|e| Arc::new(e.to_owned()));
 
 	if parsed_input_dir.is_dir() {
 		let output_folder = match () {
@@ -121,10 +121,9 @@ fn parse_and_write_one_vromf(
 	#[allow(unused)] // Conditionally depending on target
 	avif2dds: bool,
 	zip: bool,
-	blk_extension: Option<Arc<String>>
+	blk_extension: Option<Arc<String>>,
 ) -> Result<()> {
 	let parser = VromfUnpacker::from_file((file_path.clone(), read))?;
-	let files = parser.unpack_all(format, should_override)?;
 
 	let mut vromf_name = PathBuf::from(file_path.file_name().ok_or(CliError::InvalidPath)?);
 	let mut old_extension = vromf_name
@@ -134,43 +133,15 @@ fn parse_and_write_one_vromf(
 	old_extension.push("_u");
 	vromf_name.set_extension(old_extension);
 
-	let (sender, receiver) = std::sync::mpsc::channel();
-	let handle = if zip {
-		let output_dir = output_dir.clone();
-		let handle = thread::spawn(move||{
-			let mut file = File::create(output_dir).unwrap();
-
-			let mut writer = zip::ZipWriter::new(&mut file);
-
-			loop {
-				let con: ControlFlow<(), (Vec<u8>, PathBuf)> = receiver.recv().unwrap();
-
-				match con {
-					ControlFlow::Continue((buffer, path)) => {
-						writer.start_file(path.to_string_lossy(), FileOptions::default().compression_method(CompressionMethod::Deflated)).unwrap();
-						writer.write_all(&buffer).unwrap();
-					}
-					ControlFlow::Break(_) => {
-						break;
-					}
-				}
-			}
-		});
-		Some(handle)
-	} else {
-		None
-	};
-
-	files
-		.into_par_iter()
-		.map(|mut file| {
+	let writer = |mut file: (PathBuf, Vec<u8>)| {
+		{
 			// The version file in some vromfs is prefixed with /, which is incorrect as this causes
 			// all relative paths to resolve to /
 			if file.0.starts_with("/") {
 				file.0 = file.0.strip_prefix("/")?.to_path_buf();
 			}
 			if crlf {
-				if file.0.extension() == Some(&OsStr::new("blk"))  {
+				if file.0.extension() == Some(&OsStr::new("blk")) {
 					let mut new = Vec::with_capacity(file.1.len() + 1024 * 4);
 					for byte in file.1 {
 						if byte == b'\n' {
@@ -183,7 +154,7 @@ fn parse_and_write_one_vromf(
 			}
 			#[cfg(feature = "avif2dds")]
 			if avif2dds {
-				if file.0.extension() == Some(&OsStr::new("avif"))  {
+				if file.0.extension() == Some(&OsStr::new("avif")) {
 					let image = image::load_from_memory_with_format(&file.1, ImageFormat::Avif);
 					match image {
 						Ok(image) => {
@@ -206,15 +177,40 @@ fn parse_and_write_one_vromf(
 				}
 			}
 
-			if zip {
-				sender.send(ControlFlow::Continue((file.1, rel_file_path)))?;
-			} else {
-				fs::create_dir_all(joined_final_path.parent().ok_or(CliError::InvalidPath)?)?;
-				fs::write(&joined_final_path, file.1)?;
-			}
+			fs::create_dir_all(joined_final_path.parent().ok_or(CliError::InvalidPath)?)?;
+			fs::write(&joined_final_path, file.1)?;
 			Ok(())
-		})
-		.collect::<Result<()>>()?;
+		}
+	};
+
+	parser.unpack_all_with_writer(format, should_override, writer)?;
+
+	let (sender, receiver) = std::sync::mpsc::channel();
+	let handle = if zip {
+		let output_dir = output_dir.clone();
+		let handle = thread::spawn(move || {
+			let mut file = File::create(output_dir).unwrap();
+
+			let mut writer = zip::ZipWriter::new(&mut file);
+
+			loop {
+				let con: ControlFlow<(), (Vec<u8>, PathBuf)> = receiver.recv().unwrap();
+
+				match con {
+					ControlFlow::Continue((buffer, path)) => {
+						writer.start_file(path.to_string_lossy(), FileOptions::default().compression_method(CompressionMethod::Deflated)).unwrap();
+						writer.write_all(&buffer).unwrap();
+					}
+					ControlFlow::Break(_) => {
+						break;
+					}
+				}
+			}
+		});
+		Some(handle)
+	} else {
+		None
+	};
 
 	if let Some(thread) = handle {
 		sender.send(ControlFlow::Break(()))?;

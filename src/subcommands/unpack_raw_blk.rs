@@ -13,7 +13,7 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<()> {
 		.get_one::<String>("Input directory")
 		.ok_or(CliError::RequiredFlagMissing)?;
 	let input = Path::new(input);
-	let read = fs::read(input)?;
+	let mut read = fs::read(input)?;
 
 	let zstd_dict = None;
 	let nm = None;
@@ -33,7 +33,7 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<()> {
 		}
 	}
 
-	let mut parsed = blk::unpack_blk(read, zstd_dict, nm)?;
+	let mut parsed = blk::unpack_blk(&mut read, zstd_dict, nm)?;
 
 	let mut output_folder = match () {
 		_ if let Some(path) = args.get_one::<String>("Output directory") => {
