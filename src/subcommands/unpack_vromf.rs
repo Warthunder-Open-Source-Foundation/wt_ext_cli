@@ -1,7 +1,7 @@
 use std::{fs, path::PathBuf, str::FromStr, thread, thread::JoinHandle};
 use std::ffi::OsStr;
-use std::fs::File;
-use std::io::Write;
+use std::fs::{File, OpenOptions};
+use std::io::{BufWriter, Write};
 use std::ops::ControlFlow;
 use std::sync::Arc;
 
@@ -133,7 +133,7 @@ fn parse_and_write_one_vromf(
 	old_extension.push("_u");
 	vromf_name.set_extension(old_extension);
 
-	let writer = |mut file: (PathBuf, Vec<u8>)| {
+	let writer = |file: &mut (PathBuf, Vec<u8>)| {
 		{
 			// The version file in some vromfs is prefixed with /, which is incorrect as this causes
 			// all relative paths to resolve to /
@@ -143,11 +143,11 @@ fn parse_and_write_one_vromf(
 			if crlf {
 				if file.0.extension() == Some(&OsStr::new("blk")) {
 					let mut new = Vec::with_capacity(file.1.len() + 1024 * 4);
-					for byte in file.1 {
-						if byte == b'\n' {
+					for byte in &file.1 {
+						if *byte == b'\n' {
 							new.push(b'\r');
 						}
-						new.push(byte);
+						new.push(*byte);
 					}
 					file.1 = new;
 				}
@@ -178,8 +178,8 @@ fn parse_and_write_one_vromf(
 			}
 
 			fs::create_dir_all(joined_final_path.parent().ok_or(CliError::InvalidPath)?)?;
-			fs::write(&joined_final_path, file.1)?;
-			Ok(())
+			let handle = OpenOptions::new().write(true).open(&joined_final_path)?;
+			Ok(BufWriter::with_capacity(4096, handle))
 		}
 	};
 
