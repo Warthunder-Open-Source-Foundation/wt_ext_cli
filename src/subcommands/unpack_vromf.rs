@@ -178,7 +178,7 @@ fn parse_and_write_one_vromf(
 			}
 
 			fs::create_dir_all(joined_final_path.parent().ok_or(CliError::InvalidPath)?)?;
-			let handle = OpenOptions::new().write(true).open(&joined_final_path)?;
+			let handle = OpenOptions::new().write(true).create_new(true).open(&joined_final_path)?;
 			Ok(BufWriter::with_capacity(4096, handle))
 		}
 	};
