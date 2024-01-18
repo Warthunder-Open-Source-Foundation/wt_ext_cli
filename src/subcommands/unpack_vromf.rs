@@ -7,7 +7,7 @@ use std::sync::Arc;
 
 use clap::ArgMatches;
 use color_eyre::eyre::{Context, ContextCompat, Result};
-use color_eyre::Help;
+use color_eyre::{Help};
 #[cfg(feature = "avif2dds")]
 use image::ImageFormat;
 use tracing::info;
@@ -16,6 +16,7 @@ use zip::CompressionMethod;
 use zip::write::FileOptions;
 
 use crate::{context, error::CliError};
+use crate::util::CrlfWriter;
 
 pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 	info!("Mode: Unpacking vromf");
@@ -140,18 +141,6 @@ fn parse_and_write_one_vromf(
 			if file.0.starts_with("/") {
 				file.0 = file.0.strip_prefix("/")?.to_path_buf();
 			}
-			if crlf {
-				if file.0.extension() == Some(&OsStr::new("blk")) {
-					let mut new = Vec::with_capacity(file.1.len() + 1024 * 4);
-					for byte in &file.1 {
-						if *byte == b'\n' {
-							new.push(b'\r');
-						}
-						new.push(*byte);
-					}
-					file.1 = new;
-				}
-			}
 			#[cfg(feature = "avif2dds")]
 			if avif2dds {
 				if file.0.extension() == Some(&OsStr::new("avif")) {
@@ -171,15 +160,22 @@ fn parse_and_write_one_vromf(
 			let rel_file_path = vromf_name.clone().join(&file.0);
 			let mut joined_final_path = output_dir.join(&rel_file_path);
 
+			let is_blk = joined_final_path.extension() == Some(OsStr::new("blk"));
+
 			if let Some(extension) = blk_extension.clone() {
-				if joined_final_path.extension() == Some(OsStr::new("blk")) {
+				if is_blk {
 					joined_final_path.set_extension(extension.as_str());
 				}
 			}
 
 			fs::create_dir_all(joined_final_path.parent().ok_or(CliError::InvalidPath)?)?;
-			let handle = OpenOptions::new().write(true).create_new(true).open(&joined_final_path)?;
-			Ok(BufWriter::with_capacity(4096, handle))
+			let handle = OpenOptions::new().write(true).create(true).open(&joined_final_path)?;
+			let buf_size = 4096;
+			if crlf && is_blk {
+				Ok(CrlfWriter::Enabled(BufWriter::with_capacity(buf_size, handle)))
+			} else {
+				Ok(CrlfWriter::Disabled(BufWriter::with_capacity(buf_size, handle)))
+			}
 		}
 	};
 

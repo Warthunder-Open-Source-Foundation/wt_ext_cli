@@ -13,7 +13,7 @@ mod fs_util;
 mod logging;
 mod subcommands;
 mod update_diff;
-mod util;
+pub(crate) mod util;
 mod update_message;
 
 pub const COMMIT_HASH: &str = env!("GIT_HASH");
