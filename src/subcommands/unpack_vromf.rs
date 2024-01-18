@@ -1,5 +1,4 @@
 use std::{fs, path::PathBuf, str::FromStr, thread, thread::JoinHandle};
-use std::ffi::OsStr;
 use std::fs::{File, OpenOptions};
 use std::io::{BufWriter, Write};
 use std::ops::ControlFlow;
@@ -11,6 +10,7 @@ use color_eyre::{Help};
 #[cfg(feature = "avif2dds")]
 use image::ImageFormat;
 use tracing::info;
+use wt_blk::blk::util::maybe_blk;
 use wt_blk::vromf::{BlkOutputFormat, VromfUnpacker};
 use zip::CompressionMethod;
 use zip::write::FileOptions;
@@ -160,7 +160,7 @@ fn parse_and_write_one_vromf(
 			let rel_file_path = vromf_name.clone().join(&file.0);
 			let mut joined_final_path = output_dir.join(&rel_file_path);
 
-			let is_blk = joined_final_path.extension() == Some(OsStr::new("blk"));
+			let is_blk = maybe_blk(file);
 
 			if let Some(extension) = blk_extension.clone() {
 				if is_blk {
