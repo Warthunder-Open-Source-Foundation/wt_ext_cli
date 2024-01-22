@@ -47,7 +47,7 @@ fn main() -> Result<()> {
 
 	// Only fetch and print update message when override is disabled
 	if !env::var_os("NO_UPDT_CHK").is_some() {
-		update_message()?;
+		// update_message()?;
 	}
 	Ok(())
 }
