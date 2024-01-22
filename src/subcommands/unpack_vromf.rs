@@ -143,6 +143,7 @@ fn parse_and_write_one_vromf(
 			}
 			#[cfg(feature = "avif2dds")]
 			if avif2dds {
+				use std::ffi::OsStr;
 				if file.0.extension() == Some(&OsStr::new("avif")) {
 					let image = image::load_from_memory_with_format(&file.1, ImageFormat::Avif);
 					match image {
