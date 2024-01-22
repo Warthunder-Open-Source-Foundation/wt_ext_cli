@@ -27,7 +27,7 @@ curl-github-api = []
 
 [dependencies]
 clap = {version = "4.1.9", features = ["cargo"]}
-wt_blk = {git = "https://github.com/Warthunder-Open-Source-Foundation/wt_blk", branch = "streaming-serializer"}
+wt_blk = {git = "https://github.com/Warthunder-Open-Source-Foundation/wt_blk", branch = "master"}
 #wt_blk = {path = "../wt_blk"}
 thiserror = "^1.0"
 rayon = "^1.7.0"
