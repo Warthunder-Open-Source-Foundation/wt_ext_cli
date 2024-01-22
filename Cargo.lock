@@ -2362,7 +2362,7 @@ dependencies = [
 [[package]]
 name = "wt_blk"
 version = "0.1.2"
-source = "git+https://github.com/Warthunder-Open-Source-Foundation/wt_blk?branch=streaming-serializer#4ea1f81d2384c14f1d1eac97495073647b4a51f1"
+source = "git+https://github.com/Warthunder-Open-Source-Foundation/wt_blk?branch=streaming-serializer#c2bd7bc7ceb1f021a08bbbdf4fbe60a93ebb9bd3"
 dependencies = [
  "cfg-if",
  "color-eyre",
