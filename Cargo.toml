@@ -48,6 +48,7 @@ smol-timeout = { version = "0.6.0", optional = true}
 tokio = { version = "1.33.0", default-features = false, features = ["rt"], optional = true }
 semver = "1.0.18"
 zip = { version = "0.6.6", features = ["deflate"], default-features = false}
+wt_version = { git = "https://github.com/Warthunder-Open-Source-Foundation/wt_version.git" }
 
 [dependencies.image]
 git = "https://github.com/image-rs/image.git"

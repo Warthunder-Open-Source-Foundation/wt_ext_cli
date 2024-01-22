@@ -11,10 +11,12 @@ use crate::{COMMIT_HASH, logging::init_logging, subcommands::{
 	unpack_raw_blk::unpack_raw_blk,
 	unpack_vromf::unpack_vromf,
 }};
+use crate::subcommands::vromf_version::vromf_version;
 
 mod unpack_dxp_and_grp;
 mod unpack_raw_blk;
 pub mod unpack_vromf;
+mod vromf_version;
 
 pub static CRASHLOG: OnceLock<bool> = OnceLock::new();
 
@@ -45,6 +47,9 @@ pub fn branch_subcommands(args: ArgMatches) -> Result<()> {
 		},
 		Some(("hash",_)) => {
 			println!("https://github.com/Warthunder-Open-Source-Foundation/wt_ext_cli/commit/{}", COMMIT_HASH);
+		}
+		Some(("vromf_version", args)) => {
+			vromf_version(args)?;
 		}
 		_ => {
 			error!("Unmatched subcommand: {:?}", args.subcommand());

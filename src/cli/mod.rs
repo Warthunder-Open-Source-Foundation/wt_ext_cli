@@ -5,6 +5,7 @@ mod diff_yup;
 mod update_check;
 mod get_instruction_manual;
 mod hash;
+mod vromf_version;
 
 use clap::{command, Arg, ColorChoice, Command, ValueHint};
 use const_format::formatcp;
@@ -42,4 +43,5 @@ pub fn build_command_structure() -> Command {
 		.subcommand(update_check::update_check())
 		.subcommand(get_instruction_manual::get_instruction_manual())
 		.subcommand(hash::hash())
+		.subcommand(vromf_version::vromf_version())
 }

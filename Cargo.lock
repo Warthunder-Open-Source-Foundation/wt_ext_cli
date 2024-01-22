@@ -2403,6 +2403,7 @@ dependencies = [
  "tracing-appender",
  "tracing-subscriber",
  "wt_blk",
+ "wt_version",
  "zip",
  "zstd 0.13.0",
 ]
@@ -2410,7 +2411,10 @@ dependencies = [
 [[package]]
 name = "wt_version"
 version = "0.1.0"
-source = "git+https://github.com/Warthunder-Open-Source-Foundation/wt_version.git#9a95fb248aa5d17487362ebaf1f6ffa2d6b0259c"
+source = "git+https://github.com/Warthunder-Open-Source-Foundation/wt_version.git#8ef6d7edacf52f211cdbbc5b62981ef9cf6c75f9"
+dependencies = [
+ "serde",
+]
 
 [[package]]
 name = "zerocopy"
