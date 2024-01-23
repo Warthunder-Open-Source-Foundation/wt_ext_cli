@@ -253,15 +253,15 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "chrono"
-version = "0.4.31"
+version = "0.4.32"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7f2c685bad3eb3d45a01354cedb7d5faa66194d1d58ba6e267a8de788f79db38"
+checksum = "41daef31d7a747c5c847246f36de49ced6f7403b4cdabc807a97b5cc184cda7a"
 dependencies = [
  "android-tzdata",
  "iana-time-zone",
  "num-traits",
  "serde",
- "windows-targets 0.48.5",
+ "windows-targets 0.52.0",
 ]
 
 [[package]]
@@ -2362,7 +2362,7 @@ dependencies = [
 [[package]]
 name = "wt_blk"
 version = "0.1.2"
-source = "git+https://github.com/Warthunder-Open-Source-Foundation/wt_blk?branch=master#025ebe8b636d3a0dea71eff129a03a51eacee8d7"
+source = "git+https://github.com/Warthunder-Open-Source-Foundation/wt_blk?branch=master#2ab88ed3641c46cbcb70dcd6118ab2f12cdf15f7"
 dependencies = [
  "cfg-if",
  "color-eyre",
@@ -2370,9 +2370,9 @@ dependencies = [
  "lazy_static",
  "memmap2",
  "rayon",
+ "ryu",
  "serde",
  "serde_json",
- "static_assertions",
  "strum",
  "thiserror",
  "tracing",
