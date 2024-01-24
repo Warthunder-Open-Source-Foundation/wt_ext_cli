@@ -18,6 +18,8 @@ codegen-units = 2
 # The profile that 'cargo dist' will build with
 [profile.dist]
 inherits = "release"
+debug = false
+strip = true
 
 [features]
 default = []
