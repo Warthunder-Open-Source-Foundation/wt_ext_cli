@@ -2362,7 +2362,7 @@ dependencies = [
 [[package]]
 name = "wt_blk"
 version = "0.1.2"
-source = "git+https://github.com/Warthunder-Open-Source-Foundation/wt_blk?branch=master#2ab88ed3641c46cbcb70dcd6118ab2f12cdf15f7"
+source = "git+https://github.com/Warthunder-Open-Source-Foundation/wt_blk?branch=master#98071244946a451401553a30461350d6e6e220a5"
 dependencies = [
  "cfg-if",
  "color-eyre",
