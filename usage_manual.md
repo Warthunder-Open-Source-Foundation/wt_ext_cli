@@ -7,6 +7,8 @@ WarThunder datamining extraction tools
 Usage: wt_ext_cli [OPTIONS] <COMMAND>
 
 Commands:
+  unpack_raw_blk, --unpack_raw_blk
+          Unpacks a folder of raw/binary blk files into their unpacked format
   unpack_vromf, --unpack_vromf
           Unpacks vromf into raw or human readable formats, such as Json or Blk
   unpack_dxp_and_grp, --unpack_dxp
@@ -15,6 +17,8 @@ Commands:
           Opens or writes the manual
   hash, --hash
           Prints commit hash from binary (link)
+  vromf_version, --vromf_version
+          Prints version(s) from file or folder of vromfs
   help
           Print this message or the help of the given subcommand(s)
 
@@ -24,6 +28,7 @@ Options:
       --crashlog               Runs at maximum log level and writes logfile to aid in debugging
   -h, --help                   Print help
   -V, --version                Print version
+
 ```
 
 # Commands and their purpose
@@ -83,6 +88,17 @@ Options:
   -h, --help                           Print help
 ```
 
+## vromf_version
+Prints versions found either inside the vromf (version file) and/or the header of the vromf
+```
+Prints version(s) from file or folder of vromfs
+
+Usage: wt_ext_cli {vromf_version|--vromf_version} --input_dir_or_file <input>
+
+Options:
+  -i, --input_dir_or_file <input>  A single vromf file, or a folder of Vromf files. Does not recurse subdirs
+  -h, --help                       Print help
+```
 
 # Environment variables
 
