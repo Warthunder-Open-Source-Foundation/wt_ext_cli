@@ -20,10 +20,8 @@ codegen-units = 2
 inherits = "release"
 
 [features]
-default = ["curl-github-api"]
+default = []
 avif2dds = ["image"]
-native-github-api = ["octocrab", "tokio", "smol-timeout"]
-curl-github-api = []
 
 [dependencies]
 clap = {version = "4.1.9", features = ["cargo"]}
@@ -34,7 +32,6 @@ rayon = "^1.7.0"
 open = "^5"
 color-eyre = { version = "^0.6", default-features = false }
 time = { version = "0.3.23", default-features = false, features = ["local-offset"]}
-zstd = "0.13.0"
 
 tracing = "^0.1.37"
 tracing-subscriber = {version  = "^0.3.16", features = ["tracing-log", "env-filter", "fmt", "std"]}
@@ -43,10 +40,6 @@ tracing-appender = { version = "0.2.2"}
 serde_json = "^1.0"
 serde = { version = "^1.0", features = ["serde_derive"] }
 const_format = { version = "0.2.31", default-features = false, features = ["fmt"] }
-octocrab = { version = "0.31.1", default-features = false, features = ["rustls", "timeout", "retry", "tracing"], optional = true }
-smol-timeout = { version = "0.6.0", optional = true}
-tokio = { version = "1.33.0", default-features = false, features = ["rt"], optional = true }
-semver = "1.0.18"
 zip = { version = "0.6.6", features = ["deflate"], default-features = false}
 wt_version = { git = "https://github.com/Warthunder-Open-Source-Foundation/wt_version.git" }
 

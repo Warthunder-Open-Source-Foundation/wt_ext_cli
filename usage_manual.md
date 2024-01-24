@@ -106,9 +106,4 @@ Options:
 Behaviour: Disables any color when printing errors or backtraces  
 Possible values: [true, false]  
 Default value (windows): false  
-Default value (not-windows): true  
-
-`NO_UPDT_CHK`:  
-Behaviour: Does not check the github API if an updated version is available  
-Possible values: (any, just needs to be present)  
-Default value: unset  
+Default value (not-windows): true
