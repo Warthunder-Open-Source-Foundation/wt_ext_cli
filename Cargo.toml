@@ -26,18 +26,18 @@ default = []
 avif2dds = ["image"]
 
 [dependencies]
-clap = {version = "4.1.9", features = ["cargo"]}
+clap = {version = "4.4", features = ["cargo"]}
 wt_blk = {git = "https://github.com/Warthunder-Open-Source-Foundation/wt_blk", branch = "master"}
 #wt_blk = {path = "../wt_blk"}
-thiserror = "^1.0"
-rayon = "^1.7.0"
-open = "^5"
+thiserror = "1.0"
+rayon = "1.8"
+open = "5"
 color-eyre = { version = "^0.6", default-features = false }
-time = { version = "0.3.23", default-features = false, features = ["local-offset"]}
+time = { version = "0.3", default-features = false, features = ["local-offset"]}
 
-tracing = "^0.1.37"
-tracing-subscriber = {version  = "^0.3.16", features = ["tracing-log", "env-filter", "fmt", "std"]}
-tracing-appender = { version = "0.2.2"}
+tracing = "0.1"
+tracing-subscriber = {version  = "0.3", features = ["tracing-log", "env-filter", "fmt", "std"]}
+tracing-appender = { version = "0.2.3"}
 
 serde_json = "^1.0"
 serde = { version = "^1.0", features = ["serde_derive"] }
