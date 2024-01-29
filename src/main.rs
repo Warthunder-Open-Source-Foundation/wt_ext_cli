@@ -2,7 +2,7 @@
 
 use std::env;
 
-use color_eyre::eyre::{Result};
+use color_eyre::eyre::Result;
 
 use crate::{cli::build_command_structure, subcommands::branch_subcommands};
 
@@ -38,6 +38,11 @@ fn main() -> Result<()> {
 			.theme(color_eyre::config::Theme::new())
 			.install()?;
 	}
+
+	// Set rayon thread names
+	rayon::ThreadPoolBuilder::new()
+		.thread_name(|i| format!("rayon-{i}"))
+		.build_global()?;
 
 	let command = build_command_structure().get_matches();
 	branch_subcommands(command)?;

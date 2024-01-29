@@ -75,7 +75,10 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 				{
 					let output_folder = output_folder.clone();
 					let blk_extension = blk_extension.clone();
-					threads.push(Box::new(thread::spawn(move || {
+					let thread_builder = thread::Builder::new()
+						.name(file.file_name().to_string_lossy().to_string());
+
+					threads.push(Box::new(thread_builder.spawn(move || {
 						let read = fs::read(file.path()).with_context(context!(format!(
 							"Failed to read vromf {:?}",
 							file.path()
@@ -83,7 +86,7 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 						parse_and_write_one_vromf(file.path(), read, output_folder, mode, crlf, should_override, avif2dds, zip, blk_extension)
 							.suggestion(format!("Error filename: {}", file.file_name().to_string_lossy()))?;
 						Ok(())
-					})))
+					})?))
 				}
 			}
 		}
@@ -185,7 +188,10 @@ fn parse_and_write_one_vromf(
 	let (sender, receiver) = std::sync::mpsc::channel();
 	let handle = if zip {
 		let output_dir = output_dir.clone();
-		let handle = thread::spawn(move || {
+
+		let thread_builder = thread::Builder::new()
+			.name("zip_writer".to_owned());
+		let handle = thread_builder.spawn(move || {
 			let mut file = File::create(output_dir).unwrap();
 
 			let mut writer = zip::ZipWriter::new(&mut file);
@@ -211,7 +217,7 @@ fn parse_and_write_one_vromf(
 
 	if let Some(thread) = handle {
 		sender.send(ControlFlow::Break(()))?;
-		thread.join().unwrap();
+		thread?.join().unwrap();
 	}
 
 	Ok(())
