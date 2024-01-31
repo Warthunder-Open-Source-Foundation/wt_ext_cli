@@ -6,7 +6,6 @@ macro_rules! context {
 	};
 }
 
-
 pub enum CrlfWriter<W: io::Write> {
 	Enabled(W),
 	Disabled(W),
@@ -30,16 +29,14 @@ impl<W: io::Write> io::Write for CrlfWriter<W> {
 				}
 
 				Ok(count)
-			}
-			CrlfWriter::Disabled(inner) => {
-				inner.write(buf)
-			}
+			},
+			CrlfWriter::Disabled(inner) => inner.write(buf),
 		}
 	}
 
 	fn flush(&mut self) -> io::Result<()> {
 		match self {
-			CrlfWriter::Enabled(i) | CrlfWriter::Disabled(i) => i.flush()
+			CrlfWriter::Enabled(i) | CrlfWriter::Disabled(i) => i.flush(),
 		}
 	}
 }

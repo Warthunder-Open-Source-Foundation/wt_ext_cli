@@ -21,7 +21,8 @@ fn main() -> Result<()> {
 	env::set_var("RUST_BACKTRACE", "1");
 
 	let enable_color = if let Ok(force_color) = env::var("FORCE_SET_COLOR") {
-		force_color.parse::<bool>()
+		force_color
+			.parse::<bool>()
 			.expect("FORCE_COLOR was not 'false' or 'true'")
 	} else {
 		if cfg!(windows) {
@@ -46,7 +47,6 @@ fn main() -> Result<()> {
 
 	let command = build_command_structure().get_matches();
 	branch_subcommands(command)?;
-
 
 	Ok(())
 }

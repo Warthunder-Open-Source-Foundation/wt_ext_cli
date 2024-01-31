@@ -10,7 +10,7 @@ pub fn unpack_raw_blk() -> Command {
 				.long("input_dir")
 				.help("Folder containing blk files, sub-folders will be recursively searched")
 				.required(true)
-				.value_hint(ValueHint::FilePath)
+				.value_hint(ValueHint::FilePath),
 		)
 		.arg(
 			// Not providing this argument means the input folder name will be used, with a `_u` suffix
@@ -18,6 +18,6 @@ pub fn unpack_raw_blk() -> Command {
 				.short('o')
 				.long("output_dir")
 				.help("Target folder that will be created to contain new files")
-				.value_hint(ValueHint::FilePath)
+				.value_hint(ValueHint::FilePath),
 		)
 }

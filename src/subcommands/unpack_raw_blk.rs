@@ -1,10 +1,13 @@
-use std::fs;
-use std::path::{Path, PathBuf};
-use std::str::FromStr;
+use std::{
+	fs,
+	path::{Path, PathBuf},
+	str::FromStr,
+};
+
 use clap::ArgMatches;
 use color_eyre::eyre::{bail, Result};
-use wt_blk::blk;
-use wt_blk::blk::file::FileType;
+use wt_blk::{blk, blk::file::FileType};
+
 use crate::error::CliError;
 
 // This is the entry-point
@@ -19,18 +22,18 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<()> {
 	let nm = None;
 
 	match FileType::from_byte(read[0])? {
-		FileType::BBF => {}
-		FileType::FAT => {}
-		FileType::FAT_ZSTD => {}
+		FileType::BBF => {},
+		FileType::FAT => {},
+		FileType::FAT_ZSTD => {},
 		FileType::SLIM => {
 			bail!("External name-map is not implemented yet");
-		}
+		},
 		FileType::SLIM_ZSTD => {
 			bail!("External name-map is not implemented yet");
-		}
+		},
 		FileType::SLIM_ZST_DICT => {
 			bail!("ZSTD dictionary is not implemented yet");
-		}
+		},
 	}
 
 	let parsed = blk::unpack_blk(&mut read, zstd_dict, nm)?;
@@ -44,15 +47,13 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<()> {
 				let exec_dir = std::env::current_dir()?;
 				exec_dir.join(buf)
 			}
-		}
-		_ => {
-			input.to_owned()
-		}
+		},
+		_ => input.to_owned(),
 	};
 
 	output_folder.set_extension("json");
 
-	fs::write(output_folder,  parsed.as_serde_json()?)?;
+	fs::write(output_folder, parsed.as_serde_json()?)?;
 
 	Ok(())
 }

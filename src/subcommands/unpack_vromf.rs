@@ -1,22 +1,30 @@
-use std::{fs, path::PathBuf, str::FromStr, thread, thread::JoinHandle};
-use std::fs::{File, OpenOptions};
-use std::io::{BufWriter, Write};
-use std::ops::ControlFlow;
-use std::sync::Arc;
+use std::{
+	fs,
+	fs::{File, OpenOptions},
+	io::{BufWriter, Write},
+	ops::ControlFlow,
+	path::PathBuf,
+	str::FromStr,
+	sync::Arc,
+	thread,
+	thread::JoinHandle,
+};
 
 use clap::ArgMatches;
-use color_eyre::eyre::{Context, ContextCompat, Result};
-use color_eyre::{Help};
+use color_eyre::{
+	eyre::{Context, ContextCompat, Result},
+	Help,
+};
 #[cfg(feature = "avif2dds")]
 use image::ImageFormat;
 use tracing::info;
-use wt_blk::blk::util::maybe_blk;
-use wt_blk::vromf::{BlkOutputFormat, VromfUnpacker};
-use zip::CompressionMethod;
-use zip::write::FileOptions;
+use wt_blk::{
+	blk::util::maybe_blk,
+	vromf::{BlkOutputFormat, VromfUnpacker},
+};
+use zip::{write::FileOptions, CompressionMethod};
 
-use crate::{context, error::CliError};
-use crate::util::CrlfWriter;
+use crate::{context, error::CliError, util::CrlfWriter};
 
 pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 	info!("Mode: Unpacking vromf");
@@ -34,18 +42,28 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 				"Unrecognized output format: {:?}",
 				args.get_one::<String>("format")
 			)
-		}
+		},
 	};
 
-	let crlf = *args.get_one::<bool>("crlf").context("Invalid argument: crlf")?;
+	let crlf = *args
+		.get_one::<bool>("crlf")
+		.context("Invalid argument: crlf")?;
 
-	let zip = *args.get_one::<bool>("zip").context("Invalid argument: zip")?;
+	let zip = *args
+		.get_one::<bool>("zip")
+		.context("Invalid argument: zip")?;
 
-	let should_override = *args.get_one::<bool>("override").context("Invalid argument: override")?;
+	let should_override = *args
+		.get_one::<bool>("override")
+		.context("Invalid argument: override")?;
 
-	let avif2dds = *args.get_one::<bool>("avif2dds").context("Invalid argument: avif2dds")?;
+	let avif2dds = *args
+		.get_one::<bool>("avif2dds")
+		.context("Invalid argument: avif2dds")?;
 
-	let blk_extension = args.get_one::<String>("blk_extension").map(|e| Arc::new(e.to_owned()));
+	let blk_extension = args
+		.get_one::<String>("blk_extension")
+		.map(|e| Arc::new(e.to_owned()));
 
 	if parsed_input_dir.is_dir() {
 		let output_folder = match () {
@@ -57,10 +75,8 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 					let exec_dir = std::env::current_dir()?;
 					exec_dir.join(buf)
 				}
-			}
-			_ => {
-				parsed_input_dir.clone()
-			}
+			},
+			_ => parsed_input_dir.clone(),
 		};
 
 		let mut threads: Vec<Box<JoinHandle<Result<()>>>> = vec![];
@@ -75,16 +91,29 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 				{
 					let output_folder = output_folder.clone();
 					let blk_extension = blk_extension.clone();
-					let thread_builder = thread::Builder::new()
-						.name(file.file_name().to_string_lossy().to_string());
+					let thread_builder =
+						thread::Builder::new().name(file.file_name().to_string_lossy().to_string());
 
 					threads.push(Box::new(thread_builder.spawn(move || {
 						let read = fs::read(file.path()).with_context(context!(format!(
 							"Failed to read vromf {:?}",
 							file.path()
 						)))?;
-						parse_and_write_one_vromf(file.path(), read, output_folder, mode, crlf, should_override, avif2dds, zip, blk_extension)
-							.suggestion(format!("Error filename: {}", file.file_name().to_string_lossy()))?;
+						parse_and_write_one_vromf(
+							file.path(),
+							read,
+							output_folder,
+							mode,
+							crlf,
+							should_override,
+							avif2dds,
+							zip,
+							blk_extension,
+						)
+						.suggestion(format!(
+							"Error filename: {}",
+							file.file_name().to_string_lossy()
+						))?;
 						Ok(())
 					})?))
 				}
@@ -103,13 +132,25 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 					let exec_dir = std::env::current_dir()?;
 					exec_dir.join(buf)
 				}
-			}
-			_ => {
-				parsed_input_dir.clone().parent().ok_or(CliError::InvalidPath)?.to_owned()
-			}
+			},
+			_ => parsed_input_dir
+				.clone()
+				.parent()
+				.ok_or(CliError::InvalidPath)?
+				.to_owned(),
 		};
 		let read = fs::read(&parsed_input_dir)?;
-		parse_and_write_one_vromf(parsed_input_dir, read, output_folder, mode, crlf, should_override, avif2dds, zip, blk_extension)?;
+		parse_and_write_one_vromf(
+			parsed_input_dir,
+			read,
+			output_folder,
+			mode,
+			crlf,
+			should_override,
+			avif2dds,
+			zip,
+			blk_extension,
+		)?;
 	}
 
 	Ok(())
@@ -152,12 +193,18 @@ fn parse_and_write_one_vromf(
 					match image {
 						Ok(image) => {
 							file.1.clear();
-							image.write_to(&mut std::io::Cursor::new(&mut file.1), ImageFormat::Dds)?;
+							image.write_to(
+								&mut std::io::Cursor::new(&mut file.1),
+								ImageFormat::Dds,
+							)?;
 							file.0.set_extension("dds");
-						}
+						},
 						Err(e) => {
-							tracing::warn!("{} was unable to convert to PNG because of: {e}", file.0.to_string_lossy());
-						}
+							tracing::warn!(
+								"{} was unable to convert to PNG because of: {e}",
+								file.0.to_string_lossy()
+							);
+						},
 					}
 				}
 			}
@@ -173,12 +220,19 @@ fn parse_and_write_one_vromf(
 			}
 
 			fs::create_dir_all(joined_final_path.parent().ok_or(CliError::InvalidPath)?)?;
-			let handle = OpenOptions::new().write(true).create(true).open(&joined_final_path)?;
+			let handle = OpenOptions::new()
+				.write(true)
+				.create(true)
+				.open(&joined_final_path)?;
 			let buf_size = 4096;
 			if crlf && is_blk {
-				Ok(CrlfWriter::Enabled(BufWriter::with_capacity(buf_size, handle)))
+				Ok(CrlfWriter::Enabled(BufWriter::with_capacity(
+					buf_size, handle,
+				)))
 			} else {
-				Ok(CrlfWriter::Disabled(BufWriter::with_capacity(buf_size, handle)))
+				Ok(CrlfWriter::Disabled(BufWriter::with_capacity(
+					buf_size, handle,
+				)))
 			}
 		}
 	};
@@ -189,8 +243,7 @@ fn parse_and_write_one_vromf(
 	let handle = if zip {
 		let output_dir = output_dir.clone();
 
-		let thread_builder = thread::Builder::new()
-			.name("zip_writer".to_owned());
+		let thread_builder = thread::Builder::new().name("zip_writer".to_owned());
 		let handle = thread_builder.spawn(move || {
 			let mut file = File::create(output_dir).unwrap();
 
@@ -201,12 +254,18 @@ fn parse_and_write_one_vromf(
 
 				match con {
 					ControlFlow::Continue((buffer, path)) => {
-						writer.start_file(path.to_string_lossy(), FileOptions::default().compression_method(CompressionMethod::Deflated)).unwrap();
+						writer
+							.start_file(
+								path.to_string_lossy(),
+								FileOptions::default()
+									.compression_method(CompressionMethod::Deflated),
+							)
+							.unwrap();
 						writer.write_all(&buffer).unwrap();
-					}
+					},
 					ControlFlow::Break(_) => {
 						break;
-					}
+					},
 				}
 			}
 		});

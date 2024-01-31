@@ -1,14 +1,24 @@
-use std::env;
-use std::io::stdout;
+use std::{env, io::stdout};
+
 use color_eyre::eyre::ContextCompat;
 use time::OffsetDateTime;
-use tracing::{info};
+use tracing::info;
 use tracing_appender::rolling;
-use tracing_subscriber::{filter::LevelFilter, EnvFilter};
-use tracing_subscriber::fmt::writer::MakeWriterExt;
+use tracing_subscriber::{filter::LevelFilter, fmt::writer::MakeWriterExt, EnvFilter};
 
-pub fn init_logging(log_level: LevelFilter, mut maybe_write_log_to_file: Option<String>, crashlog: bool) -> color_eyre::Result<()> {
-	let env_filter = EnvFilter::from_default_env().add_directive(if crashlog { LevelFilter::TRACE } else { log_level }.into());
+pub fn init_logging(
+	log_level: LevelFilter,
+	mut maybe_write_log_to_file: Option<String>,
+	crashlog: bool,
+) -> color_eyre::Result<()> {
+	let env_filter = EnvFilter::from_default_env().add_directive(
+		if crashlog {
+			LevelFilter::TRACE
+		} else {
+			log_level
+		}
+		.into(),
+	);
 
 	let sub = tracing_subscriber::fmt()
 		.with_env_filter(env_filter)
@@ -20,7 +30,12 @@ pub fn init_logging(log_level: LevelFilter, mut maybe_write_log_to_file: Option<
 		.with_file(true);
 
 	if crashlog {
-		maybe_write_log_to_file = Some(env::current_dir()?.to_str().context("Current dir is not a valid UTF-8 string")?.to_owned());
+		maybe_write_log_to_file = Some(
+			env::current_dir()?
+				.to_str()
+				.context("Current dir is not a valid UTF-8 string")?
+				.to_owned(),
+		);
 	}
 
 	if let Some(path) = maybe_write_log_to_file {
@@ -28,7 +43,8 @@ pub fn init_logging(log_level: LevelFilter, mut maybe_write_log_to_file: Option<
 			&path,
 			format!(
 				"wt_ext_cli_{}.log",
-				OffsetDateTime::now_local()?.unix_timestamp()),
+				OffsetDateTime::now_local()?.unix_timestamp()
+			),
 		);
 		sub.with_writer(stdout.and(debug_file)).init();
 	} else {
