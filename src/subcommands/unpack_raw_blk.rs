@@ -3,9 +3,11 @@ use std::{
 	path::{Path, PathBuf},
 	str::FromStr,
 };
+use std::fs::{OpenOptions};
+use std::io::Write;
 
 use clap::ArgMatches;
-use color_eyre::eyre::{bail, Result};
+use color_eyre::eyre::{bail, ContextCompat, Result};
 use wt_blk::{blk, blk::file::FileType};
 
 use crate::error::CliError;
@@ -15,6 +17,9 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<()> {
 	let input = args
 		.get_one::<String>("Input directory")
 		.ok_or(CliError::RequiredFlagMissing)?;
+
+	let format = args.get_one::<String>("format").context("Invalid format specified or missing")?;
+
 	let input = Path::new(input);
 	let mut read = fs::read(input)?;
 
@@ -36,7 +41,7 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<()> {
 		},
 	}
 
-	let parsed = blk::unpack_blk(&mut read, zstd_dict, nm)?;
+	let mut parsed = blk::unpack_blk(&mut read, zstd_dict, nm)?;
 
 	let mut output_folder = match () {
 		_ if let Some(path) = args.get_one::<String>("Output directory") => {
@@ -51,9 +56,31 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<()> {
 		_ => input.to_owned(),
 	};
 
-	output_folder.set_extension("json");
+	output_folder.push(input.file_name().unwrap().to_string_lossy().to_string());
+	match format.as_str() {
+		"Json" => {
+			output_folder.set_extension("json");
+			let mut file = OpenOptions::new()
+				.write(true)
+				.create(true)
+				.open(output_folder)?;
 
-	fs::write(output_folder, parsed.as_serde_json()?)?;
+			parsed.merge_fields();
+			file.write_all(&parsed.as_serde_json()?)?;
+		}
+		"BlkText" => {
+			output_folder.set_extension("blkx");
+			let mut file = OpenOptions::new()
+				.write(true)
+				.create(true)
+				.open(output_folder)?;
+			file.write_all(parsed.as_blk_text()?.as_bytes())?;
+		}
+		_ => {
+			panic!("Unrecognized format: {format}")
+		}
+	}
+
 
 	Ok(())
 }

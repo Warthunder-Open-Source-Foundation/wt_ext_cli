@@ -20,4 +20,10 @@ pub fn unpack_raw_blk() -> Command {
 				.help("Target folder that will be created to contain new files")
 				.value_hint(ValueHint::FilePath),
 		)
+		.arg(
+			Arg::new("format")
+				.long("format")
+				.help("Output format, can be one of: [Json, BlkText]")
+				.default_value("Json")
+		)
 }
