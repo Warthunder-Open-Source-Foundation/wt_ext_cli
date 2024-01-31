@@ -85,6 +85,7 @@ Usage: wt_ext_cli {unpack_raw_blk|--unpack_raw_blk} [OPTIONS] --input_dir <Input
 Options:
   -i, --input_dir <Input directory>    Folder containing blk files, sub-folders will be recursively searched
   -o, --output_dir <Output directory>  Target folder that will be created to contain new files
+      --format <format>                Output format, can be one of: [Json, BlkText] [default: Json]
   -h, --help                           Print help
 ```
 
