@@ -1,3 +1,0 @@
-[submodule ".rustfmt"]
-	path = .rustfmt
-	url = https://github.com/FlareFlo/.rustfmt
