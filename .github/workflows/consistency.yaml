@@ -30,7 +30,7 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Build latest commit
-        run: cargo build --release
+        run: cargo build --profile ci
 
       - name: Download and install reference
         run: curl --proto '=https' --tlsv1.2 -LsSf https://github.com/Warthunder-Open-Source-Foundation/wt_ext_cli/releases/latest/download/wt_ext_cli-installer.sh | sh
@@ -39,7 +39,7 @@ jobs:
         run:  wt_ext_cli --unpack_vromf -i ./test_data/all_vromfs/ -o ./output_ref
 
       - name: Run latest commit overwriting possible differences
-        run:  cargo run --release --  --unpack_vromf -i ./test_data/all_vromfs/ -o ./output_latest
+        run:  cargo run --profile ci --  --unpack_vromf -i ./test_data/all_vromfs/ -o ./output_latest
 
       - name: Diff folders
         run: diff -qr output_ref output_latest

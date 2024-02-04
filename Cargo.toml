@@ -21,6 +21,11 @@ inherits = "release"
 debug = false
 strip = true
 
+# The profile CI will run with
+[profile.ci]
+inherits = "dev"
+opt-level = 2
+
 [features]
 default = []
 avif2dds = ["image"]
