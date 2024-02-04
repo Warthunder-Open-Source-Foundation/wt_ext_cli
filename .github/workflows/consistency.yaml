@@ -1,0 +1,45 @@
+name: Test for output consistency
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      # Loads cargo cache
+      - uses: actions/cache@v3
+        name: Pull Cargo cache
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Build latest commit
+        run: cargo build --release
+
+      - name: Download and install reference
+        run: curl --proto '=https' --tlsv1.2 -LsSf https://github.com/Warthunder-Open-Source-Foundation/wt_ext_cli/releases/latest/download/wt_ext_cli-installer.sh | sh
+
+      - name: Run reference
+        run:  wt_ext_cli --unpack_vromf -i ./test_data/all_vromfs/ -o ./output_ref
+
+      - name: Run latest commit overwriting possible differences
+        run:  cargo run --release --  --unpack_vromf -i ./test_data/all_vromfs/ -o ./output_latest
+
+      - name: Diff folders
+        run: diff -qr output_ref output_latest
