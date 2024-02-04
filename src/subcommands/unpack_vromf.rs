@@ -175,7 +175,7 @@ fn parse_and_write_one_vromf(
 		.extension()
 		.ok_or(CliError::InvalidPath)?
 		.to_os_string();
-	old_extension.push("_u");
+	old_extension.push("_ux");
 	vromf_name.set_extension(old_extension);
 
 	let writer = |file: &mut (PathBuf, Vec<u8>)| {
