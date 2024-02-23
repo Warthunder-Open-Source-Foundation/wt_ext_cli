@@ -1,10 +1,10 @@
 use std::{
 	fs,
+	fs::OpenOptions,
+	io::Write,
 	path::{Path, PathBuf},
 	str::FromStr,
 };
-use std::fs::{OpenOptions};
-use std::io::Write;
 
 use clap::ArgMatches;
 use color_eyre::eyre::{bail, ContextCompat, Result};
@@ -18,7 +18,9 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<()> {
 		.get_one::<String>("Input directory")
 		.ok_or(CliError::RequiredFlagMissing)?;
 
-	let format = args.get_one::<String>("format").context("Invalid format specified or missing")?;
+	let format = args
+		.get_one::<String>("format")
+		.context("Invalid format specified or missing")?;
 
 	let input = Path::new(input);
 	let mut read = fs::read(input)?;
@@ -67,7 +69,7 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<()> {
 
 			parsed.merge_fields();
 			file.write_all(&parsed.as_serde_json()?)?;
-		}
+		},
 		"BlkText" => {
 			output_folder.set_extension("blkx");
 			let mut file = OpenOptions::new()
@@ -75,12 +77,11 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<()> {
 				.create(true)
 				.open(output_folder)?;
 			file.write_all(parsed.as_blk_text()?.as_bytes())?;
-		}
+		},
 		_ => {
 			panic!("Unrecognized format: {format}")
-		}
+		},
 	}
-
 
 	Ok(())
 }

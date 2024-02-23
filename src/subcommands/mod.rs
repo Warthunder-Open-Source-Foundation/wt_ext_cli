@@ -2,7 +2,7 @@ use std::{str::FromStr, sync::OnceLock};
 
 use clap::ArgMatches;
 use color_eyre::eyre::{bail, Result};
-use tracing::{error, metadata::LevelFilter};
+use tracing::metadata::LevelFilter;
 
 use crate::{
 	logging::init_logging,
@@ -54,18 +54,14 @@ pub fn branch_subcommands(args: ArgMatches) -> Result<()> {
 			open::that("https://github.com/Warthunder-Open-Source-Foundation/wt_ext_cli/blob/master/usage_manual.md").expect("Attempted to show manual in browser, but something unexpected failed");
 		},
 		Some(("hash", _)) => {
-			println!(
-				"https://github.com/Warthunder-Open-Source-Foundation/wt_ext_cli/commit/{}",
-				COMMIT_HASH
-			);
+			println!("https://github.com/Warthunder-Open-Source-Foundation/wt_ext_cli/commit/{COMMIT_HASH}");
 		},
 		Some(("vromf_version", args)) => {
 			vromf_version(args)?;
 		},
 		_ => {
-			error!("Unmatched subcommand: {:?}", args.subcommand());
 			if let Some((command, _)) = args.subcommand() {
-				bail!("Unmatched subcommand: {:}", command)
+				bail!("Unrecognized subcommand: {:}", command)
 			} else {
 				bail!("Missing Subcommand argument")
 			}

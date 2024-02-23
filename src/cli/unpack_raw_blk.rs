@@ -24,6 +24,6 @@ pub fn unpack_raw_blk() -> Command {
 			Arg::new("format")
 				.long("format")
 				.help("Output format, can be one of: [Json, BlkText]")
-				.default_value("Json")
+				.default_value("Json"),
 		)
 }
