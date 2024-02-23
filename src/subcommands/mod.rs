@@ -1,7 +1,7 @@
 use std::{str::FromStr, sync::OnceLock};
 
 use clap::ArgMatches;
-use color_eyre::eyre::{bail, Result};
+use color_eyre::eyre::{bail, Context, Result};
 use tracing::metadata::LevelFilter;
 
 use crate::{
@@ -30,7 +30,7 @@ pub fn branch_subcommands(args: ArgMatches) -> Result<()> {
 		.expect("Failed to set CRASHLOG global flag");
 
 	let log_level = if let Some(lvl) = args.get_one::<String>("log_level") {
-		LevelFilter::from_str(lvl).expect(&format!("Incorrect log-level provided, expected one of [Trace, Debug, Info, Warn, Error], found {lvl}"))
+		LevelFilter::from_str(lvl).context(format!("Incorrect log-level provided, expected one of [Trace, Debug, Info, Warn, Error], found {lvl}"))?
 	} else {
 		LevelFilter::WARN
 	};
@@ -51,7 +51,7 @@ pub fn branch_subcommands(args: ArgMatches) -> Result<()> {
 			unpack_dxp_and_grp(args)?;
 		},
 		Some(("get_instruction_manual", _)) => {
-			open::that("https://github.com/Warthunder-Open-Source-Foundation/wt_ext_cli/blob/master/usage_manual.md").expect("Attempted to show manual in browser, but something unexpected failed");
+			open::that("https://github.com/Warthunder-Open-Source-Foundation/wt_ext_cli/blob/master/usage_manual.md").context("Attempted to show manual in browser, but something unexpected failed")?;
 		},
 		Some(("hash", _)) => {
 			println!("https://github.com/Warthunder-Open-Source-Foundation/wt_ext_cli/commit/{COMMIT_HASH}");
