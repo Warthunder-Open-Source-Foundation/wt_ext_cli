@@ -23,6 +23,10 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<()> {
 		.context("Invalid format specified or missing")?;
 
 	let input = Path::new(input);
+	if input.is_dir() {
+		bail!("Directories as input are not implemented yet");
+	}
+
 	let mut read = fs::read(input)?;
 
 	let zstd_dict = None;
@@ -58,7 +62,7 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<()> {
 		_ => input.to_owned(),
 	};
 
-	output_folder.push(input.file_name().unwrap().to_string_lossy().to_string());
+	//output_folder.push(input.file_name().unwrap().to_string_lossy().to_string());
 	match format.as_str() {
 		"Json" => {
 			output_folder.set_extension("json");
