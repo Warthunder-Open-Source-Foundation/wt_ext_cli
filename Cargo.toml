@@ -51,8 +51,7 @@ zip = { version = "0.6.6", features = ["deflate"], default-features = false}
 wt_version = { git = "https://github.com/Warthunder-Open-Source-Foundation/wt_version.git" }
 
 [dependencies.image]
-git = "https://github.com/image-rs/image.git"
-rev = "84438eba205e971a8a90a7039719e26157df1cbf"
+version = "0.24.9"
 features = ["avif-decoder", "dds"]
 default-features = false
 optional = true

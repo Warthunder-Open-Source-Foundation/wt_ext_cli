@@ -405,8 +405,9 @@ checksum = "95505c38b4572b2d910cecb0281560f54b440a19336cbbcb27bf6ce6adc6f5a8"
 
 [[package]]
 name = "image"
-version = "0.24.7"
-source = "git+https://github.com/image-rs/image.git?rev=84438eba205e971a8a90a7039719e26157df1cbf#84438eba205e971a8a90a7039719e26157df1cbf"
+version = "0.24.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5690139d2f55868e080017335e4b94cb7414274c74f1669c84fb5feba2c9f69d"
 dependencies = [
  "bytemuck",
  "byteorder",
