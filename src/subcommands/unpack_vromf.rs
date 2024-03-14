@@ -15,8 +15,6 @@ use color_eyre::{
 	eyre::{Context, ContextCompat, Result},
 	Help,
 };
-#[cfg(feature = "avif2dds")]
-use image::ImageFormat;
 use tracing::info;
 use wt_blk::{
 	blk::util::maybe_blk,
@@ -185,27 +183,10 @@ fn parse_and_write_one_vromf(
 			if file.0.starts_with("/") {
 				file.0 = file.0.strip_prefix("/")?.to_path_buf();
 			}
-			#[cfg(feature = "avif2dds")]
 			if avif2dds {
 				use std::ffi::OsStr;
 				if file.0.extension() == Some(&OsStr::new("avif")) {
-					let image = image::load_from_memory_with_format(&file.1, ImageFormat::Avif);
-					match image {
-						Ok(image) => {
-							file.1.clear();
-							image.write_to(
-								&mut std::io::Cursor::new(&mut file.1),
-								ImageFormat::Dds,
-							)?;
-							file.0.set_extension("dds");
-						},
-						Err(e) => {
-							tracing::warn!(
-								"{} was unable to convert to PNG because of: {e}",
-								file.0.to_string_lossy()
-							);
-						},
-					}
+					// Convert image
 				}
 			}
 			let rel_file_path = vromf_name.clone().join(&file.0);

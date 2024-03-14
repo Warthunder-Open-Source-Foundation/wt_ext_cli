@@ -13,6 +13,7 @@ mod logging;
 mod subcommands;
 mod update_diff;
 pub(crate) mod util;
+mod ffmpeg;
 
 pub const COMMIT_HASH: &str = env!("GIT_HASH");
 pub const GIT_TAG: &str = env!("GIT_TAG");

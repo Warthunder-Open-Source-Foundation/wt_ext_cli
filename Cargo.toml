@@ -28,7 +28,6 @@ opt-level = 2
 
 [features]
 default = []
-avif2dds = ["image"]
 
 [dependencies]
 clap = {version = "4.4", features = ["cargo"]}
@@ -49,12 +48,6 @@ serde = { version = "^1.0", features = ["serde_derive"] }
 const_format = { version = "0.2.31", default-features = false, features = ["fmt"] }
 zip = { version = "0.6.6", features = ["deflate"], default-features = false}
 wt_version = { git = "https://github.com/Warthunder-Open-Source-Foundation/wt_version.git" }
-
-[dependencies.image]
-version = "0.24.9"
-features = ["avif-decoder", "dds"]
-default-features = false
-optional = true
 
 # Config for 'cargo dist'
 [workspace.metadata.dist]
