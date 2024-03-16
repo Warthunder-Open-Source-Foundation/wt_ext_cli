@@ -125,4 +125,9 @@ Default value : false
 `FFMPEG_PATH`:
 Behaviour: Overrides used path of ffmpeg
 Possible values: Path to executable
-Default values: Looks into $PATH
+Default value: Looks into $PATH
+
+`RAYON_NUM_THREADS`:
+Behaviour: Limits amount of threads used by rayon
+Possible values: 32-bit unsigned integer
+Default value: Amount of (virtualized) cpus available on system
