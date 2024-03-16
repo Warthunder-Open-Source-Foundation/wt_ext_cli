@@ -6,9 +6,29 @@ macro_rules! context {
 	};
 }
 
+#[macro_export]
+macro_rules! arced {
+	( $( $a:ident ),* ) => {
+		$(
+			crate::clone_arc!($a);
+		)*
+	};
+}
+
+#[macro_export]
+macro_rules! clone_arc {
+	($a:ident) => {
+		let $a = $a.clone();
+	};
+}
+
 pub enum CrlfWriter<W: io::Write> {
+	// Writes every newline as carriage-return newline
 	Enabled(W),
+	// Passes through every call to W
 	Disabled(W),
+	// Does nothing
+	Null,
 }
 
 impl<W: io::Write> io::Write for CrlfWriter<W> {
@@ -31,12 +51,14 @@ impl<W: io::Write> io::Write for CrlfWriter<W> {
 				Ok(count)
 			},
 			CrlfWriter::Disabled(inner) => inner.write(buf),
+			CrlfWriter::Null => Ok(buf.len()),
 		}
 	}
 
 	fn flush(&mut self) -> io::Result<()> {
 		match self {
 			CrlfWriter::Enabled(i) | CrlfWriter::Disabled(i) => i.flush(),
+			CrlfWriter::Null =>Ok(()),
 		}
 	}
 }

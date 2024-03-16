@@ -1,14 +1,7 @@
-use std::{
-	fs,
-	fs::{File, OpenOptions},
-	io::{BufWriter, Write},
-	ops::ControlFlow,
-	path::PathBuf,
-	str::FromStr,
-	sync::Arc,
-	thread,
-	thread::JoinHandle,
-};
+use std::{env, fs, fs::{File, OpenOptions}, io::{BufWriter, Write}, ops::ControlFlow, path::PathBuf, str::FromStr, sync::Arc, thread, thread::JoinHandle};
+use std::ffi::OsStr;
+use std::mem::{swap, take};
+use std::sync::atomic::Ordering::Relaxed;
 
 use clap::ArgMatches;
 use color_eyre::{
@@ -22,7 +15,8 @@ use wt_blk::{
 };
 use zip::{write::FileOptions, CompressionMethod};
 
-use crate::{context, error::CliError, util::CrlfWriter};
+use crate::{arced, context, error::CliError, util::CrlfWriter};
+use crate::ffmpeg::{CAPTURE_FFMPEG, Ffmpeg};
 
 pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 	info!("Mode: Unpacking vromf");
@@ -55,13 +49,24 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 		.get_one::<bool>("override")
 		.context("Invalid argument: override")?;
 
-	let avif2dds = *args
-		.get_one::<bool>("avif2dds")
-		.context("Invalid argument: avif2dds")?;
+	let avif2png = *args
+		.get_one::<bool>("avif2png")
+		.context("Invalid argument: avif2png")?;
 
 	let blk_extension = args
 		.get_one::<String>("blk_extension")
 		.map(|e| Arc::new(e.to_owned()));
+
+	let mut ffmpeg = if let Ok(capture) = env::var("CAPTURE_FFMPEG") {
+		Ffmpeg::new_with_path(capture)
+	} else {
+		Ffmpeg::new()
+	};
+
+	if avif2png {
+		ffmpeg.validate()?;
+	}
+	let ffmpeg = Arc::new(ffmpeg);
 
 	if parsed_input_dir.is_dir() {
 		let output_folder = match () {
@@ -87,8 +92,7 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 					.unwrap_or("")
 					.ends_with("vromfs.bin")
 				{
-					let output_folder = output_folder.clone();
-					let blk_extension = blk_extension.clone();
+					arced!(output_folder, blk_extension, ffmpeg);
 					let thread_builder =
 						thread::Builder::new().name(file.file_name().to_string_lossy().to_string());
 
@@ -104,9 +108,10 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 							mode,
 							crlf,
 							should_override,
-							avif2dds,
+							avif2png,
 							zip,
 							blk_extension,
+							ffmpeg,
 						)
 						.suggestion(format!(
 							"Error filename: {}",
@@ -145,9 +150,10 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 			mode,
 			crlf,
 			should_override,
-			avif2dds,
+			avif2png,
 			zip,
 			blk_extension,
+			ffmpeg,
 		)?;
 	}
 
@@ -162,9 +168,10 @@ fn parse_and_write_one_vromf(
 	crlf: bool,
 	should_override: bool,
 	#[allow(unused)] // Conditionally depending on target
-	avif2dds: bool,
+	avif2png: bool,
 	zip: bool,
 	blk_extension: Option<Arc<String>>,
+	ffmpeg: Arc<Ffmpeg>,
 ) -> Result<()> {
 	let parser = VromfUnpacker::from_file((file_path.clone(), read))?;
 
@@ -183,12 +190,7 @@ fn parse_and_write_one_vromf(
 			if file.0.starts_with("/") {
 				file.0 = file.0.strip_prefix("/")?.to_path_buf();
 			}
-			if avif2dds {
-				use std::ffi::OsStr;
-				if file.0.extension() == Some(&OsStr::new("avif")) {
-					// Convert image
-				}
-			}
+
 			let rel_file_path = vromf_name.clone().join(&file.0);
 			let mut joined_final_path = output_dir.join(&rel_file_path);
 
@@ -201,6 +203,15 @@ fn parse_and_write_one_vromf(
 			}
 
 			fs::create_dir_all(joined_final_path.parent().ok_or(CliError::InvalidPath)?)?;
+
+			if avif2png {
+				if file.0.extension() == Some(&OsStr::new("avif")) {
+					// Convert image
+					joined_final_path.set_extension("png");
+					ffmpeg.convert_and_write(take(&mut file.1), joined_final_path.to_str().context("Final path is not a valid str")?)?;
+					return Ok(CrlfWriter::Null);
+				}
+			}
 			let handle = OpenOptions::new()
 				.write(true)
 				.create(true)

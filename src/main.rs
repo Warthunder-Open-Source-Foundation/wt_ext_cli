@@ -1,10 +1,12 @@
 #![feature(if_let_guard)]
 
 use std::env;
+use std::sync::atomic::Ordering::Relaxed;
 
 use color_eyre::eyre::Result;
 
 use crate::{cli::build_command_structure, subcommands::branch_subcommands};
+use crate::ffmpeg::CAPTURE_FFMPEG;
 
 mod cli;
 mod error;
@@ -40,6 +42,13 @@ fn main() -> Result<()> {
 			.theme(color_eyre::config::Theme::new())
 			.install()?;
 	}
+
+	if let Ok(capture) = env::var("CAPTURE_FFMPEG") {
+		let capture = capture
+			.parse::<bool>()
+			.expect("CAPTURE_FFMPEG was not 'false' or 'true'");
+		CAPTURE_FFMPEG.store(capture, Relaxed);
+	};
 
 	// Set rayon thread names
 	rayon::ThreadPoolBuilder::new()

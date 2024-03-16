@@ -49,13 +49,21 @@ Usage: wt_ext_cli {unpack_vromf|--unpack_vromf} [OPTIONS] --input_dir_or_file <I
 
 Options:
   -i, --input_dir_or_file <Input file/directory>
-          A single vromf file, or a folder of Vromf files. Does not recurse subdir
+          A single vromf file, or a folder of Vromf files. Does not recurse subdirs
   -o, --output_dir <Output directory>
           Target folder that will be created to contain new files
       --format <format>
           Output format, can be one of: [Json, BlkText, Raw] [default: Json]
+      --override
+          Applies `override:` fields in every json
+      --avif2png
+          Converts all avif images to dds
       --crlf
           Returns files with \r\n instead of \n newlines
+      --zip
+          Packs output into single zipfile
+      --blk_extension <blk_extension>
+          Replaces all blk files extension to this when provided, leaves them unchanged otherwise
   -h, --help
           Print help
 ```
@@ -108,3 +116,13 @@ Behaviour: Disables any color when printing errors or backtraces
 Possible values: [true, false]  
 Default value (windows): false  
 Default value (not-windows): true
+
+`CAPTURE_FFMPEG`:
+Behaviour: Captures and prints output from FFMPEG  
+Possible values: [true, false]  
+Default value : false  
+
+`FFMPEG_PATH`:
+Behaviour: Overrides used path of ffmpeg
+Possible values: Path to executable
+Default values: Looks into $PATH
