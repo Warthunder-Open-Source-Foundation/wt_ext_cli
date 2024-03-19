@@ -63,15 +63,15 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 		.get_one::<bool>("override")
 		.context("Invalid argument: override")?;
 
-	let avif2png = *args
-		.get_one::<&str>("avif2png")
+	let avif2png = args
+		.get_one::<String>("avif2png")
 		.context("Invalid argument: avif2png")?;
 
 	let blk_extension = args
 		.get_one::<String>("blk_extension")
 		.map(|e| Arc::new(e.to_owned()));
 
-	let mut ffmpeg = ImageConverter::new_with_converter(Converter::new_from_arg(avif2png)?);
+	let mut ffmpeg = ImageConverter::new_with_converter(Converter::new_from_arg(&avif2png)?);
 	let mut avif2png = false;
 
 	if args
