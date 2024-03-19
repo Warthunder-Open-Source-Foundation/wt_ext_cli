@@ -117,12 +117,12 @@ Possible values: [true, false]
 Default value (windows): false  
 Default value (not-windows): true
 
-`CAPTURE_FFMPEG`:  
-Behaviour: Captures and prints output from FFMPEG  
+`CAPTURE_IMAGE_CONVERTER`:  
+Behaviour: Captures and prints output from FFMPEG or Imagemagick
 Possible values: [true, false]  
 Default value : false  
 
-`FFMPEG_PATH`:  
+`CONVERTER_PATH`:  
 Behaviour: Overrides used path of ffmpeg  
 Possible values: Path to executable  
 Default value: Looks into $PATH  

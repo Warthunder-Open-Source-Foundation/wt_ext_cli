@@ -4,6 +4,7 @@ use std::mem::{swap, take};
 use std::sync::atomic::Ordering::Relaxed;
 
 use clap::ArgMatches;
+use clap::parser::ValueSource;
 use color_eyre::{
 	eyre::{Context, ContextCompat, Result},
 	Help,
@@ -16,7 +17,7 @@ use wt_blk::{
 use zip::{write::FileOptions, CompressionMethod};
 
 use crate::{arced, context, error::CliError, util::CrlfWriter};
-use crate::ffmpeg::{CAPTURE_FFMPEG, Ffmpeg};
+use crate::image_conversion::{CAPTURE_IMAGE_CONVERTER, Converter, ImageConverter};
 
 pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 	info!("Mode: Unpacking vromf");
@@ -50,21 +51,19 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 		.context("Invalid argument: override")?;
 
 	let avif2png = *args
-		.get_one::<bool>("avif2png")
+		.get_one::<&str>("avif2png")
 		.context("Invalid argument: avif2png")?;
 
 	let blk_extension = args
 		.get_one::<String>("blk_extension")
 		.map(|e| Arc::new(e.to_owned()));
 
-	let mut ffmpeg = if let Ok(capture) = env::var("CAPTURE_FFMPEG") {
-		Ffmpeg::new_with_path(capture)
-	} else {
-		Ffmpeg::new()
-	};
+	let mut ffmpeg = ImageConverter::new_with_converter(Converter::new_from_arg(avif2png)?);
+	let mut avif2png = false;
 
-	if avif2png {
+	if args.value_source("avif2png").context("infallible")?.ne(&ValueSource::DefaultValue) {
 		ffmpeg.validate()?;
+		avif2png = true;
 	}
 	let ffmpeg = Arc::new(ffmpeg);
 
@@ -171,7 +170,7 @@ fn parse_and_write_one_vromf(
 	avif2png: bool,
 	zip: bool,
 	blk_extension: Option<Arc<String>>,
-	ffmpeg: Arc<Ffmpeg>,
+	ffmpeg: Arc<ImageConverter>,
 ) -> Result<()> {
 	let parser = VromfUnpacker::from_file((file_path.clone(), read))?;
 

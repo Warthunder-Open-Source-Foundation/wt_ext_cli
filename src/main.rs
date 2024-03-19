@@ -6,7 +6,7 @@ use std::sync::atomic::Ordering::Relaxed;
 use color_eyre::eyre::Result;
 
 use crate::{cli::build_command_structure, subcommands::branch_subcommands};
-use crate::ffmpeg::CAPTURE_FFMPEG;
+use crate::image_conversion::CAPTURE_IMAGE_CONVERTER;
 
 mod cli;
 mod error;
@@ -15,7 +15,7 @@ mod logging;
 mod subcommands;
 mod update_diff;
 pub(crate) mod util;
-mod ffmpeg;
+mod image_conversion;
 
 pub const COMMIT_HASH: &str = env!("GIT_HASH");
 pub const GIT_TAG: &str = env!("GIT_TAG");
@@ -43,11 +43,11 @@ fn main() -> Result<()> {
 			.install()?;
 	}
 
-	if let Ok(capture) = env::var("CAPTURE_FFMPEG") {
+	if let Ok(capture) = env::var("CAPTURE_IMAGE_CONVERTER") {
 		let capture = capture
 			.parse::<bool>()
-			.expect("CAPTURE_FFMPEG was not 'false' or 'true'");
-		CAPTURE_FFMPEG.store(capture, Relaxed);
+			.expect("CAPTURE_IMAGE_CONVERTER was not 'false' or 'true'");
+		CAPTURE_IMAGE_CONVERTER.store(capture, Relaxed);
 	};
 
 	// Set rayon thread names

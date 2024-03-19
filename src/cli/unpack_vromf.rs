@@ -37,9 +37,8 @@ pub fn unpack_vromf() -> Command {
 		.arg(
 			Arg::new("avif2png")
 				.long("avif2png")
-				.help("Converts all avif images to png")
-				.num_args(0)
-				.required(false)
+				.help("Converts all avif images to png. Can be one of [imagemagick, ffmpeg]")
+				.default_value("magick")
 		)
 		.arg(
 			Arg::new("crlf")
