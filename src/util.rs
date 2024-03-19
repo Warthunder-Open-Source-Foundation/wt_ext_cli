@@ -58,7 +58,7 @@ impl<W: io::Write> io::Write for CrlfWriter<W> {
 	fn flush(&mut self) -> io::Result<()> {
 		match self {
 			CrlfWriter::Enabled(i) | CrlfWriter::Disabled(i) => i.flush(),
-			CrlfWriter::Null =>Ok(()),
+			CrlfWriter::Null => Ok(()),
 		}
 	}
 }

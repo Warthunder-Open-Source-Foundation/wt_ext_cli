@@ -1,10 +1,18 @@
-use std::{env, fs, fs::{File, OpenOptions}, io::{BufWriter, Write}, ops::ControlFlow, path::PathBuf, str::FromStr, sync::Arc, thread, thread::JoinHandle};
-use std::ffi::OsStr;
-use std::mem::{swap, take};
-use std::sync::atomic::Ordering::Relaxed;
+use std::{
+	ffi::OsStr,
+	fs,
+	fs::{File, OpenOptions},
+	io::{BufWriter, Write},
+	mem::take,
+	ops::ControlFlow,
+	path::PathBuf,
+	str::FromStr,
+	sync::Arc,
+	thread,
+	thread::JoinHandle,
+};
 
-use clap::ArgMatches;
-use clap::parser::ValueSource;
+use clap::{parser::ValueSource, ArgMatches};
 use color_eyre::{
 	eyre::{Context, ContextCompat, Result},
 	Help,
@@ -16,8 +24,13 @@ use wt_blk::{
 };
 use zip::{write::FileOptions, CompressionMethod};
 
-use crate::{arced, context, error::CliError, util::CrlfWriter};
-use crate::image_conversion::{CAPTURE_IMAGE_CONVERTER, Converter, ImageConverter};
+use crate::{
+	arced,
+	context,
+	error::CliError,
+	image_conversion::{Converter, ImageConverter},
+	util::CrlfWriter,
+};
 
 pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 	info!("Mode: Unpacking vromf");
@@ -61,7 +74,11 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 	let mut ffmpeg = ImageConverter::new_with_converter(Converter::new_from_arg(avif2png)?);
 	let mut avif2png = false;
 
-	if args.value_source("avif2png").context("infallible")?.ne(&ValueSource::DefaultValue) {
+	if args
+		.value_source("avif2png")
+		.context("infallible")?
+		.ne(&ValueSource::DefaultValue)
+	{
 		ffmpeg.validate()?;
 		avif2png = true;
 	}
@@ -207,7 +224,12 @@ fn parse_and_write_one_vromf(
 				if file.0.extension() == Some(&OsStr::new("avif")) {
 					// Convert image
 					joined_final_path.set_extension("png");
-					ffmpeg.convert_and_write(take(&mut file.1), joined_final_path.to_str().context("Final path is not a valid str")?)?;
+					ffmpeg.convert_and_write(
+						take(&mut file.1),
+						joined_final_path
+							.to_str()
+							.context("Final path is not a valid str")?,
+					)?;
 					return Ok(CrlfWriter::Null);
 				}
 			}

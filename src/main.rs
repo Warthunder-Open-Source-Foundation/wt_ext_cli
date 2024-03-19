@@ -1,21 +1,23 @@
 #![feature(if_let_guard)]
 
-use std::env;
-use std::sync::atomic::Ordering::Relaxed;
+use std::{env, sync::atomic::Ordering::Relaxed};
 
 use color_eyre::eyre::Result;
 
-use crate::{cli::build_command_structure, subcommands::branch_subcommands};
-use crate::image_conversion::CAPTURE_IMAGE_CONVERTER;
+use crate::{
+	cli::build_command_structure,
+	image_conversion::CAPTURE_IMAGE_CONVERTER,
+	subcommands::branch_subcommands,
+};
 
 mod cli;
 mod error;
 mod fs_util;
+mod image_conversion;
 mod logging;
 mod subcommands;
 mod update_diff;
 pub(crate) mod util;
-mod image_conversion;
 
 pub const COMMIT_HASH: &str = env!("GIT_HASH");
 pub const GIT_TAG: &str = env!("GIT_TAG");
