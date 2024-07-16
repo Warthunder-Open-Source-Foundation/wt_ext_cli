@@ -98,13 +98,12 @@ checksum = "1fd0f2584146f6f2ef48085050886acf353beff7305ebd1ae69500e27c67f64b"
 
 [[package]]
 name = "cc"
-version = "1.1.1"
+version = "1.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "907d8581360765417f8f2e0e7d602733bbed60156b4465b7617243689ef9b83d"
+checksum = "324c74f2155653c90b04f25b2a47a8a631360cb908f92a772695f430c7e31052"
 dependencies = [
  "jobserver",
  "libc",
- "once_cell",
 ]
 
 [[package]]
@@ -959,7 +958,7 @@ checksum = "589f6da84c646204747d1270a2a5661ea66ed1cced2631d546fdfb155959f9ec"
 [[package]]
 name = "wt_blk"
 version = "0.2.1"
-source = "git+https://github.com/Warthunder-Open-Source-Foundation/wt_blk?branch=master#21517d0f2101465bdf4f5a74003206bb2011131d"
+source = "git+https://github.com/Warthunder-Open-Source-Foundation/wt_blk?branch=master#92bbdd78ec57a3bce27c67178e62947df2a87f26"
 dependencies = [
  "cfg-if",
  "color-eyre",
