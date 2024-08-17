@@ -59,6 +59,11 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 		.get_one::<bool>("zip")
 		.context("Invalid argument: zip")?;
 
+	let skip_integrity_check = *args
+		.get_one::<bool>("skip_integrity_check")
+		.context("Invalid argument: skip_integrity_check")?;
+	let check_integrity = !skip_integrity_check;
+
 	let should_override = *args
 		.get_one::<bool>("override")
 		.context("Invalid argument: override")?;
@@ -128,6 +133,7 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 							zip,
 							blk_extension,
 							ffmpeg,
+							check_integrity,
 						)
 						.suggestion(format!(
 							"Error filename: {}",
@@ -170,6 +176,7 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 			zip,
 			blk_extension,
 			ffmpeg,
+			check_integrity,
 		)?;
 	}
 
@@ -188,8 +195,9 @@ fn parse_and_write_one_vromf(
 	zip: bool,
 	blk_extension: Option<Arc<String>>,
 	ffmpeg: Arc<ImageConverter>,
+	check_integrity: bool,
 ) -> Result<()> {
-	let parser = VromfUnpacker::from_file((file_path.clone(), read))?;
+	let parser = VromfUnpacker::from_file((file_path.clone(), read), check_integrity)?;
 
 	let mut vromf_name = PathBuf::from(file_path.file_name().ok_or(CliError::InvalidPath)?);
 	let mut old_extension = vromf_name

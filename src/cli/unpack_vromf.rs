@@ -56,6 +56,14 @@ pub fn unpack_vromf() -> Command {
 				.help("Packs output into single zipfile")
 		)
 		.arg(
+			Arg::new("skip_integrity_check")
+				.long("skip_integrity_check")
+				.required(false)
+				.num_args(0)
+				.default_value("false")
+				.help("Skips over vromf hashing checks")
+		)
+		.arg(
 			Arg::new("blk_extension")
 				.long("blk_extension")
 				.required(false)
