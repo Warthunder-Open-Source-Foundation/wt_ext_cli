@@ -22,7 +22,7 @@ use wt_blk::{
 	blk::util::maybe_blk,
 	vromf::{BlkOutputFormat, VromfUnpacker},
 };
-use zip::{write::FileOptions, CompressionMethod};
+use zip::{write::SimpleFileOptions, CompressionMethod};
 
 use crate::{
 	arced,
@@ -266,22 +266,19 @@ fn parse_and_write_one_vromf(
 
 		let thread_builder = thread::Builder::new().name("zip_writer".to_owned());
 		let handle = thread_builder.spawn(move || {
-			let mut file = File::create(output_dir).unwrap();
+			let file = File::create(output_dir).unwrap();
+			let mut file = BufWriter::new(file);
 
 			let mut writer = zip::ZipWriter::new(&mut file);
+			let options =
+				SimpleFileOptions::default().compression_method(CompressionMethod::Deflated);
 
 			loop {
 				let con: ControlFlow<(), (Vec<u8>, PathBuf)> = receiver.recv().unwrap();
 
 				match con {
 					ControlFlow::Continue((buffer, path)) => {
-						writer
-							.start_file(
-								path.to_string_lossy(),
-								FileOptions::default()
-									.compression_method(CompressionMethod::Deflated),
-							)
-							.unwrap();
+						writer.start_file(path.to_string_lossy(), options).unwrap();
 						writer.write_all(&buffer).unwrap();
 					},
 					ControlFlow::Break(_) => {

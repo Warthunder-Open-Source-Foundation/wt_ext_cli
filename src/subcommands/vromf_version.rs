@@ -13,8 +13,10 @@ pub fn vromf_version(args: &ArgMatches) -> color_eyre::Result<()> {
 	let parsed_input_dir = PathBuf::from_str(&input_dir).or(Err(CliError::InvalidPath))?;
 
 	let versions: Vec<_> = if parsed_input_dir.is_file() {
-		let unpacker =
-			VromfUnpacker::from_file((parsed_input_dir.clone(), fs::read(&parsed_input_dir)?), true)?;
+		let unpacker = VromfUnpacker::from_file(
+			(parsed_input_dir.clone(), fs::read(&parsed_input_dir)?),
+			true,
+		)?;
 		vec![(
 			parsed_input_dir
 				.file_name()
