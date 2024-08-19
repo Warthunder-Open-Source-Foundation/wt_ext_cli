@@ -190,7 +190,7 @@ fn parse_and_write_one_vromf(
 ) -> Result<()> {
 	let parser = VromfUnpacker::from_file(&file, check_integrity)?;
 
-	let mut vromf_name = file.path().to_path_buf();
+	let mut vromf_name = PathBuf::from(file.path().file_name().ok_or(CliError::InvalidPath)?);
 	let mut old_extension = vromf_name
 		.extension()
 		.ok_or(CliError::InvalidPath)?
@@ -216,7 +216,6 @@ fn parse_and_write_one_vromf(
 					joined_final_path.set_extension(extension.as_str());
 				}
 			}
-
 			fs::create_dir_all(joined_final_path.parent().ok_or(CliError::InvalidPath)?)?;
 
 			if avif2png {
