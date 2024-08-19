@@ -14,19 +14,18 @@ use std::{
 
 use clap::{parser::ValueSource, ArgMatches};
 use color_eyre::{
-	eyre::{Context, ContextCompat, Result},
+	eyre::{ContextCompat, Result},
 	Help,
 };
 use tracing::info;
 use wt_blk::{
 	blk::util::maybe_blk,
-	vromf::{BlkOutputFormat, VromfUnpacker},
+	vromf::{BlkOutputFormat, VromfUnpacker, File as BlkFile},
 };
 use zip::{write::SimpleFileOptions, CompressionMethod};
 
 use crate::{
 	arced,
-	context,
 	error::CliError,
 	image_conversion::{Converter, ImageConverter},
 	util::CrlfWriter,
@@ -118,13 +117,8 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 						thread::Builder::new().name(file.file_name().to_string_lossy().to_string());
 
 					threads.push(Box::new(thread_builder.spawn(move || {
-						let read = fs::read(file.path()).with_context(context!(format!(
-							"Failed to read vromf {:?}",
-							file.path()
-						)))?;
 						parse_and_write_one_vromf(
-							file.path(),
-							read,
+							BlkFile::new(file.path())?,
 							output_folder,
 							mode,
 							crlf,
@@ -164,10 +158,8 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 				.ok_or(CliError::InvalidPath)?
 				.to_owned(),
 		};
-		let read = fs::read(&parsed_input_dir)?;
 		parse_and_write_one_vromf(
-			parsed_input_dir,
-			read,
+			BlkFile::new(parsed_input_dir)?,
 			output_folder,
 			mode,
 			crlf,
@@ -184,8 +176,7 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 }
 
 fn parse_and_write_one_vromf(
-	file_path: PathBuf,
-	read: Vec<u8>,
+	file: BlkFile,
 	output_dir: PathBuf,
 	format: Option<BlkOutputFormat>,
 	crlf: bool,
@@ -197,9 +188,9 @@ fn parse_and_write_one_vromf(
 	ffmpeg: Arc<ImageConverter>,
 	check_integrity: bool,
 ) -> Result<()> {
-	let parser = VromfUnpacker::from_file((file_path.clone(), read), check_integrity)?;
+	let parser = VromfUnpacker::from_file(&file, check_integrity)?;
 
-	let mut vromf_name = PathBuf::from(file_path.file_name().ok_or(CliError::InvalidPath)?);
+	let mut vromf_name = file.path().to_path_buf();
 	let mut old_extension = vromf_name
 		.extension()
 		.ok_or(CliError::InvalidPath)?
@@ -207,15 +198,15 @@ fn parse_and_write_one_vromf(
 	old_extension.push("_u");
 	vromf_name.set_extension(old_extension);
 
-	let writer = |file: &mut (PathBuf, Vec<u8>)| {
+	let writer = |file: &mut BlkFile| {
 		{
 			// The version file in some vromfs is prefixed with /, which is incorrect as this causes
 			// all relative paths to resolve to /
-			if file.0.starts_with("/") {
-				file.0 = file.0.strip_prefix("/")?.to_path_buf();
+			if file.path().starts_with("/") {
+				*file.path_mut() = file.path().strip_prefix("/")?.to_path_buf();
 			}
 
-			let rel_file_path = vromf_name.clone().join(&file.0);
+			let rel_file_path = vromf_name.clone().join(file.path());
 			let mut joined_final_path = output_dir.join(&rel_file_path);
 
 			let is_blk = maybe_blk(file);
@@ -229,11 +220,11 @@ fn parse_and_write_one_vromf(
 			fs::create_dir_all(joined_final_path.parent().ok_or(CliError::InvalidPath)?)?;
 
 			if avif2png {
-				if file.0.extension() == Some(&OsStr::new("avif")) {
+				if file.path().extension() == Some(&OsStr::new("avif")) {
 					// Convert image
 					joined_final_path.set_extension("png");
 					ffmpeg.convert_and_write(
-						take(&mut file.1),
+						take(&mut file.buf_mut()),
 						joined_final_path
 							.to_str()
 							.context("Final path is not a valid str")?,

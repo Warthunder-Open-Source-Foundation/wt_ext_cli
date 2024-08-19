@@ -1036,7 +1036,7 @@ checksum = "589f6da84c646204747d1270a2a5661ea66ed1cced2631d546fdfb155959f9ec"
 [[package]]
 name = "wt_blk"
 version = "0.2.3"
-source = "git+https://github.com/Warthunder-Open-Source-Foundation/wt_blk?branch=master#f0342e7b6d08aca6ddfa232240676afd56815337"
+source = "git+https://github.com/Warthunder-Open-Source-Foundation/wt_blk?branch=master#6ce604df5cb2c795bf288f614946e2f4ae4d8dc6"
 dependencies = [
  "cfg-if",
  "color-eyre",

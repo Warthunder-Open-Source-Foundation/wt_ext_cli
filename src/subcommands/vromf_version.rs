@@ -1,8 +1,8 @@
-use std::{fs, iter::once, path::PathBuf, str::FromStr};
+use std::{iter::once, path::PathBuf, str::FromStr};
 
 use clap::ArgMatches;
 use serde_json::{json, Map, Value};
-use wt_blk::vromf::VromfUnpacker;
+use wt_blk::vromf::{File, VromfUnpacker};
 
 use crate::error::CliError;
 
@@ -14,7 +14,7 @@ pub fn vromf_version(args: &ArgMatches) -> color_eyre::Result<()> {
 
 	let versions: Vec<_> = if parsed_input_dir.is_file() {
 		let unpacker = VromfUnpacker::from_file(
-			(parsed_input_dir.clone(), fs::read(&parsed_input_dir)?),
+			&File::new(parsed_input_dir.clone()).unwrap(),
 			true,
 		)?;
 		vec![(
@@ -30,7 +30,7 @@ pub fn vromf_version(args: &ArgMatches) -> color_eyre::Result<()> {
 		let mut versions = vec![];
 		for file in dir {
 			let p = file?.path();
-			let unpacker = VromfUnpacker::from_file((p.clone(), fs::read(&p)?), true)?;
+			let unpacker = VromfUnpacker::from_file(&File::new(p.clone())?, true)?;
 			versions.push((
 				p.file_name().unwrap().to_string_lossy().to_string(),
 				unpacker.latest_version()?,
