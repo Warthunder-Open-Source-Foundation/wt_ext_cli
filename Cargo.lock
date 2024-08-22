@@ -1096,7 +1096,7 @@ dependencies = [
 
 [[package]]
 name = "wt_ext_cli"
-version = "0.5.8"
+version = "0.5.9"
 dependencies = [
  "atty",
  "clap",
