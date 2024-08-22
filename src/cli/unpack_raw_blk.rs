@@ -1,4 +1,4 @@
-use clap::{Arg, Command, ValueHint};
+use clap::{Arg, ArgAction::SetTrue, Command, ValueHint};
 
 pub fn unpack_raw_blk() -> Command {
 	Command::new("unpack_raw_blk")
@@ -10,7 +10,8 @@ pub fn unpack_raw_blk() -> Command {
 				.long("input_dir")
 				.help("Folder containing blk files, sub-folders will be recursively searched")
 				.required(true)
-				.value_hint(ValueHint::FilePath),
+				.value_hint(ValueHint::FilePath)
+				.conflicts_with("stdin"),
 		)
 		.arg(
 			// Not providing this argument means the input folder name will be used, with a `_u` suffix
@@ -18,7 +19,20 @@ pub fn unpack_raw_blk() -> Command {
 				.short('o')
 				.long("output_dir")
 				.help("Target folder that will be created to contain new files")
-				.value_hint(ValueHint::FilePath),
+				.value_hint(ValueHint::FilePath)
+				.conflicts_with("stdout"),
+		)
+		.arg(
+			Arg::new("stdout")
+				.long("stdout")
+				.help("writes to stdout instead of a file")
+				.action(SetTrue),
+		)
+		.arg(
+			Arg::new("stdin")
+				.long("stdin")
+				.help("reads from stdin instead of a file")
+				.action(SetTrue),
 		)
 		.arg(
 			Arg::new("format")

@@ -20,7 +20,7 @@ use color_eyre::{
 use tracing::info;
 use wt_blk::{
 	blk::util::maybe_blk,
-	vromf::{BlkOutputFormat, VromfUnpacker, File as BlkFile},
+	vromf::{BlkOutputFormat, File as BlkFile, VromfUnpacker},
 };
 use zip::{write::SimpleFileOptions, CompressionMethod};
 
