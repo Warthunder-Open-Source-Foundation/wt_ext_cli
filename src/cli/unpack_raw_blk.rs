@@ -23,6 +23,12 @@ pub fn unpack_raw_blk() -> Command {
 				.conflicts_with("stdout"),
 		)
 		.arg(
+			Arg::new("Name map")
+				.long("nm")
+				.help("Path to name map")
+				.value_hint(ValueHint::FilePath)
+		)
+		.arg(
 			Arg::new("stdout")
 				.long("stdout")
 				.help("writes to stdout instead of a file")

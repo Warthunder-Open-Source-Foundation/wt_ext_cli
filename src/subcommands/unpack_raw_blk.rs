@@ -6,13 +6,13 @@ use std::{
 	path::{Path, PathBuf},
 	str::FromStr,
 };
-
+use std::sync::Arc;
 use atty::Stream;
 use clap::ArgMatches;
 use color_eyre::eyre::{bail, ContextCompat, Result};
 use wt_blk::{blk, blk::file::FileType};
+use wt_blk::blk::nm_file::NameMap;
 
-// This is the entry-point
 pub fn unpack_raw_blk(args: &ArgMatches) -> Result<()> {
 	let format = args
 		.get_one::<String>("format")
@@ -22,7 +22,14 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<()> {
 	let mut read = get_input(&args, &mut input_path)?;
 
 	let zstd_dict = None;
-	let nm = None;
+	let nm = args
+		.get_one::<String>("Name map")
+		.map(fs::read)
+		.transpose()?
+		.map(|e|NameMap::from_encoded_file(&e))
+		.transpose()?
+		.map(Arc::new);
+
 	let bye_bye = |format| {
 		bail!("{format} is not implemented yet. If you need it, poke me with an issue at: https://github.com/Warthunder-Open-Source-Foundation/wt_ext_cli/issues")
 	};
@@ -30,12 +37,8 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<()> {
 		FileType::BBF => {},
 		FileType::FAT => {},
 		FileType::FAT_ZSTD => {},
-		FileType::SLIM => {
-			bye_bye("External name-map")?;
-		},
-		FileType::SLIM_ZSTD => {
-			bye_bye("External name-map")?;
-		},
+		FileType::SLIM => {},
+		FileType::SLIM_ZSTD => {},
 		FileType::SLIM_ZST_DICT => {
 			bye_bye("ZSTD dictionary")?;
 		},
