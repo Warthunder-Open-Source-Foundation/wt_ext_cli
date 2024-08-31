@@ -17,7 +17,8 @@ use color_eyre::{
 	eyre::{ContextCompat, Result},
 	Help,
 };
-use tracing::info;
+use color_eyre::eyre::bail;
+use tracing::{error, info};
 use wt_blk::{
 	blk::util::maybe_blk,
 	vromf::{BlkOutputFormat, File as BlkFile, VromfUnpacker},
@@ -188,6 +189,14 @@ fn parse_and_write_one_vromf(
 	ffmpeg: Arc<ImageConverter>,
 	check_integrity: bool,
 ) -> Result<()> {
+	if let Some(meta) = file.meta() {
+		match meta.len() {
+			0 => {bail!("Vromf is zero bytes long {:?}", file.path())}
+			len @ 0..=1000 => {error!("Vromf is very small ({len} bytes) {:?}", file.path())}
+			_ => {}
+		}
+	}
+	
 	let parser = VromfUnpacker::from_file(&file, check_integrity)?;
 
 	let mut vromf_name = PathBuf::from(file.path().file_name().ok_or(CliError::InvalidPath)?);
