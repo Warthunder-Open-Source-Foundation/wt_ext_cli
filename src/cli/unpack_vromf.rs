@@ -60,7 +60,7 @@ pub fn unpack_vromf() -> Command {
 				.long("skip_integrity_check")
 				.required(false)
 				.num_args(0)
-				.default_value("false")
+				.default_value("true")
 				.help("Skips over vromf hashing checks")
 		)
 		.arg(
