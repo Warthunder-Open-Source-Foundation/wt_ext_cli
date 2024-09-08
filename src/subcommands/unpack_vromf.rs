@@ -60,8 +60,8 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 		.context("Invalid argument: zip")?;
 
 	let skip_integrity_check = *args
-		.get_one::<bool>("integrity_check")
-		.context("Invalid argument: integrity_check")?;
+		.get_one::<bool>("skip_integrity_check")
+		.context("Invalid argument: skip_integrity_check")?;
 	let check_integrity = !skip_integrity_check;
 
 	let should_override = *args
