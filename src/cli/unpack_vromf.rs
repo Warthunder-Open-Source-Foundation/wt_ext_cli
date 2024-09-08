@@ -1,4 +1,4 @@
-use clap::{Arg, Command, ValueHint};
+use clap::{Arg, ArgAction, Command, ValueHint};
 
 pub fn unpack_vromf() -> Command {
 	Command::new("unpack_vromf")
@@ -60,7 +60,8 @@ pub fn unpack_vromf() -> Command {
 				.long("skip_integrity_check")
 				.required(false)
 				.num_args(0)
-				.default_value("true")
+				.default_value("false")
+				.action(ArgAction::SetTrue)
 				.help("Skips over vromf hashing checks")
 		)
 		.arg(
