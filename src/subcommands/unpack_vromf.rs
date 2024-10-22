@@ -257,7 +257,7 @@ fn parse_and_write_one_vromf(
 		}
 	};
 
-	parser.unpack_all_with_writer(format, should_override, writer)?;
+	parser.unpack_all_with_writer(format, should_override, writer, true)?;
 
 	let (sender, receiver) = std::sync::mpsc::channel();
 	let handle = if zip {
