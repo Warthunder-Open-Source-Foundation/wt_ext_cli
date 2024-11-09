@@ -33,7 +33,7 @@ default = []
 clap = {version = "4.4", features = ["cargo"]}
 wt_blk = {git = "https://github.com/Warthunder-Open-Source-Foundation/wt_blk", branch = "master"}
 #wt_blk = {path = "../wt_blk"}
-thiserror = "1.0"
+thiserror = "2.0.1"
 rayon = "1.8"
 open = "5"
 color-eyre = { version = "^0.6", default-features = false }
