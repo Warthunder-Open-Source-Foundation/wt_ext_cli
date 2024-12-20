@@ -1,6 +1,6 @@
 [package]
 name = "wt_ext_cli"
-version = "0.5.13"
+version = "0.5.14"
 edition = "2021"
 license = "Apache-2.0"
 repository = "https://github.com/Warthunder-Open-Source-Foundation/wt_ext_cli"
@@ -30,23 +30,23 @@ opt-level = 2
 default = []
 
 [dependencies]
-clap = {version = "4.4", features = ["cargo"]}
-wt_blk = {git = "https://github.com/Warthunder-Open-Source-Foundation/wt_blk", branch = "master"}
+clap = { version = "4.4", features = ["cargo"] }
+wt_blk = { git = "https://github.com/Warthunder-Open-Source-Foundation/wt_blk", branch = "master" }
 #wt_blk = {path = "../wt_blk"}
 thiserror = "2.0.1"
 rayon = "1.8"
 open = "5"
 color-eyre = { version = "^0.6", default-features = false }
-time = { version = "0.3", default-features = false, features = ["local-offset"]}
+time = { version = "0.3", default-features = false, features = ["local-offset"] }
 
 tracing = "0.1"
-tracing-subscriber = {version  = "0.3", features = ["tracing-log", "env-filter", "fmt", "std"]}
-tracing-appender = { version = "0.2.3"}
+tracing-subscriber = { version = "0.3", features = ["tracing-log", "env-filter", "fmt", "std"] }
+tracing-appender = { version = "0.2.3" }
 
 serde_json = "^1.0"
 serde = { version = "^1.0", features = ["serde_derive"] }
 const_format = { version = "0.2.31", default-features = false, features = ["fmt"] }
-zip = { version = "2.1.6", features = ["deflate"], default-features = false}
+zip = { version = "2.1.6", features = ["deflate"], default-features = false }
 wt_version = { git = "https://github.com/Warthunder-Open-Source-Foundation/wt_version.git" }
 atty = "0.2.14"
 
