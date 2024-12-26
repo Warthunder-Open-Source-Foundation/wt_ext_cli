@@ -1,11 +1,11 @@
 [workspace]
 members = ["cargo:."]
 
-[workspace.metadata.dist.dependencies.apt]
-gcc-aarch64-linux-gnu = { version = '*', targets = ["aarch64-unknown-linux-gnu", "aarch64-unknown-linux-musl"] }
-
 # Config for 'cargo dist'
 [dist]
+
+[dependencies.apt]
+gcc-aarch64-linux-gnu = { version = '*', targets = ["aarch64-unknown-linux-gnu", "aarch64-unknown-linux-musl"] }
 # The preferred cargo-dist version to use in CI (Cargo.toml SemVer syntax)
 cargo-dist-version = "0.23.0"
 # CI backends to support
