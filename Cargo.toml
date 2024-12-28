@@ -33,19 +33,18 @@ default = []
 clap = { version = "4.4", features = ["cargo"] }
 wt_blk = { git = "https://github.com/Warthunder-Open-Source-Foundation/wt_blk", branch = "master" }
 #wt_blk = {path = "../wt_blk"}
-thiserror = "2.0.1"
+thiserror = "2.0"
 rayon = "1.8"
-open = "5"
+open = "5.3"
 color-eyre = { version = "^0.6", default-features = false }
 time = { version = "0.3", default-features = false, features = ["local-offset"] }
 
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["tracing-log", "env-filter", "fmt", "std"] }
-tracing-appender = { version = "0.2.3" }
+tracing-appender = { version = "0.2" }
 
 serde_json = "^1.0"
 serde = { version = "^1.0", features = ["serde_derive"] }
-const_format = { version = "0.2.31", default-features = false, features = ["fmt"] }
-zip = { version = "2.1.6", features = ["deflate"], default-features = false }
-wt_version = { git = "https://github.com/Warthunder-Open-Source-Foundation/wt_version.git" }
-atty = "0.2.14"
+const_format = { version = "0.2", default-features = false, features = ["fmt"] }
+zip = { version = "^2.2", features = ["deflate"], default-features = false }
+atty = "0.2"
