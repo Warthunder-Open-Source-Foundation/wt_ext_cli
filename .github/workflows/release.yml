@@ -313,8 +313,8 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: MANUAL.md
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #        env:
+  #          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 
   build-arm-release:
@@ -335,7 +335,7 @@ jobs:
         run: cross build --profile dist --target aarch64-unknown-linux-gnu
 
       - name: Rename binary
-        run: target/aarch64-unknown-linux-gnu/dist/wt_ext_cli wt_ext_cli-aarch64-linux
+        run: mv target/aarch64-unknown-linux-gnu/dist/wt_ext_cli wt_ext_cli-aarch64-linux
 
       - name: Upload Release Assets
         uses: softprops/action-gh-release@v2
