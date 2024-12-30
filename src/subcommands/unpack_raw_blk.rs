@@ -5,13 +5,16 @@ use std::{
 	io::{Read, Write},
 	path::{Path, PathBuf},
 	str::FromStr,
+	sync::Arc,
 };
-use std::sync::Arc;
+
 use atty::Stream;
 use clap::ArgMatches;
 use color_eyre::eyre::{bail, ContextCompat, Result};
-use wt_blk::{blk, blk::file::FileType};
-use wt_blk::blk::nm_file::NameMap;
+use wt_blk::{
+	blk,
+	blk::{file::FileType, nm_file::NameMap},
+};
 
 pub fn unpack_raw_blk(args: &ArgMatches) -> Result<()> {
 	let format = args
@@ -26,7 +29,7 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<()> {
 		.get_one::<String>("Name map")
 		.map(fs::read)
 		.transpose()?
-		.map(|e|NameMap::from_encoded_file(&e))
+		.map(|e| NameMap::from_encoded_file(&e))
 		.transpose()?
 		.map(Arc::new);
 

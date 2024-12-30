@@ -26,7 +26,7 @@ pub fn unpack_raw_blk() -> Command {
 			Arg::new("Name map")
 				.long("nm")
 				.help("Path to name map")
-				.value_hint(ValueHint::FilePath)
+				.value_hint(ValueHint::FilePath),
 		)
 		.arg(
 			Arg::new("stdout")

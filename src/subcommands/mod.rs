@@ -1,8 +1,8 @@
-use std::{str::FromStr, sync::OnceLock};
+use std::str::FromStr;
 
 use clap::ArgMatches;
 use color_eyre::eyre::{bail, Context, Result};
-use tracing::metadata::LevelFilter;
+use log::LevelFilter;
 
 use crate::{
 	logging::init_logging,
@@ -20,25 +20,13 @@ mod unpack_raw_blk;
 pub mod unpack_vromf;
 mod vromf_version;
 
-pub static CRASHLOG: OnceLock<bool> = OnceLock::new();
-
 pub fn branch_subcommands(args: ArgMatches) -> Result<()> {
-	// Specific option to run and log everything for debugging
-	let crashlog = args.get_flag("crashlog");
-	CRASHLOG
-		.set(crashlog)
-		.expect("Failed to set CRASHLOG global flag");
-
 	let log_level = if let Some(lvl) = args.get_one::<String>("log_level") {
 		LevelFilter::from_str(lvl).context(format!("Incorrect log-level provided, expected one of [Trace, Debug, Info, Warn, Error], found {lvl}"))?
 	} else {
-		LevelFilter::WARN
+		LevelFilter::Warn
 	};
-	init_logging(
-		log_level,
-		args.get_one::<String>("log_path").cloned(),
-		crashlog,
-	)?;
+	init_logging(log_level)?;
 
 	match args.subcommand() {
 		Some(("unpack_raw_blk", args)) => {

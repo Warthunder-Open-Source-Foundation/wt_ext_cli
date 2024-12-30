@@ -14,11 +14,10 @@ use std::{
 
 use clap::{parser::ValueSource, ArgMatches};
 use color_eyre::{
-	eyre::{ContextCompat, Result},
+	eyre::{bail, ContextCompat, Result},
 	Help,
 };
-use color_eyre::eyre::bail;
-use tracing::{error, info};
+use log::{error, info};
 use wt_blk::{
 	blk::util::maybe_blk,
 	vromf::{BlkOutputFormat, File as BlkFile, VromfUnpacker},
@@ -191,12 +190,16 @@ fn parse_and_write_one_vromf(
 ) -> Result<()> {
 	if let Some(meta) = file.meta() {
 		match meta.len() {
-			0 => {bail!("Vromf is zero bytes long {:?}", file.path())}
-			len @ 0..=1000 => {error!("Vromf is very small ({len} bytes) {:?}", file.path())}
-			_ => {}
+			0 => {
+				bail!("Vromf is zero bytes long {:?}", file.path())
+			},
+			len @ 0..=1000 => {
+				error!("Vromf is very small ({len} bytes) {:?}", file.path())
+			},
+			_ => {},
 		}
 	}
-	
+
 	let parser = VromfUnpacker::from_file(&file, check_integrity)?;
 
 	let mut vromf_name = PathBuf::from(file.path().file_name().ok_or(CliError::InvalidPath)?);
