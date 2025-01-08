@@ -1,6 +1,6 @@
 # wt_ext_cli
 
-> **Download, extract and transform in-game files**
+> **Extract and transform BLK and VROMF archives**
 
 ## Installing
 
