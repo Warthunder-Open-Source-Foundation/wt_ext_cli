@@ -2,6 +2,15 @@
 
 > **Extract and transform BLK and VROMF archives**
 
+## Used By
+
+| Project | Name | URL |
+|---------|-------------|-----|
+| <img src="https://statshark.net/assets/icon.svg" width="48"> | Statshark | [View Website](https://statshark.net/) |
+| <img src="https://avatars.githubusercontent.com/u/45767091?v=4" width="48"> | War Thunder Datamine | [View Repo](https://github.com/gszabi99/War-Thunder-Datamine) |
+|<img src="https://avatars.githubusercontent.com/u/49201354?v=4" width="48"> | GUI Toolkit | [View Repo](https://github.com/axiangcoding/WT-Toolkit) |
+<!--|<img src="" width="48"> |  | [View Repo]() | -->
+
 ## Installing
 
 ### Easy way:
