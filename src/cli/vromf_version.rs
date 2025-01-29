@@ -11,5 +11,12 @@ pub fn vromf_version() -> Command {
 				.required(true)
 				.value_hint(ValueHint::AnyPath),
 		)
+		.arg(
+			Arg::new("format")
+				.short('f')
+				.long("format")
+				.help("Prints the version either in plain or json text format")
+				.default_value("json"),
+		)
 		.about("Prints version(s) from file or folder of vromfs")
 }

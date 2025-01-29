@@ -36,18 +36,41 @@ pub fn vromf_version(args: &ArgMatches) -> color_eyre::Result<()> {
 		}
 		versions
 	};
-	let json = Value::Array(
-		versions
-			.into_iter()
-			.map(|e| {
-				Value::Object(Map::from_iter(once((
-					e.0,
-					json!(e.1.map(|e| e.to_string())),
-				))))
-			})
-			.collect(),
-	);
-	println!("{}", serde_json::to_string_pretty(&json)?);
+
+	match args.get_one::<String>("format").expect("infallible").as_ref() {
+		"json" => {
+			let json = Value::Array(
+				versions
+					.into_iter()
+					.map(|e| {
+						Value::Object(Map::from_iter(once((
+							e.0,
+							json!(e.1.map(|e| e.to_string())),
+						))))
+					})
+					.collect(),
+			);
+			println!("{}", serde_json::to_string_pretty(&json)?);
+		},
+		"plain" => {
+			if versions.len() == 1 {
+				for (file, maybe_version) in versions {
+					if let Some(version) = maybe_version {
+						println!("{version}");
+					} else {
+						println!("null");
+					}
+				}
+			} else {
+				if let Some((name, version)) = versions.get(0) {
+					println!("{} {}", name, version.map(|e|e.to_string()).unwrap_or("null".to_owned()));
+				}
+			}
+		},
+		_ => {
+			panic!("Unrecognized output format");
+		},
+	}
 
 	Ok(())
 }
