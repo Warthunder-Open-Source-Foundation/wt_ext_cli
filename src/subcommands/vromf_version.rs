@@ -14,7 +14,7 @@ pub fn vromf_version(args: &ArgMatches) -> color_eyre::Result<()> {
 
 	let versions: Vec<_> = if parsed_input_dir.is_file() {
 		let unpacker =
-			VromfUnpacker::from_file(&File::new(parsed_input_dir.clone()).unwrap(), true)?;
+			VromfUnpacker::from_file(&File::new(parsed_input_dir.clone()).unwrap(), false)?;
 		vec![(
 			parsed_input_dir
 				.file_name()
@@ -28,7 +28,7 @@ pub fn vromf_version(args: &ArgMatches) -> color_eyre::Result<()> {
 		let mut versions = vec![];
 		for file in dir {
 			let p = file?.path();
-			let unpacker = VromfUnpacker::from_file(&File::new(p.clone())?, true)?;
+			let unpacker = VromfUnpacker::from_file(&File::new(p.clone())?, false)?;
 			versions.push((
 				p.file_name().unwrap().to_string_lossy().to_string(),
 				unpacker.latest_version()?,
@@ -54,7 +54,7 @@ pub fn vromf_version(args: &ArgMatches) -> color_eyre::Result<()> {
 		},
 		"plain" => {
 			if versions.len() == 1 {
-				for (file, maybe_version) in versions {
+				for (_, maybe_version) in versions {
 					if let Some(version) = maybe_version {
 						println!("{version}");
 					} else {
