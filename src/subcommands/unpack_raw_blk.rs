@@ -13,7 +13,7 @@ use clap::ArgMatches;
 use color_eyre::eyre::{bail, ContextCompat, Result};
 use wt_blk::{
 	blk,
-	blk::{file::FileType, nm_file::NameMap},
+	blk::{file::FileType, name_map::NameMap},
 };
 
 pub fn unpack_raw_blk(args: &ArgMatches) -> Result<()> {
