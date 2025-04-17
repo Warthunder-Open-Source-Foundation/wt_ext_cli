@@ -1024,7 +1024,7 @@ dependencies = [
 [[package]]
 name = "wt_blk"
 version = "0.2.3"
-source = "git+https://github.com/Warthunder-Open-Source-Foundation/wt_blk?branch=master#e6683910beadd948fae17b80581a38dc60fa6b37"
+source = "git+https://github.com/Warthunder-Open-Source-Foundation/wt_blk?branch=master#1b79b9f8c64486d97c30d909443aa6b65a0d0eac"
 dependencies = [
  "bytes",
  "cfg-if",
