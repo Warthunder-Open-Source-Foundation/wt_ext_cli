@@ -74,6 +74,7 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 	let blk_extension = args
 		.get_one::<String>("blk_extension")
 		.map(|e| Arc::new(e.to_owned()));
+	
 
 	let mut ffmpeg = ImageConverter::new_with_converter(Converter::new_from_arg(&avif2png)?);
 	let mut avif2png = false;
@@ -117,18 +118,7 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 						thread::Builder::new().name(file.file_name().to_string_lossy().to_string());
 
 					threads.push(Box::new(thread_builder.spawn(move || {
-						parse_and_write_one_vromf(
-							BlkFile::new(file.path())?,
-							output_folder,
-							mode,
-							crlf,
-							should_override,
-							avif2png,
-							zip,
-							blk_extension,
-							ffmpeg,
-							check_integrity,
-						)
+						parse_and_write_one_vromf(BlkFile::new(file.path())?, output_folder, mode, crlf, should_override, avif2png, zip, blk_extension, ffmpeg, check_integrity, /* std::option::Option<&str> */)
 						.suggestion(format!(
 							"Error filename: {}",
 							file.file_name().to_string_lossy()

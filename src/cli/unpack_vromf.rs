@@ -70,4 +70,10 @@ pub fn unpack_vromf() -> Command {
 				.required(false)
 				.help("Replaces all blk files extension to this when provided, leaves them unchanged otherwise")
 		)
+		.arg(
+			Arg::new("folder")
+				.long("folder")
+				.required(false)
+				.help("Returns a subfolder or file in the vromf")
+		)
 }
