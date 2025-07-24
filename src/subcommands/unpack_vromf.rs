@@ -253,7 +253,7 @@ fn parse_and_write_one_vromf(
 				.write(true)
 				.create(true)
 				.open(&joined_final_path)?;
-			let buf_size = 4096;
+			let buf_size = 2_usize.pow(20); // Megabyte
 			if crlf && is_blk {
 				Ok(CrlfWriter::Enabled(BufWriter::with_capacity(
 					buf_size, handle,
