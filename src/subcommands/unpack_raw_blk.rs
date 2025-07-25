@@ -51,7 +51,7 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<()> {
 
 	match format.as_str() {
 		"Json" => {
-			parsed.merge_fields();
+			parsed.merge_fields()?;
 			write_output(args, parsed.as_serde_json()?, input_path, format)?;
 		},
 		"BlkText" => {
