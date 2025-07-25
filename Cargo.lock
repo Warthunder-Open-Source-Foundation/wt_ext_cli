@@ -345,6 +345,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "foldhash"
+version = "0.1.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d9c4f5dac5e15c24eb999c26181a6ca40b39fe946cbe4c263c7209467bc83af2"
+
+[[package]]
 name = "getrandom"
 version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1019,12 +1025,13 @@ dependencies = [
 [[package]]
 name = "wt_blk"
 version = "0.2.3"
-source = "git+https://github.com/Warthunder-Open-Source-Foundation/wt_blk?branch=master#6e6ed96b170752ae7dfb3854ae9e3f2892271aae"
+source = "git+https://github.com/Warthunder-Open-Source-Foundation/wt_blk?branch=master#84cf34ff14b3b8446fae91c6f254b16cd2b264be"
 dependencies = [
  "bytes",
  "cfg-if",
  "color-eyre",
  "fallible-iterator",
+ "foldhash",
  "indexmap",
  "itertools",
  "md5",
