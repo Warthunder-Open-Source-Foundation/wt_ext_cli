@@ -37,7 +37,11 @@ pub fn vromf_version(args: &ArgMatches) -> color_eyre::Result<()> {
 		versions
 	};
 
-	match args.get_one::<String>("format").expect("infallible").as_ref() {
+	match args
+		.get_one::<String>("format")
+		.expect("infallible")
+		.as_ref()
+	{
 		"json" => {
 			let json = Value::Array(
 				versions
@@ -63,7 +67,11 @@ pub fn vromf_version(args: &ArgMatches) -> color_eyre::Result<()> {
 				}
 			} else {
 				if let Some((name, version)) = versions.get(0) {
-					println!("{} {}", name, version.map(|e|e.to_string()).unwrap_or("null".to_owned()));
+					println!(
+						"{} {}",
+						name,
+						version.map(|e| e.to_string()).unwrap_or("null".to_owned())
+					);
 				}
 			}
 		},

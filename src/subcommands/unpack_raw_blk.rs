@@ -7,7 +7,7 @@ use std::{
 	str::FromStr,
 	sync::Arc,
 };
-
+use std::io::BufWriter;
 use atty::Stream;
 use clap::ArgMatches;
 use color_eyre::eyre::{bail, ContextCompat, Result};
@@ -110,22 +110,22 @@ pub fn write_output(
 				.to_owned(),
 		};
 
+		let do_write = |dst| {
+			let file = OpenOptions::new().write(true).create(true).open(dst)?;
+			let mut file = BufWriter::new(file);
+			file.write_all(&buf)?;
+			file.flush()?;
+			Ok::<(), io::Error>(())
+		};
+
 		match format {
 			"Json" => {
 				output_folder.set_extension("json");
-				let mut file = OpenOptions::new()
-					.write(true)
-					.create(true)
-					.open(output_folder)?;
-				file.write_all(&buf)?;
+				do_write(&output_folder)?;
 			},
 			"BlkText" => {
 				output_folder.set_extension("blkx");
-				let mut file = OpenOptions::new()
-					.write(true)
-					.create(true)
-					.open(output_folder)?;
-				file.write_all(&buf)?;
+				do_write(&output_folder)?;
 			},
 			_ => {
 				panic!("Unrecognized format: {format}")
