@@ -2,12 +2,12 @@ use std::{
 	fs,
 	fs::OpenOptions,
 	io,
-	io::{Read, Write},
+	io::{BufWriter, Read, Write},
 	path::{Path, PathBuf},
 	str::FromStr,
 	sync::Arc,
 };
-use std::io::BufWriter;
+
 use atty::Stream;
 use clap::ArgMatches;
 use color_eyre::eyre::{bail, ContextCompat, Result};

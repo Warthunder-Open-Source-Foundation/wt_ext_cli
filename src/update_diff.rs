@@ -1,3 +1,4 @@
+#[allow(unused)]
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct Diff {
 	file_name: String,
@@ -5,6 +6,7 @@ pub struct Diff {
 	new:       FileDiff,
 }
 
+#[allow(unused)]
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct FileDiff {
 	sha1: String,

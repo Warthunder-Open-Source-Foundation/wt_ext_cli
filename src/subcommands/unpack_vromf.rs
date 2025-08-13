@@ -192,7 +192,7 @@ fn parse_and_write_one_vromf(
 	blk_extension: Option<Arc<String>>,
 	ffmpeg: Arc<ImageConverter>,
 	check_integrity: bool,
-	subdir: Option<String>,
+	#[allow(unused)] subdir: Option<String>,
 ) -> Result<()> {
 	if let Some(meta) = file.meta() {
 		match meta.len() {
