@@ -1,6 +1,9 @@
 # wt_ext_cli
 
 > **Extract and transform BLK and VROMF archives**
+
+[![LOC](https://tokei.rs/b1/github/Warthunder-Open-Source-Foundation/wt_ext_cli?type=Rust,Markdown,Javascript,Python)](https://github.com/search?q=repo%3AWarthunder-Open-Source-Foundation%2Fwt_ext_cli++language%3ARust&type=code)
+
 ## How to use
 [View the manual shipped with every release](https://github.com/Warthunder-Open-Source-Foundation/wt_ext_cli/releases/latest/download/MANUAL.md)
 
