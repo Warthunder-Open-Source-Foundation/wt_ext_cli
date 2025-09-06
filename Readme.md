@@ -33,7 +33,6 @@ Its repository and subsequent installation instructions are here: https://github
 
 | Project                                                                          | Name                | URL                                                           |
 |----------------------------------------------------------------------------------|---------------------|---------------------------------------------------------------|
-| <img src="https://statshark.net/assets/icon.svg" width="48">                     | Statshark           | [View Website](https://statshark.net/)                        |
 | <img src="https://avatars.githubusercontent.com/u/45767091?v=4" width="48">      | gszabi99            | [View Repo](https://github.com/gszabi99/War-Thunder-Datamine) |
 | <img src="https://avatars.githubusercontent.com/u/49201354?v=4" width="48">      | GUI Toolkit         | [View Repo](https://github.com/axiangcoding/WT-Toolkit)       |
 | <img src="https://avatars.githubusercontent.com/u/80386324?s=48&v=4" width="48"> | WT Heatmaps project | [View Repo](https://github.com/Sgambe33/WT-Plotter)           |
