@@ -41,6 +41,7 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 	let mode = match args.get_one::<String>("format").map(|e| e.as_str()) {
 		Some("Json") => Some(BlkOutputFormat::Json),
 		Some("BlkText") => Some(BlkOutputFormat::BlkText),
+		Some("BlkCompact") => Some(BlkOutputFormat::BlkCompact),
 		Some("Raw") => None,
 		_ => {
 			panic!(

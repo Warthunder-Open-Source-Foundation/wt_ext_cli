@@ -24,7 +24,7 @@ pub fn unpack_vromf() -> Command {
 		.arg(
 			Arg::new("format")
 				.long("format")
-				.help("Output format, can be one of: [Json, BlkText, Raw]")
+				.help("Output format, can be one of: [Json, BlkText, BlkCompact, Raw]")
 				.default_value("Json")
 		)
 		.arg(

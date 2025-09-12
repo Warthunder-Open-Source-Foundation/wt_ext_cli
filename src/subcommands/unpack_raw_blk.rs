@@ -13,7 +13,7 @@ use clap::ArgMatches;
 use color_eyre::eyre::{bail, ContextCompat, Result};
 use wt_blk::{
 	blk,
-	blk::{file::FileType, name_map::NameMap},
+	blk::{blk_type::BlkFormatting, file::FileType, name_map::NameMap},
 };
 
 pub fn unpack_raw_blk(args: &ArgMatches) -> Result<()> {
@@ -55,7 +55,20 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<()> {
 			write_output(args, parsed.as_serde_json()?, input_path, format)?;
 		},
 		"BlkText" => {
-			write_output(args, parsed.as_blk_text()?.into_bytes(), input_path, format)?;
+			write_output(
+				args,
+				parsed.as_blk_text(BlkFormatting::standard())?.into_bytes(),
+				input_path,
+				format,
+			)?;
+		},
+		"BlkCompact" => {
+			write_output(
+				args,
+				parsed.as_blk_text(BlkFormatting::compact())?.into_bytes(),
+				input_path,
+				format,
+			)?;
 		},
 		_ => {
 			panic!("Unrecognized format: {format}")

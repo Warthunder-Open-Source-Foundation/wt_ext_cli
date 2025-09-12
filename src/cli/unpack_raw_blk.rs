@@ -43,7 +43,7 @@ pub fn unpack_raw_blk() -> Command {
 		.arg(
 			Arg::new("format")
 				.long("format")
-				.help("Output format, can be one of: [Json, BlkText]")
+				.help("Output format, can be one of: [Json, BlkText, BlkCompact]")
 				.default_value("Json"),
 		)
 }
