@@ -79,7 +79,10 @@ pub fn unpack_vromf() -> Command {
 		.arg(
 			Arg::new("dump_nm")
 				.long("dump_nm")
+				.required(false)
+				.num_args(0)
 				.default_value("true")
+				.action(ArgAction::SetTrue)
 				.help("Dumps the name-map as 'nm.txt' in the content root")
 		)
 }
