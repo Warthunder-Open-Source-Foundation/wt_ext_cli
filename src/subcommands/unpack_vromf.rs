@@ -76,6 +76,10 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 		.get_one::<String>("blk_extension")
 		.map(|e| Arc::new(e.to_owned()));
 
+	let dump_nm = *args
+		.get_one::<bool>("dump_nm")
+		.context("Invalid argument: dump_nm")?;
+
 	let folder = args.get_one::<String>("folder").map(ToOwned::to_owned);
 
 	let mut ffmpeg = ImageConverter::new_with_converter(Converter::new_from_arg(&avif2png)?);
@@ -133,6 +137,7 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 							ffmpeg,
 							check_integrity,
 							folder,
+							dump_nm,
 						)
 						.suggestion(format!(
 							"Error filename: {}",
@@ -175,6 +180,7 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 			ffmpeg,
 			check_integrity,
 			folder,
+			dump_nm,
 		)?;
 	}
 
@@ -194,6 +200,7 @@ fn parse_and_write_one_vromf(
 	ffmpeg: Arc<ImageConverter>,
 	check_integrity: bool,
 	#[allow(unused)] subdir: Option<String>,
+	dump_nm: bool,
 ) -> Result<()> {
 	if let Some(meta) = file.meta() {
 		match meta.len() {
@@ -207,7 +214,7 @@ fn parse_and_write_one_vromf(
 		}
 	}
 
-	let parser = VromfUnpacker::from_file(&file, check_integrity)?;
+	let parser = VromfUnpacker::from_file(&file, check_integrity, dump_nm)?;
 
 	let mut vromf_name = PathBuf::from(file.path().file_name().ok_or(CliError::InvalidPath)?);
 	let mut old_extension = vromf_name
