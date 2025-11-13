@@ -77,12 +77,12 @@ pub fn unpack_vromf() -> Command {
 				.help("Returns a subfolder or file in the vromf")
 		)
 		.arg(
-			Arg::new("dump_nm")
-				.long("dump_nm")
+			Arg::new("no_dump_nm")
+				.long("no_dump_nm")
 				.required(false)
 				.num_args(0)
 				.default_value("true")
-				.action(ArgAction::SetTrue)
+				.action(ArgAction::SetFalse)
 				.help("Dumps the name-map as 'nm.txt' in the content root")
 		)
 }

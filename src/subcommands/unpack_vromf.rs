@@ -77,8 +77,8 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 		.map(|e| Arc::new(e.to_owned()));
 
 	let dump_nm = *args
-		.get_one::<bool>("dump_nm")
-		.context("Invalid argument: dump_nm")?;
+		.get_one::<bool>("no_dump_nm")
+		.context("Invalid argument: no_dump_nm")?;
 
 	let folder = args.get_one::<String>("folder").map(ToOwned::to_owned);
 
