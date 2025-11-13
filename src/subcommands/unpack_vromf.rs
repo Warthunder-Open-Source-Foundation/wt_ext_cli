@@ -16,11 +16,12 @@ use clap::{parser::ValueSource, ArgMatches};
 use color_eyre::{
 	eyre::{bail, ContextCompat, Result},
 	Help,
+	Report,
 };
 use log::{error, info};
 use wt_blk::{
 	blk::util::maybe_blk,
-	vromf::{BlkOutputFormat, File as BlkFile, VromfUnpacker},
+	vromf::{BlkOutputFormat, File as BlkFile, FileFilter, VromfUnpacker},
 };
 use zip::{write::SimpleFileOptions, CompressionMethod};
 
@@ -199,7 +200,7 @@ fn parse_and_write_one_vromf(
 	blk_extension: Option<Arc<String>>,
 	ffmpeg: Arc<ImageConverter>,
 	check_integrity: bool,
-	#[allow(unused)] subdir: Option<String>,
+	subdir: Option<String>,
 	dump_nm: bool,
 ) -> Result<()> {
 	if let Some(meta) = file.meta() {
@@ -214,6 +215,16 @@ fn parse_and_write_one_vromf(
 		}
 	}
 
+	let filter = subdir
+		.map(|dir| {
+			Ok::<FileFilter, Report>(FileFilter::OneFolder {
+				remove_base: true,
+				prefix:      Arc::new(PathBuf::from_str(&dir)?),
+			})
+		})
+		.transpose()?
+		.unwrap_or(FileFilter::All);
+
 	let parser = VromfUnpacker::from_file(&file, check_integrity, dump_nm)?;
 
 	let mut vromf_name = PathBuf::from(file.path().file_name().ok_or(CliError::InvalidPath)?);
@@ -224,12 +235,23 @@ fn parse_and_write_one_vromf(
 	old_extension.push("_u");
 	vromf_name.set_extension(old_extension);
 
-	let writer = |file: &mut BlkFile| {
-		{
+	let writer = {
+		arced!(filter, output_dir);
+		move |file: &mut BlkFile| {
 			// The version file in some vromfs is prefixed with /, which is incorrect as this causes
 			// all relative paths to resolve to /
 			if file.path().starts_with("/") {
 				*file.path_mut() = file.path().strip_prefix("/")?.to_path_buf();
+			}
+
+			match filter {
+				FileFilter::OneFolder {
+					remove_base: false,
+					prefix,
+				} => {
+					*file.path_mut() = file.path().strip_prefix(prefix.as_ref())?.to_path_buf();
+				},
+				_ => {},
 			}
 
 			let rel_file_path = vromf_name.clone().join(file.path());
@@ -274,7 +296,7 @@ fn parse_and_write_one_vromf(
 		}
 	};
 
-	parser.unpack_all_with_writer(format, should_override, writer, true)?;
+	parser.unpack_all_with_writer(format, should_override, writer, true, filter)?;
 
 	let (sender, receiver) = std::sync::mpsc::channel();
 	let handle = if zip {
