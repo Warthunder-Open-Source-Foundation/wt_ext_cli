@@ -1,5 +1,3 @@
-#![feature(if_let_guard)]
-
 use std::{env, sync::atomic::Ordering::Relaxed};
 
 use color_eyre::eyre::Result;

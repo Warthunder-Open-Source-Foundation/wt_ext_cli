@@ -34,11 +34,11 @@ opt-level = 2
 default = []
 
 [dependencies]
-clap = { version = "4.4", features = ["cargo"] }
+clap = { version = "4.5", features = ["cargo"] }
 wt_blk = { git = "https://github.com/Warthunder-Open-Source-Foundation/wt_blk", branch = "master" }
 #wt_blk = { path = "../wt_blk" }
 thiserror = "2.0"
-rayon = "1.8"
+rayon = "1.11"
 open = "5.3"
 color-eyre = { version = "^0.6", default-features = false }
 
@@ -48,5 +48,5 @@ const_format = { version = "0.2", default-features = false, features = ["fmt"] }
 zip = { version = "^2.2", features = ["deflate"], default-features = false }
 atty = "0.2"
 
-env_logger = "0.11.5"
-log = "0.4.22"
+env_logger = "0.11.9"
+log = "0.4.29"
