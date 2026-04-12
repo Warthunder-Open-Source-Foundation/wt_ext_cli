@@ -85,4 +85,13 @@ pub fn unpack_vromf() -> Command {
 				.action(ArgAction::SetFalse)
 				.help("Dumps the name-map as 'nm.txt' in the content root")
 		)
+		.arg(
+			Arg::new("continue")
+				.long("continue")
+				.required(false)
+				.default_missing_value("standard")
+				.action(ArgAction::Set)
+				.num_args(0..=1)
+				.help("Continue unpacking when a file fails to convert. Can be one of:\n\'Standard\' skips failed files printing the error\n\'Quiet\' quietly skips failed files")
+		)
 }

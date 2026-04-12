@@ -21,7 +21,7 @@ use color_eyre::{
 use log::{error, info};
 use wt_blk::{
 	blk::util::maybe_blk,
-	vromf::{BlkOutputFormat, File as BlkFile, FileFilter, VromfUnpacker},
+	vromf::{BlkOutputFormat, ContinueMode, File as BlkFile, FileFilter, VromfUnpacker},
 };
 use zip::{write::SimpleFileOptions, CompressionMethod};
 
@@ -81,6 +81,18 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 		.get_one::<bool>("no_dump_nm")
 		.context("Invalid argument: no_dump_nm")?;
 
+	let continue_mode = {
+		let mode = args
+			.get_one::<String>("continue")
+			.map(|e| Arc::new(e.to_owned()))
+			.context("Invalid argument: continue")?;
+		match mode.to_lowercase().trim() {
+			"standard" => ContinueMode::Standard,
+			"quiet" => ContinueMode::Quiet,
+			_ => bail!("unknown continue mode: {mode}"),
+		}
+	};
+
 	let folder = args.get_one::<String>("folder").map(ToOwned::to_owned);
 
 	let mut ffmpeg = ImageConverter::new_with_converter(Converter::new_from_arg(&avif2png)?);
@@ -139,6 +151,7 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 							check_integrity,
 							folder,
 							dump_nm,
+							continue_mode,
 						)
 						.suggestion(format!(
 							"Error filename: {}",
@@ -182,6 +195,7 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 			check_integrity,
 			folder,
 			dump_nm,
+			continue_mode,
 		)?;
 	}
 
@@ -202,6 +216,7 @@ fn parse_and_write_one_vromf(
 	check_integrity: bool,
 	subdir: Option<String>,
 	dump_nm: bool,
+	continue_mode: ContinueMode,
 ) -> Result<()> {
 	if let Some(meta) = file.meta() {
 		match meta.len() {
@@ -296,7 +311,7 @@ fn parse_and_write_one_vromf(
 		}
 	};
 
-	parser.unpack_all_with_writer(format, should_override, writer, true, filter)?;
+	parser.unpack_all_with_writer(format, should_override, writer, true, filter, continue_mode)?;
 
 	let (sender, receiver) = std::sync::mpsc::channel();
 	let handle = if zip {
