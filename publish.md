@@ -1,5 +1,6 @@
 # Publish checklist
 
+- Update dist: `dist init` and `dist generate --allow-dirty >> .github/workflows/release.yml`
 - Updated version in Cargo.toml
 - Build for lockfile update
 - Commit and push change made to Cargo.toml and cargo.lock
