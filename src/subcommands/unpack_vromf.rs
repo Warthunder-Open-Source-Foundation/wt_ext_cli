@@ -81,16 +81,15 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 		.get_one::<bool>("no_dump_nm")
 		.context("Invalid argument: no_dump_nm")?;
 
-	let continue_mode = {
-		let mode = args
-			.get_one::<String>("continue")
-			.map(|e| Arc::new(e.to_owned()))
-			.context("Invalid argument: continue")?;
-		match mode.to_lowercase().trim() {
-			"standard" => ContinueMode::Standard,
-			"quiet" => ContinueMode::Quiet,
-			_ => bail!("unknown continue mode: {mode}"),
-		}
+	let continue_mode: ContinueMode = {
+		args.get_one::<String>("continue")
+			.map(|mode| match mode.to_lowercase().trim() {
+				"standard" => Ok(ContinueMode::Standard),
+				"quiet" => Ok(ContinueMode::Quiet),
+				_ => bail!("unknown continue mode: {mode}"),
+			})
+			.transpose()?
+			.unwrap_or(ContinueMode::ExitOnFirstError)
 	};
 
 	let folder = args.get_one::<String>("folder").map(ToOwned::to_owned);
