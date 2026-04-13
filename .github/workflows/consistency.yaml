@@ -42,4 +42,4 @@ jobs:
         run:  cargo run --profile ci --  --unpack_vromf -i ./test_data/all_vromfs/ -o ./output_latest
 
       - name: Diff folders
-        run: diff -qr output_ref output_latest
+        run: diff -r output_ref output_latest
