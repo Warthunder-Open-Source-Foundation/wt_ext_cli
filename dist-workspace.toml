@@ -17,5 +17,3 @@ pr-run-mode = "skip"
 install-path = "CARGO_HOME"
 # Whether to install an updater program
 install-updater = false
-# Skip checking whether the specified configuration files are up to date
-allow-dirty = ["ci"]
