@@ -29,6 +29,12 @@ pub fn unpack_raw_blk() -> Command {
 				.value_hint(ValueHint::FilePath),
 		)
 		.arg(
+			Arg::new("dictionary")
+				.long("dict")
+				.help("Path to ZSTD dictionary")
+				.value_hint(ValueHint::FilePath),
+		)
+		.arg(
 			Arg::new("stdout")
 				.long("stdout")
 				.help("writes to stdout instead of a file")

@@ -13,7 +13,7 @@ use clap::ArgMatches;
 use color_eyre::eyre::{bail, ContextCompat, Result};
 use wt_blk::{
 	blk,
-	blk::{blk_type::BlkFormatting, file::FileType, name_map::NameMap},
+	blk::{blk_type::BlkFormatting, name_map::NameMap, DecoderDictionary},
 };
 
 pub fn unpack_raw_blk(args: &ArgMatches) -> Result<()> {
@@ -24,7 +24,12 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<()> {
 	let mut input_path = None;
 	let mut read = get_input(&args, &mut input_path)?;
 
-	let zstd_dict = None;
+	let zstd_dict = args
+		.get_one::<String>("dictionary")
+		.map(fs::read)
+		.transpose()?
+		.map(|e| DecoderDictionary::copy(&e))
+		.map(Arc::new);
 	let nm = args
 		.get_one::<String>("Name map")
 		.map(fs::read)
@@ -33,21 +38,7 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<()> {
 		.transpose()?
 		.map(Arc::new);
 
-	let bye_bye = |format| {
-		bail!("{format} is not implemented yet. If you need it, poke me with an issue at: https://github.com/Warthunder-Open-Source-Foundation/wt_ext_cli/issues")
-	};
-	match FileType::from_byte(read[0])? {
-		FileType::BBF => {},
-		FileType::FAT => {},
-		FileType::FAT_ZSTD => {},
-		FileType::SLIM => {},
-		FileType::SLIM_ZSTD => {},
-		FileType::SLIM_ZST_DICT => {
-			bye_bye("ZSTD dictionary")?;
-		},
-	}
-
-	let mut parsed = blk::unpack_blk(&mut read, zstd_dict, nm)?;
+	let mut parsed = blk::unpack_blk(&mut read, zstd_dict.as_deref(), nm)?;
 
 	match format.as_str() {
 		"Json" => {
