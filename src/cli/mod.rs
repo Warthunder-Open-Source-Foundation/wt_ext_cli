@@ -1,6 +1,7 @@
 mod diff_yup;
 mod get_instruction_manual;
 mod hash;
+mod repack_vromf;
 mod unpack_dxp_and_grp;
 mod unpack_raw_blk;
 mod unpack_vromf;
@@ -38,6 +39,7 @@ pub fn build_command_structure() -> Command {
 		)
 		.subcommand(unpack_raw_blk::unpack_raw_blk())
 		.subcommand(unpack_vromf::unpack_vromf())
+		.subcommand(repack_vromf::repack_vromf())
 		.subcommand(unpack_dxp_and_grp::unpack_dxp_and_grp())
 		.subcommand(diff_yup::diff_yup())
 		.subcommand(update_check::update_check())

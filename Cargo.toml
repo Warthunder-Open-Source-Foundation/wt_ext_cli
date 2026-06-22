@@ -48,5 +48,7 @@ const_format = { version = "0.2", default-features = false, features = ["fmt"] }
 zip = { version = "8.2", features = ["deflate"], default-features = false }
 atty = "0.2"
 
+toml = "0.8"
+wt_version = "0.1"
 env_logger = "0.11.9"
 log = "0.4.29"

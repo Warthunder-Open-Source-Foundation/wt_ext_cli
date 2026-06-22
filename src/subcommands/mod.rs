@@ -7,6 +7,7 @@ use log::LevelFilter;
 use crate::{
 	logging::init_logging,
 	subcommands::{
+		repack_vromf::repack_vromf,
 		unpack_dxp_and_grp::unpack_dxp_and_grp,
 		unpack_raw_blk::unpack_raw_blk,
 		unpack_vromf::unpack_vromf,
@@ -15,6 +16,7 @@ use crate::{
 	COMMIT_HASH,
 };
 
+mod repack_vromf;
 mod unpack_dxp_and_grp;
 mod unpack_raw_blk;
 pub mod unpack_vromf;
@@ -29,6 +31,9 @@ pub fn branch_subcommands(args: ArgMatches) -> Result<()> {
 	init_logging(log_level)?;
 
 	match args.subcommand() {
+		Some(("repack_vromf", args)) => {
+			repack_vromf(args)?;
+		},
 		Some(("unpack_raw_blk", args)) => {
 			unpack_raw_blk(args)?;
 		},

@@ -94,4 +94,11 @@ pub fn unpack_vromf() -> Command {
 				.num_args(0..=1)
 				.help("Continue unpacking when a file fails to convert. Can be one of:\n\'Standard\' skips failed files printing the error\n\'Quiet\' quietly skips failed files")
 		)
+		.arg(
+			Arg::new("export_meta")
+				.long("export_meta")
+				.num_args(0)
+				.required(false)
+				.help("Exports vromf metadata as TOML for repacking")
+		)
 }
