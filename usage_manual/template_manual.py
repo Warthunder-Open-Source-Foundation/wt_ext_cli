@@ -41,6 +41,13 @@ try:
 except subprocess.CalledProcessError as e:
     raise RuntimeError(f"Error fetching version info: {e}")
 
+try:
+    repack_help = subprocess.run(
+        [BINARY_PATH, "repack_vromf", "--help"], capture_output=True, text=True, check=True
+    ).stdout.strip()
+except subprocess.CalledProcessError as e:
+    raise RuntimeError(f"Error fetching repack help: {e}")
+
 # Read the Markdown template
 with open("./usage_manual/template_manual.md", "r") as file:
     template_content = file.read()
@@ -52,6 +59,7 @@ rendered_content = template.render(
     VROMF_HELP=vromf_help,
     BLK_HELP=blk_help,
     VROMF_VERSION=vromf_version,
+    REPACK_HELP=repack_help,
 )
 print(rendered_content)
 

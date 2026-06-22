@@ -21,6 +21,7 @@ Expects:
 Optional:
 
 - Output directory, defaults to the input directory
+- `--export_meta` dumps vromf metadata as `meta.toml` inside the extracted folder for later repacking
 
 For usage, the help output describes this best:
 
@@ -42,6 +43,16 @@ Prints versions found either inside the vromf (version file) and/or the header o
 
 ```
 {{VROMF_VERSION}}
+```
+
+## repack_vromf
+
+Packs a directory of files into a vromfs.bin archive, or round-trips an existing vromf.
+When repacking from a directory, the tool looks for `meta.toml` inside the input directory
+(produced by `unpack_vromf --export_meta`) to preserve original metadata settings.
+
+```
+{{REPACK_HELP}}
 ```
 
 # Environment variables
