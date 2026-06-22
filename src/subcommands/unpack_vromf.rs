@@ -45,7 +45,7 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 		Some("BlkCompact") => Some(BlkOutputFormat::BlkCompact),
 		Some("Raw") => None,
 		_ => {
-			panic!(
+			bail!(
 				"Unrecognized output format: {:?}",
 				args.get_one::<String>("format")
 			)

@@ -20,6 +20,19 @@ pub(crate) mod util;
 pub const COMMIT_HASH: &str = env!("GIT_HASH");
 pub const GIT_TAG: &str = env!("GIT_TAG");
 
+fn setup_panic_hook() {
+	let prev = std::panic::take_hook();
+	std::panic::set_hook(Box::new(move |panic_info| {
+		prev(panic_info);
+		eprintln!(
+			"\n{} v{} ({})",
+			env!("CARGO_PKG_NAME"),
+			crate::GIT_TAG.trim(),
+			crate::COMMIT_HASH.trim(),
+		);
+	}));
+}
+
 fn main() -> Result<()> {
 	env::set_var("RUST_BACKTRACE", "1");
 
@@ -42,6 +55,8 @@ fn main() -> Result<()> {
 			.theme(color_eyre::config::Theme::new())
 			.install()?;
 	}
+
+	setup_panic_hook();
 
 	if let Ok(capture) = env::var("CAPTURE_IMAGE_CONVERTER") {
 		let capture = capture

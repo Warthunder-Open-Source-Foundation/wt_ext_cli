@@ -1,6 +1,7 @@
 use std::{iter::once, path::PathBuf, str::FromStr};
 
 use clap::ArgMatches;
+use color_eyre::eyre::bail;
 use serde_json::{json, Map, Value};
 use wt_blk::vromf::{File, VromfUnpacker};
 
@@ -76,7 +77,7 @@ pub fn vromf_version(args: &ArgMatches) -> color_eyre::Result<()> {
 			}
 		},
 		_ => {
-			panic!("Unrecognized output format");
+			bail!("Unrecognized output format");
 		},
 	}
 

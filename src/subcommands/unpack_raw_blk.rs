@@ -62,7 +62,7 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<()> {
 			)?;
 		},
 		_ => {
-			panic!("Unrecognized format: {format}")
+			bail!("Unrecognized format: {format}")
 		},
 	}
 
@@ -132,7 +132,7 @@ pub fn write_output(
 				do_write(&output_folder)?;
 			},
 			_ => {
-				panic!("Unrecognized format: {format}")
+				bail!("Unrecognized format: {format}")
 			},
 		}
 		return Ok(());

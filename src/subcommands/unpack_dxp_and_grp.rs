@@ -32,11 +32,10 @@ pub fn unpack_dxp_and_grp(args: &ArgMatches) -> Result<()> {
 
 	let mut prepared_files = vec![];
 	fd_recurse_folder_filtered(&mut prepared_files, input_read_dir, |path| {
-		let fname = path
-			.file_name()
-			.expect("Bad OSstring file TODO: implement")
-			.to_str()
-			.unwrap();
+		let Some(name) = path.file_name() else {
+			return false;
+		};
+		let fname = name.to_str().unwrap_or("");
 		fname.ends_with(".dxp.bin") || fname.ends_with(".grp")
 	})
 	.unwrap();
@@ -65,9 +64,9 @@ pub fn unpack_dxp_and_grp(args: &ArgMatches) -> Result<()> {
 				.0
 				.as_path()
 				.file_name()
-				.expect("Has to be valid str")
+				.ok_or(CliError::MissingFileName)?
 				.to_str()
-				.expect("Has to be valid str");
+				.ok_or(CliError::InvalidPath)?;
 			let final_content = format!("folder {file_name}\n\n{parsed}");
 
 			let mut final_path = prepared_file.0.clone();
