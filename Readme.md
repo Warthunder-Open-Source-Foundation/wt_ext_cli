@@ -1,4 +1,5 @@
 # wt_ext_cli
+maintained as of: 11.09.2026
 
 > **Extract and transform BLK and VROMF archives**
 
