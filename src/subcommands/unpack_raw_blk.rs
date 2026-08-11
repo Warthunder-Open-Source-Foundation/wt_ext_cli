@@ -2,13 +2,12 @@ use std::{
 	fs,
 	fs::OpenOptions,
 	io,
-	io::{BufWriter, Read, Write},
+	io::{BufWriter, IsTerminal, Read, Write},
 	path::{Path, PathBuf},
 	str::FromStr,
 	sync::Arc,
 };
 
-use atty::Stream;
 use clap::ArgMatches;
 use color_eyre::eyre::{bail, ContextCompat, Result};
 use wt_blk::{
@@ -62,7 +61,7 @@ pub fn unpack_raw_blk(args: &ArgMatches) -> Result<()> {
 			)?;
 		},
 		_ => {
-			bail!("Unrecognized format: {format}")
+			bail!("Unrecognized format: {format}");
 		},
 	}
 
@@ -80,7 +79,7 @@ pub fn get_input(args: &ArgMatches, input_path: &mut Option<PathBuf>) -> Result<
 	}
 
 	if Some(&true) == args.get_one::<bool>("stdin") {
-		if atty::is(Stream::Stdin) {
+		if !io::stdin().is_terminal() {
 			bail!("Stdin is not connected!");
 		}
 
@@ -89,7 +88,7 @@ pub fn get_input(args: &ArgMatches, input_path: &mut Option<PathBuf>) -> Result<
 		return Ok(buf);
 	}
 
-	bail!("No input passed")
+	bail!("No input passed");
 }
 
 pub fn write_output(
@@ -132,7 +131,7 @@ pub fn write_output(
 				do_write(&output_folder)?;
 			},
 			_ => {
-				bail!("Unrecognized format: {format}")
+				bail!("Unrecognized format: {format}");
 			},
 		}
 		return Ok(());
@@ -143,5 +142,5 @@ pub fn write_output(
 		return Ok(());
 	}
 
-	bail!("No output location passed. Pass an explicit output such as a file or stdout")
+	bail!("No output location passed. Pass an explicit output such as a file or stdout");
 }

@@ -48,7 +48,7 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 			bail!(
 				"Unrecognized output format: {:?}",
 				args.get_one::<String>("format")
-			)
+			);
 		},
 	};
 
@@ -90,7 +90,9 @@ pub fn unpack_vromf(args: &ArgMatches) -> Result<()> {
 			.map(|mode| match mode.to_lowercase().trim() {
 				"standard" => Ok(ContinueMode::Standard),
 				"quiet" => Ok(ContinueMode::Quiet),
-				_ => bail!("unknown continue mode: {mode}"),
+				_ => {
+					bail!("unknown continue mode: {mode}");
+				},
 			})
 			.transpose()?
 			.unwrap_or(ContinueMode::ExitOnFirstError)
@@ -227,10 +229,10 @@ fn parse_and_write_one_vromf(
 	if let Some(meta) = file.meta() {
 		match meta.len() {
 			0 => {
-				bail!("Vromf is zero bytes long {:?}", file.path())
+				bail!("Vromf is zero bytes long {:?}", file.path());
 			},
 			len @ 0..=1000 => {
-				error!("Vromf is very small ({len} bytes) {:?}", file.path())
+				error!("Vromf is very small ({len} bytes) {:?}", file.path());
 			},
 			_ => {},
 		}

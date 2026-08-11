@@ -29,7 +29,7 @@ impl Converter {
 			"imagemagick" => Self::Imagemagick(env::var("CONVERTER_PATH").ok()),
 			"ffmpeg" => Self::FFMPEG(env::var("CONVERTER_PATH").ok()),
 			&_ => {
-				bail!("Unrecongized converter tool: {input}")
+				bail!("Unrecongized converter tool: {input}");
 			},
 		};
 		Ok(c)
@@ -110,7 +110,7 @@ impl ImageConverter {
 				let h = stderr();
 				h.lock().write_all(&output.stderr)?;
 			}
-			bail!("Converter exited with {}\nRerun with CAPTURE_IMAGE_CONVERTER=true to capture stderr", output.status)
+			bail!("Converter exited with {}\nRerun with CAPTURE_IMAGE_CONVERTER=true to capture stderr", output.status);
 		} else {
 			Ok(())
 		}

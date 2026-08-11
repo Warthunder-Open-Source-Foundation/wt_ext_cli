@@ -54,9 +54,9 @@ pub fn branch_subcommands(args: ArgMatches) -> Result<()> {
 		},
 		_ => {
 			if let Some((command, _)) = args.subcommand() {
-				bail!("Unrecognized subcommand: {:}", command)
+				bail!("Unrecognized subcommand: {:}", command);
 			} else {
-				bail!("Missing Subcommand argument")
+				bail!("Missing Subcommand argument");
 			}
 		},
 	}
