@@ -7,11 +7,11 @@ maintained as of: 11.09.2026
 
 ## Installing
 
-### Easy way (portable binary):
+### Quickstart (portable binary):
 
 - [Download from the latest stable-release](https://github.com/Warthunder-Open-Source-Foundation/wt_ext_cli/releases?q=prerelease:false)
 
-### Hard way (from source):
+### From source:
 
 #### Building the project from git
 
