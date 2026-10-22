@@ -79,7 +79,8 @@ pub fn get_input(args: &ArgMatches, input_path: &mut Option<PathBuf>) -> Result<
 	}
 
 	if Some(&true) == args.get_one::<bool>("stdin") {
-		if !io::stdin().is_terminal() {
+		// A terminal means nothing was piped in
+		if io::stdin().is_terminal() {
 			bail!("Stdin is not connected!");
 		}
 
@@ -114,7 +115,11 @@ pub fn write_output(
 		};
 
 		let do_write = |dst| {
-			let file = OpenOptions::new().write(true).create(true).open(dst)?;
+			let file = OpenOptions::new()
+				.write(true)
+				.create(true)
+				.truncate(true)
+				.open(dst)?;
 			let mut file = BufWriter::new(file);
 			file.write_all(&buf)?;
 			file.flush()?;
@@ -126,7 +131,7 @@ pub fn write_output(
 				output_folder.set_extension("json");
 				do_write(&output_folder)?;
 			},
-			"BlkText" => {
+			"BlkText" | "BlkCompact" => {
 				output_folder.set_extension("blkx");
 				do_write(&output_folder)?;
 			},
